@@ -1,13 +1,12 @@
 from flask import Flask, request, render_template
-from data import test
 
 app = Flask(__name__)
 
 app.config.from_object("settings.DevelopmentConfig")
 
 @app.route("/")
-def main():
-    return test.fuck()
+def index():
+    return render_template("index.html")
 
 @app.route("/login")
 def login_main():
@@ -26,5 +25,5 @@ def request_main():
     <form>
     """
 
-if __name__ == "__main__":
-    app.run()
+if __name__ == '__main__':
+      app.run()
