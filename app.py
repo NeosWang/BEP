@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template
+from backend import data_processor
 
 app = Flask(__name__)
 
@@ -6,7 +7,8 @@ app.config.from_object("settings.DevelopmentConfig")
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    data = data_processor.get_data()
+    return render_template("index.html", data=data)
 
 @app.route("/login")
 def login_main():
