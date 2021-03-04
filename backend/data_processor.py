@@ -1,14 +1,25 @@
 import pandas as pd
+import csv
+import json
 
-# links_colnames=['t','i','j','ci','cj']
-# links = pd.read_csv('backend/data/primaryschool.csv',sep="\t",header=None,names=links_colnames)
+path = "backend/data/"
+# path = "data/"
 
-nodes_colnames=['id','class','gender']
-nodes = pd.read_csv('backend/data/metadata_primaryschool.txt',sep="\t", header=None, names=nodes_colnames)
+links_colnames = ['t', 'i', 'j', 'ci', 'cj']
+
+nodes_colnames = ['id', 'class', 'gender']
+
 
 def get_data():
-    nodes_colnames=['id','class','gender']
-    nodes = pd.read_csv('backend/data/metadata_primaryschool.txt',sep="\t", header=None, names=nodes_colnames)  
-    
-    
-    return nodes
+    with open(path+'primaryschool.csv') as file:
+        reader = csv.DictReader(file, fieldnames=links_colnames, delimiter="\t")
+        links = json.dumps(list(reader))
+        
+    with open(path+'metadata_primaryschool.txt') as file:
+        reader = csv.DictReader(file, fieldnames=nodes_colnames, delimiter="\t")
+        nodes = json.dumps(list(reader))
+        
+    return links, nodes
+   
+   
+

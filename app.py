@@ -1,20 +1,23 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 from backend import data_processor
 
 app = Flask(__name__)
 
 app.config.from_object("settings.DevelopmentConfig")
 
+
 @app.route("/")
 def index():
-    data = data_processor.get_data()
-    return render_template("index.html", data=data)
+    links, nodes = data_processor.get_data()
+    return render_template("test.html", links=links, nodes=nodes)
+
 
 @app.route("/login")
 def login_main():
     name = request.values.get("name")
     pwd = request.values.get("pwd")
     return f"name={name}, pwd={pwd}"
+
 
 @app.route("/request")
 def request_main():
@@ -27,5 +30,6 @@ def request_main():
     <form>
     """
 
+
 if __name__ == '__main__':
-      app.run()
+    app.run()
