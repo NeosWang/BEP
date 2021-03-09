@@ -5,31 +5,193 @@
     <meta charset="utf-8">
     <title>JBP 000</title>
     <!-- STYLES -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="stylesheet" href="../static/css/main.css">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="../static/css/main.css"> -->
     <!-- /STYLES -->
     <!-- SCRIPTS -->
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <!-- /SCRIPTS -->
 
+    <style>
+        .bar {
+            fill: steelblue;
+        }
+    </style>
+
 </head>
 
 <body>
 
-    <div class="grid_container">
-        <div class="network">network plot</div>
-        <div class="side">side bar</div>
-        <div class="timeline">timeline</div>
-    </div>
+    <!-- <div class="grid_container">
+        <div class="network" id="network">network plot</div>
+        <div class="side" id="side">side bar</div>
+        <div class="timeline" id="timeline">timeline</div>
+    </div> -->
+
+
+
     <script>
-        var links = JSON.parse('{{ links | safe}}').map(u => ({t: u.t, i: u.i, j:u.j}));
+        var links = JSON.parse('{{ links | safe}}').map(u => ({ t: u.t, i: u.i, j: u.j }));
         var nodes = JSON.parse('{{ nodes | safe}}')
+        // const countByKey = (key, array) => {
+        //     var outputDict = array.reduce((outputDict, obj) => {
+        //         const value = obj[key];
+        //         outputDict[value] = (outputDict[value] || []).concat([obj.i, obj.j]);
+        //         return outputDict;
+        //     }, {});
+        //     let output = []
+        //     Object.entries(outputDict).forEach(([key, value]) => {
+        //         outputDict[key] = [...new Set(value)].length
+        //         output.push({date : key, price:outputDict[key]})
+        //     });
+        //     // return outputDict;
+        //     return output;
+        // }
+
+
+
+        function countByKey(key, array) {
+            var outputDict = array.reduce((outputDict, obj) => {
+                const value = obj[key];
+                outputDict[value] = (outputDict[value] || []).concat([obj.i, obj.j]);
+                return outputDict;
+            }, {});
+            let output = []
+            Object.entries(outputDict).forEach(([key, value]) => {
+                outputDict[key] = [...new Set(value)].length
+                output.push({ value: outputDict[key], time: key })
+            });
+            return output;
+        }
+        function getOrdinals(data) {
+            let output = []
+            data.forEach(element => {
+                output.push(element.time)
+            });
+            return output;
+        }
+        const data = countByKey('t', links)
+        const ordinals = getOrdinals(data)
+
+
+
+
+        let margin = {
+            top: 50,
+            right: 100,
+            bottom: 50,
+            left: 100
+        },
+            width = 1000 - margin.left - margin.right,
+            height = 700 - margin.top - margin.bottom - 80,
+            height2 = 40; //拖动条高度
+
+        const svg = d3.select('body')
+            .append('svg')
+            .attr('width', 960)
+            .attr('height', 700)
+
+
+        const focus = svg.append('g')  //主体
+            .attr('class', 'focus')
+            .attr('transform', `translate(${margin.left}, ${margin.top})`)
+
+        const context = svg.append('g')  //拖动条
+            .attr('class', 'context')
+            .attr('transform', `translate(${margin.left}, ${margin.top + 550})`)
+
+        // the scale
+        let x = d3.scaleLinear().range([0, width])
+        let x2 = d3.scaleLinear().range([0, width])
+        let y = d3.scaleLinear().range([height, 0])
+        let y2 = d3.scaleLinear().range([height2, 0])
+
+        let xBand = d3.scaleBand().domain(d3.range(-1, ordinals.length)).range([0, width])
+
+        let xAxis = d3.axisBottom(x).tickFormat((d, e) => ordinals[d])
+        let xAxis2 = d3.axisBottom(x2)
+        let yAxis = d3.axisLeft(y)
+        let yAxis2 = d3.axisLeft(y2)
+
+        let brush = d3.brushX()
+            .extent([[0, 0], [width, height2]])
+            .on('brush', brushed)
+
+        x.domain([-1, ordinals.length])
+        y.domain([0, d3.max(data, d => d.value)])
+        x2.domain(x.domain())
+        y2.domain([0, d3.max(data, d => d.value)])
+
+        focus.append('g')
+            .attr('clip-path', 'url(#my-clip-path)')
+            .selectAll('.bar')
+            .data(data)
+            .enter()
+            .append('rect')
+            .attr('class', 'bar')
+            .attr('x', (d, i) => {
+                return x(i) - xBand.bandwidth() * 0.9 / 2
+            })
+            .attr('y', (d, i) => {
+                return y(d.value)
+            })
+            .attr('width', xBand.bandwidth() * 0.9)
+            .attr('height', d => {
+                return height - y(d.value)
+            })
+
+        focus.append('g')
+            .attr('class', 'axis')
+            .attr('transform', `translate(0,${height})`)
+            .call(xAxis)
+
+        focus.append('g')
+            .attr('class', 'axis axis--y')
+            .call(yAxis)
+
+        let defs = focus.append('defs')
+
+        // use clipPath
+        defs.append('clipPath')
+            .attr('id', 'my-clip-path')
+            .append('rect')
+            .attr('width', width)
+            .attr('height', height)
+
+        context.selectAll('.bar')
+            .data(data)
+            .enter()
+            .append('rect')
+            .attr('class', 'bar')
+            .attr('x', (d, i) => {
+                return x2(i) - xBand.bandwidth() * 0.9 / 2
+            })
+            .attr('y', (d, i) => y2(d.value))
+            .attr('width', xBand.bandwidth() * 0.9)
+            .attr('height', d => {
+                return height2 - y2(d.value)
+            })
+
+        context.append('g')
+            .attr('class', 'axis2')
+            .attr('transform', `translate(0,${height2})`)
+            .call(xAxis)
+
+        context.append('g')
+            .attr('class', 'brush')
+            .call(brush)
+            .call(brush.move, x.range())
+
+        function brushed() {
+            var s = d3.event.selection || x2.range()
+            x.domain(s.map(x2.invert, x2))
+            focus.select('.axis').call(xAxis)
+            focus.selectAll('.bar')
+                .attr('x', (d, i) => {
+                    return x(i) - xBand.bandwidth() * 0.9 / 2
+                })
+        }
     </script>
-
-
-
-
-
 </body>
 
 </html>

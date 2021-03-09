@@ -18,7 +18,6 @@ def get_data():
     with open(path+'metadata_primaryschool.txt') as file:
         reader = csv.DictReader(file, fieldnames=nodes_colnames, delimiter="\t")
         nodes = json.dumps(list(reader))
-        
     return links, nodes
    
    
