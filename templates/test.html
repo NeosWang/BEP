@@ -12,6 +12,9 @@
     <!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
     <script src="{{ url_for('static', filename='js/echarts.min.js')}}"></script>
     <script src="{{ url_for('static', filename='js/yichen.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/dn.js')}}"></script>
+    <!-- <script src="{{ url_for('static', filename='js/graph.js')}}"></script> -->
+
     <!-- /SCRIPTS -->
 
 
@@ -29,6 +32,8 @@
 
 
     <script>
+
+
         var links = JSON.parse('{{ links | safe}}').map(u => ({ t: u.t, i: u.i, j: u.j }));
         var nodes = JSON.parse('{{ nodes | safe}}');
         const data = yc.countByKey(links,'t')
@@ -36,6 +41,11 @@
         const nrNodes = yc.getListByKey(data,'n')
         const nrLinks = yc.getListByKey(data,'l')
         
+
+        var dn = DynamicNetwork()
+        dn.addNodes(nodes)
+
+
 
         var chartDom = document.getElementById('network');
         var myChart = echarts.init(chartDom);
