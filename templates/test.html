@@ -37,15 +37,16 @@
         var links = JSON.parse('{{ links | safe}}').map(u => ({ t: u.t, i: u.i, j: u.j }));
         var nodes = JSON.parse('{{ nodes | safe}}');
         const data = yc.countByKey(links,'t')
-        const timeData = Object.keys(data)
-        const nrNodes = yc.getListByKey(data,'n')
+
         const nrLinks = yc.getListByKey(data,'l')
         
 
         var dn = DynamicNetwork()
         dn.addNodes(nodes)
+        dn.addRelationships(links)
 
-
+        const timeData = dn.getTimeline()
+        const nrNodes = dn.getListNrOfVertices()
 
         var chartDom = document.getElementById('network');
         var myChart = echarts.init(chartDom);
