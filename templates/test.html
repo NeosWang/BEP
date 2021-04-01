@@ -5,15 +5,18 @@
     <meta charset="utf-8">
     <title>JBP 000</title>
     <!-- STYLES -->
+
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nouislider.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="stylesheet" href="../static/css/main.css">
+
     <!-- /STYLES -->
     <!-- SCRIPTS -->
     <!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
     <script src="{{ url_for('static', filename='js/echarts.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/nouislider.js')}}"></script>
     <script src="{{ url_for('static', filename='js/yichen.js')}}"></script>
     <script src="{{ url_for('static', filename='js/dn.js')}}"></script>
-    <!-- <script src="{{ url_for('static', filename='js/graph.js')}}"></script> -->
 
     <!-- /SCRIPTS -->
 
@@ -23,11 +26,25 @@
 
 <body>
     <div class="grid_container">
-		<div id = "network" class="network">network plot</div>
-		<div class="side">side bar</div>
-		<div class="timeline">timeline</div>
+        <div id="network" class="network">network plot</div>
 
-	</div>
+        <div id="side" class="side">
+
+            <label for="fname">lower:</label>
+            <input type="text" id="input-lower" name="input-lower"><br><br>
+            <label for="lname">upper:</label>
+            <input type="text" id="input-upper" name="input-upper"><br><br>
+        </div>
+        <div id="range-slider-box" class="range-slider-box">
+            <div id="range-slider" class="range-slider">
+
+            </div>
+        </div>
+
+        <div id="timeline" class="timeline"></div>
+
+
+    </div>
 
 
 
@@ -36,10 +53,6 @@
 
         var links = JSON.parse('{{ links | safe}}').map(u => ({ t: u.t, i: u.i, j: u.j }));
         var nodes = JSON.parse('{{ nodes | safe}}');
-        const data = yc.countByKey(links,'t')
-
-        const nrLinks = yc.getListByKey(data,'l')
-        
 
         var dn = DynamicNetwork()
         dn.addNodes(nodes)
@@ -47,14 +60,14 @@
 
         const timeData = dn.getTimeline()
         const nrNodes = dn.getListNrOfVertices()
+        const nrLinks = dn.getListNrOfEdges()
 
-        var chartDom = document.getElementById('network');
+        var chartDom = document.getElementById('timeline');
         var myChart = echarts.init(chartDom);
         var option;
 
         option = {
             title: {
-                text: 'number of active individuals and relations(to be replace by clique)',
                 left: 'center'
             },
             tooltip: {
@@ -64,7 +77,7 @@
                 }
             },
             legend: {
-                data: ['individuals', 'relations'],
+                data: ['active nodes', 'active relations'],
                 left: 10
             },
             toolbox: {
@@ -83,89 +96,230 @@
                 {
                     show: true,
                     realtime: true,
-                    // start: 30,
-                    // end: 70,
-                    xAxisIndex: [0, 1]
-                },
-                {
                     type: 'inside',
-                    realtime: true,
                     // start: 30,
                     // end: 70,
-                    xAxisIndex: [0, 1]
-                }
-            ],
-            grid: [{
-                left: 50,
-                right: 50,
-                height: '35%'
-            }, {
-                left: 50,
-                right: 50,
-                top: '52%',
-                height: '35%'
-            }],
-            xAxis: [
-                {
-                    type: 'category',
-                    boundaryGap: false,
-                    axisLine: { onZero: true },
-                    data: timeData
-                },
-                {
-                    gridIndex: 1,
-                    type: 'category',
-                    boundaryGap: false,
-                    axisLine: { onZero: true },
-                    data: timeData,
-                    position: 'top',
-                    // axisLabel:{
-                    //     show:false
-                    // }
-                }
-            ],
-            yAxis: [
-                {
-                    name: '',
-                    type: 'value',
-                    max: yc.getMax(nrNodes)
-                },
-                {
-                    gridIndex: 1,
-                    name: '',
-                    type: 'value',
-                    max: yc.getMax(nrLinks),
-                    inverse: true
-                }
-            ],
+                }, {
+                    type: 'slider',
+                    handleSize: '80%',
+                    textStyle: {
+                        fontSize: 10
+                    },
+                    bottom: 15,
+                    height: 20
+                }],
+            grid: {
+                left: 60,
+                right: 60,
+                top: 28,
+                bottom: 55
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                axisLine: { onZero: true },
+                data: timeData
+            },
+            yAxis: {
+                name: '',
+                type: 'value',
+            },
             series: [
                 {
-                    name: 'individuals',
+                    name: 'active nodes',
                     type: 'line',
-                    symbolSize: 8,
+                    lineStyle: {
+                        width: 1
+                    },
                     hoverAnimation: false,
-                    data: nrNodes
-
+                    data: nrNodes,
+                    markLine: {
+                        symbol: 'none',
+                        data: [
+                            { type: 'max', name: 'max' }
+                        ],
+                    },
                 },
                 {
-                    name: 'relations',
+                    name: 'active relations',
                     type: 'line',
-                    xAxisIndex: 1,
-                    yAxisIndex: 1,
-                    symbolSize: 8,
+                    lineStyle: {
+                        width: 1
+                    },
                     hoverAnimation: false,
-                    data: nrLinks
+                    data: nrLinks,
+                    markLine: {
+                        symbol: 'none',
+                        data: [
+                            { type: 'max', name: 'max' }
+                        ],
+                    },
                 }
             ]
         };
 
         option && myChart.setOption(option);
 
+        window.onresize = function () { myChart.resize(); }
+
+        myChart.on('dataZoom', function () {
+            var option = myChart.getOption();
+            let startValue = option.dataZoom[0].startValue;
+            let endValue = option.dataZoom[0].endValue;
+
+            let tooltips = slider.noUiSlider.get();
+            let i;
+            for (i = 0; i < tooltips.length; i++) {
+                tooltips[i] = tooltips[i] < startValue ? startValue : tooltips[i];
+                tooltips[i] = tooltips[i] > endValue ? endValue : tooltips[i];
+            }
+
+            slider.noUiSlider.updateOptions({
+                start: tooltips,
+                range: {
+                    'min': startValue,
+                    'max': endValue
+                }
+            });
+
+        });
+
+        // <------------------ range-slider ------------------>
+
+        var slider = document.getElementById('range-slider');
+
+        noUiSlider.create(slider, {
+            start: [0, 0, timeData.length - 1, timeData.length - 1],
+            connect: true,
+            behaviour: "drag",
+            dragAllHandles:true,
+            tooltips: [{
+                to: function (value) {
+                    return timeData[Math.round(value)]
+                }
+            }, {
+                to: function (value) {
+                    return timeData[Math.round(value)]
+                }
+            }, {
+                to: function (value) {
+                    return timeData[Math.round(value)]
+                }
+            }, {
+                to: function (value) {
+                    return timeData[Math.round(value)]
+                }
+            }],
+            // tooltips: [true, true, true, true],
+            range: {
+                'min': 0,
+                'max': timeData.length - 1
+            }
+        });
 
 
+        // var inputLower = document.getElementById('input-lower');
+        // var inputUpper = document.getElementById('input-upper');
 
-        window.onresize = function(){myChart.resize();}
- 
+        // slider.noUiSlider.on('update', function (values, handle) {
+        // inputFormat.value = values[handle];
+        //     console.log(values)
+        // });
+
+        // inputLower.addEventListener('change', function () {
+        //     // slider.noUiSlider.set(this.value);
+
+        //     slider.noUiSlider.updateOptions({
+        //         range: {
+        //             'min': parseInt(this.value),
+        //         }
+        //     });
+        // });
+
+
+        // mergeTooltips(slider, 5, ' - ');
+
+        function mergeTooltips(slider, threshold, separator) {
+
+            var textIsRtl = getComputedStyle(slider).direction === 'rtl';
+            var isRtl = slider.noUiSlider.options.direction === 'rtl';
+            var isVertical = slider.noUiSlider.options.orientation === 'vertical';
+            var tooltips = slider.noUiSlider.getTooltips();
+            var origins = slider.noUiSlider.getOrigins();
+
+            // Move tooltips into the origin element. The default stylesheet handles this.
+            tooltips.forEach(function (tooltip, index) {
+                if (tooltip) {
+                    origins[index].appendChild(tooltip);
+                }
+            });
+
+            slider.noUiSlider.on('update', function (values, handle, unencoded, tap, positions) {
+
+                var pools = [[]];
+                var poolPositions = [[]];
+                var poolValues = [[]];
+                var atPool = 0;
+
+                // Assign the first tooltip to the first pool, if the tooltip is configured
+                if (tooltips[0]) {
+                    pools[0][0] = 0;
+                    poolPositions[0][0] = positions[0];
+                    poolValues[0][0] = values[0];
+                }
+
+                for (var i = 1; i < positions.length; i++) {
+                    if (!tooltips[i] || (positions[i] - positions[i - 1]) > threshold) {
+                        atPool++;
+                        pools[atPool] = [];
+                        poolValues[atPool] = [];
+                        poolPositions[atPool] = [];
+                    }
+
+                    if (tooltips[i]) {
+                        pools[atPool].push(i);
+                        poolValues[atPool].push(values[i]);
+                        poolPositions[atPool].push(positions[i]);
+                    }
+                }
+
+                pools.forEach(function (pool, poolIndex) {
+                    var handlesInPool = pool.length;
+
+                    for (var j = 0; j < handlesInPool; j++) {
+                        var handleNumber = pool[j];
+
+                        if (j === handlesInPool - 1) {
+                            var offset = 0;
+
+                            poolPositions[poolIndex].forEach(function (value) {
+                                offset += 1000 - 10 * value;
+                            });
+
+                            var direction = isVertical ? 'bottom' : 'right';
+                            var last = isRtl ? 0 : handlesInPool - 1;
+                            var lastOffset = 1000 - 10 * poolPositions[poolIndex][last];
+                            offset = (textIsRtl && !isVertical ? 100 : 0) + (offset / handlesInPool) - lastOffset;
+
+                            // Center this tooltip over the affected handles
+                            tooltips[handleNumber].innerHTML = poolValues[poolIndex].join(separator);
+                            tooltips[handleNumber].style.display = 'block';
+                            tooltips[handleNumber].style[direction] = offset + '%';
+                        } else {
+                            // Hide this tooltip
+                            tooltips[handleNumber].style.display = 'none';
+                        }
+                    }
+                });
+            });
+        }
+
+        var connect = slider.querySelectorAll('.noUi-connect');
+        var classes = ['c-1-color', 'c-2-color', 'c-3-color', 'c-4-color'];
+
+        for (var i = 0; i < connect.length; i++) {
+            connect[i].classList.add(classes[i]);
+        }
 
 
     </script>

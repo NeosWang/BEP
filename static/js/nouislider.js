@@ -12,7 +12,7 @@
 })(function() {
     "use strict";
 
-    var VERSION = "%%REPLACE_THIS_WITH_VERSION%%";
+    var VERSION = "0.1";
 
     //region Helper Methods
 
@@ -2063,6 +2063,10 @@
                     var handleBefore = scope_Handles[index - 1];
                     var handleAfter = scope_Handles[index];
                     var eventHolders = [connect];
+                    // //add new from github start
+                    var handlesToDrag = [handleBefore, handleAfter];
+                    var handleNumbersToDrag = [index - 1, index];
+                    // //add new from github end
 
                     addClass(connect, options.cssClasses.draggable);
 
@@ -2075,10 +2079,29 @@
                         eventHolders.push(handleAfter.children[0]);
                     }
 
-                    eventHolders.forEach(function(eventHolder) {
+                    // //add new from github start
+
+                    // eventHolders.forEach(function(eventHolder) {
+                    //     attachEvent(actions.start, eventHolder, eventStart, {
+                    //         handles: [handleBefore, handleAfter],
+                    //         handleNumbers: [index - 1, index]
+
+                    // Check for the option dragAllHandles to see if
+				    // must drag all handles at the same time
+                    if (originalOptions.dragAllHandles) {
+                        handlesToDrag = scope_Handles;
+                        handleNumbersToDrag = [0];
+                        while (handleNumbersToDrag.length < scope_Handles.length)
+                        {
+                            handleNumbersToDrag.push(handleNumbersToDrag.length);
+                        }
+                    }
+
+                    eventHolders.forEach(function (eventHolder) {
                         attachEvent(actions.start, eventHolder, eventStart, {
-                            handles: [handleBefore, handleAfter],
-                            handleNumbers: [index - 1, index]
+                            handles: handlesToDrag,
+                            handleNumbers: handleNumbersToDrag
+                    // //add new from github end
                         });
                     });
                 });

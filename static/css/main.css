@@ -18,20 +18,46 @@
 .network {
     border-style: solid;
     border-color: blue;
-    grid-column: 1/11;
-    grid-row: 1/11;
+    grid-row: 1/9;
+    grid-column: 1/9;
+
 }
 
 .side {
     border-style: solid;
     border-color: yellow;
-    grid-column: 11 / 13;
-    grid-row: 1/13;
+    grid-row: 1/9;
+    grid-column: 9/ 13;
+
 }
+
+.range-slider-box {
+    position: relative;
+    border-style: solid;
+    border-color: brown;
+    grid-row: 9 / 10;
+    grid-column: 1/13;
+    
+}
+
+.range-slider-box > div{
+  position: absolute;
+  bottom : 0;
+  left: 60px;
+  right: 60px;
+  height: 15px;
+
+}
+
 
 .timeline {
     border-style: solid;
     border-color: violet;
-    grid-row: 11 / 13;
-    grid-column: 1/11;
+    grid-row: 10 / 13;
+    grid-column: 1/13;
 }
+
+.c-1-color { background: limegreen; }
+.c-2-color { background: cornflowerblue; }
+.c-3-color { background: red; }
+.c-4-color { background: yellow; }

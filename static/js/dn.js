@@ -1,5 +1,10 @@
 "use strict";
+
 function DynamicNetwork(serialized) {
+
+    var VERSION = "ver 0.0.1"
+
+    var AUTHOR = "Yichen Wang"
 
     function Graph(directed) {
         this.edges = {};
@@ -18,7 +23,13 @@ function DynamicNetwork(serialized) {
             this._adjacent(u).push(v)
             if (!this.directed) { this._adjacent(v).push(u) }
         },
-        _nrOfVertices: function () { return Object.keys(this.edges).length }
+        _nrOfVertices: function () { return Object.keys(this.edges).length },
+        _nrOfEdges: function () {
+
+            let output = 0
+            Object.entries(this.edges).forEach(([k, v]) => output += v.length/(2-this.directed))
+            return output
+        }
     }
 
 
@@ -49,19 +60,28 @@ function DynamicNetwork(serialized) {
     let getTimeline = () => { return Object.keys(relationships) }
 
     let getListNrOfVertices = () => {
-        let output = []
+        let output = [];
         Object.entries(relationships).forEach(([k, v]) => output.push(v._nrOfVertices()));
+        return output
+    }
+
+    let getListNrOfEdges = () => {
+        let output = [];
+        Object.entries(relationships).forEach(([k, v]) => output.push(v._nrOfEdges()));
         return output
     }
 
 
     return {
+        version: VERSION,
+        author: AUTHOR,
         nodes: nodes,
         relationships: relationships,
         addNodes: addNodes,
         addRelationships: addRelationships,
         getTimeline: getTimeline,
-        getListNrOfVertices:getListNrOfVertices,
+        getListNrOfVertices: getListNrOfVertices,
+        getListNrOfEdges: getListNrOfEdges
     };
 }
 

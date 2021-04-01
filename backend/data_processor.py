@@ -8,11 +8,11 @@ import pandas as pd
 
 path = "backend/data/"
 
-# data_links = 'primaryschool.csv'
-data_links = 'primaryschool_sub.csv'
+data_links = 'primaryschool.csv'
+# data_links = 'primaryschool_sub.csv'
 
-# data_nodes = 'metadata_primaryschool.txt'
-data_nodes = 'metadata_primaryschool_sub.txt'
+data_nodes = 'metadata_primaryschool.txt'
+# data_nodes = 'metadata_primaryschool_sub.txt'
 
 links_colnames = ['t', 'i', 'j', 'ci', 'cj']
 

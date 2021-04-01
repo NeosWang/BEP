@@ -5,7 +5,14 @@
     <link href="css/nouislider.css" rel="stylesheet">
     <script src="js/nouislider.js"></script>
     <style>
-        #merging-tooltips{margin-top: 100px;}
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+        #merging-tooltips {
+            margin-top: 100px;
+        }
     </style>
 </head>
 
@@ -16,17 +23,15 @@
 <script>
     var mergingTooltipSlider = document.getElementById('merging-tooltips');
 
-    
     noUiSlider.create(mergingTooltipSlider, {
-        start: [20, 70, 80, 90],
+        start: [20, 32, 50, 70],
         connect: true,
-        tooltips: [true, true, true, true, true, true],
+        tooltips: [true, true, true, true],
         range: {
             'min': 0,
             'max': 100
         }
     });
-    
 
     mergeTooltips(mergingTooltipSlider, 15, ' - ');
 

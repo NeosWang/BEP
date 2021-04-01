@@ -14,6 +14,8 @@
 
     var VERSION = "ver 0.0.1"
 
+    var AUTHOR = "Yichen Wang"
+
     function sortKeyValuePair(obj,reverse=false){
         let output={}
         let keys = Object.keys(obj).sort()
@@ -29,46 +31,18 @@
         });
     }
 
-    // function countByKey(array, key) {
-    //     let outputDict = array.reduce((outputDict, obj) => {
-    //         const value = obj[key];
-    //         outputDict[value] = (outputDict[value] || []).concat([obj.i, obj.j]);
-    //         return outputDict;
-    //     }, {});
-    //     Object.entries(outputDict).forEach(([key, value]) => {
-    //         outputDict[key] = [...new Set(value)].length
-    //     });
-    //     return outputDict;
-    // }
-
-    function countByKey(array, key) {
-        let outputDict = array.reduce((outputDict, obj) => {
-            const value = obj[key];
-            outputDict[value] = (outputDict[value] || []).concat([obj.i, obj.j]);
-            return outputDict;
-        }, {});
-        Object.entries(outputDict).forEach(([key, value]) => {
-            outputDict[key] = {n:[...new Set(value)].length, l:(value.length)/2} 
-        });
-        return outputDict;
-    }
     
-    function getMax(array){
+    function max(array){
         return Math.max.apply(Math,array)
     }
 
-    function getListByKey(obj, key){
-        let output=[];
-        Object.entries(obj).forEach(([k,v]) => output.push(v[key]));
-        return output
-    }
+
 
     return {
         version: VERSION,
+        author: AUTHOR,
         sortKeyValuePair: sortKeyValuePair,
         sortByKey:sortByKey,
-        countByKey:countByKey,
-        getListByKey:getListByKey,
-        getMax:getMax
+        max:max
     };
 });
