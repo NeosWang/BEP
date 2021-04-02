@@ -17,14 +17,14 @@ function DynamicNetwork(serialized) {
         _adjacent: function (node) {
             return this.edges[node] || []
         },
-        _addEdge: function (u, v) {
+        addEdge: function (u, v) {
             this._addVertex(u);
             this._addVertex(v);
             this._adjacent(u).push(v)
             if (!this.directed) { this._adjacent(v).push(u) }
         },
-        _nrOfVertices: function () { return Object.keys(this.edges).length },
-        _nrOfEdges: function () {
+        nrOfVertices: function () { return Object.keys(this.edges).length },
+        nrOfEdges: function () {
 
             let output = 0
             Object.entries(this.edges).forEach(([k, v]) => output += v.length/(2-this.directed))
@@ -52,7 +52,7 @@ function DynamicNetwork(serialized) {
 
     let _addRelationship = (edge, directed) => {
         if (!relationships[edge.t]) { relationships[edge.t] = new Graph(directed); }
-        relationships[edge.t]._addEdge(edge.i, edge.j);
+        relationships[edge.t].addEdge(edge.i, edge.j);
     }
 
     let addRelationships = (edges, directed = false) => edges.forEach(e => _addRelationship(e, directed));
@@ -61,13 +61,13 @@ function DynamicNetwork(serialized) {
 
     let getListNrOfVertices = () => {
         let output = [];
-        Object.entries(relationships).forEach(([k, v]) => output.push(v._nrOfVertices()));
+        Object.entries(relationships).forEach(([k, v]) => output.push(v.nrOfVertices()));
         return output
     }
 
     let getListNrOfEdges = () => {
         let output = [];
-        Object.entries(relationships).forEach(([k, v]) => output.push(v._nrOfEdges()));
+        Object.entries(relationships).forEach(([k, v]) => output.push(v.nrOfEdges()));
         return output
     }
 

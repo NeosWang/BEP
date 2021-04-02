@@ -36,6 +36,18 @@
         return Math.max.apply(Math,array)
     }
 
+    function quantile(array,v){
+        v = _convertToType(array[0],v)        
+        return array.indexOf(v) * 100 / (array.length-1)
+    }
+
+    function _convertToType (t, e) {
+        return (t.constructor) (e);
+    }
+
+    function formatter(array, floatIndex){
+        return array[Math.round(floatIndex)]
+    }
 
 
     return {
@@ -43,6 +55,8 @@
         author: AUTHOR,
         sortKeyValuePair: sortKeyValuePair,
         sortByKey:sortByKey,
-        max:max
+        max:max,
+        quantile: quantile,
+        formatter:formatter
     };
 });
