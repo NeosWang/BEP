@@ -11,6 +11,13 @@ function DynamicNetwork(serialized) {
         this.directed = directed;
     }
     Graph.prototype = {
+        _pick_random: function (array) {
+            if (array.length) {
+                let e = array.pop();
+                array.push(e);
+                return e
+            }
+        },
         _addVertex: function (node) {
             this.edges[node] = this._adjacent(node)
         },
@@ -18,18 +25,46 @@ function DynamicNetwork(serialized) {
             return this.edges[node] || []
         },
         addEdge: function (u, v) {
+            u = String(u)
+            v = String(v)
             this._addVertex(u);
             this._addVertex(v);
             this._adjacent(u).push(v)
             if (!this.directed) { this._adjacent(v).push(u) }
         },
-        nrOfVertices: function () { return Object.keys(this.edges).length },
+        nrOfVertices: function () {
+            return Object.keys(this.edges).length
+        },
         nrOfEdges: function () {
-
             let output = 0
-            Object.entries(this.edges).forEach(([k, v]) => output += v.length/(2-this.directed))
+            Object.entries(this.edges).forEach(([k, v]) => output += v.length / (2 - this.directed));
             return output
+        },
+        maximalCliques: function (reporter, clique = [], candidates = Object.keys(this.edges), excluded = []) {
+            if (!candidates.length && !excluded.length) {
+                reporter.push(clique);
+                return
+            }
+            let pivot = this._pick_random(candidates) || this._pick_random(excluded);
+            (candidates.filter(x => !this.edges[pivot].includes(x))).forEach(v => {
+                let newCandidates = candidates.filter(x => this.edges[v].includes(x));
+                let newExcluded = excluded.filter(x => this.edges[v].includes(x));
+                let newClique = [...clique, v];
+                this.maximalCliques(reporter, newClique, newCandidates, newExcluded);
+                candidates = candidates.filter(x => x !== v);
+                excluded.push(v);
+            });
+        },
+        maximumClique: function () {
+            let reporter = [];
+            this.maximalCliques(reporter);
+            let output = 0
+            reporter.forEach(a => {
+                output = a.length > output ? a.length : output;
+            })
+            return output;
         }
+
     }
 
 
@@ -57,18 +92,24 @@ function DynamicNetwork(serialized) {
 
     let addRelationships = (edges, directed = false) => edges.forEach(e => _addRelationship(e, directed));
 
-    let getTimeline = () => { return Object.keys(relationships) }
+    let getTimeline = () => { return Object.keys(relationships); }
 
     let getListNrOfVertices = () => {
         let output = [];
         Object.entries(relationships).forEach(([k, v]) => output.push(v.nrOfVertices()));
-        return output
+        return output;
     }
 
     let getListNrOfEdges = () => {
         let output = [];
         Object.entries(relationships).forEach(([k, v]) => output.push(v.nrOfEdges()));
-        return output
+        return output;
+    }
+
+    let getListMaximumClique = () => {
+        let output = [];
+        Object.entries(relationships).forEach(([k, v]) => output.push(v.maximumClique()));
+        return output;
     }
 
 
@@ -81,7 +122,8 @@ function DynamicNetwork(serialized) {
         addRelationships: addRelationships,
         getTimeline: getTimeline,
         getListNrOfVertices: getListNrOfVertices,
-        getListNrOfEdges: getListNrOfEdges
+        getListNrOfEdges: getListNrOfEdges,
+        getListMaximumClique: getListMaximumClique
     };
 }
 

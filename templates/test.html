@@ -64,6 +64,7 @@
         const timeData = dn.getTimeline()
         const nrNodes = dn.getListNrOfVertices()
         const nrLinks = dn.getListNrOfEdges()
+        const maxClique = dn.getListMaximumClique()
 
         var chartDom = document.getElementById('timeline');
         var myChart = echarts.init(chartDom);
@@ -100,7 +101,7 @@
                 }
             },
             legend: {
-                data: ['active nodes', 'active relations'],
+                data: ['active nodes', 'active relations','max clique'],
                 left: 10
             },
             toolbox: {
@@ -176,7 +177,22 @@
                             { type: 'max', name: 'max' }
                         ],
                     },
-                }
+                },
+                {
+                    name: 'max clique',
+                    type: 'line',
+                    lineStyle: {
+                        width: 1
+                    },
+                    hoverAnimation: false,
+                    data: maxClique,
+                    markLine: {
+                        symbol: 'none',
+                        data: [
+                            { type: 'max', name: 'max' }
+                        ],
+                    },
+                },
             ]
         };
 
@@ -214,6 +230,32 @@
         for (var i = 0; i < connect.length; i++) {
             connect[i].classList.add(classes[i]);
         }
+
+
+
+        var relations = dn.relationships[31220]
+
+
+
+
+
+        function pick(array){
+            if(array.length){
+                elem = array.pop();
+                array.push(elem);
+                return elem
+            }
+        }
+
+
+
+
+
+
+
+
+
+
     </script>
 
 
