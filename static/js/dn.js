@@ -55,16 +55,31 @@ function DynamicNetwork(serialized) {
                 excluded.push(v);
             });
         },
-        maximumClique: function () {
-            let reporter = [];
-            this.maximalCliques(reporter);
-            let output = 0
-            reporter.forEach(a => {
-                output = a.length > output ? a.length : output;
+        intersection: function(graph){
+            let newEdges = {};
+            Object.entries(this.edges).forEach(([k,v])=>{
+                if(graph.edges[k]){
+                    let lst = v.filter(x => graph.edges[k].includes(x));
+                    if(lst.length) newEdges[k] = lst;
+                }                
+            });
+            let intersection = new Graph(this.directed);
+            intersection.edges = newEdges;
+            return intersection;
+        },
+        union: function(graph){
+            let newEdges =Object.assign({}, this.edges);
+            Object.entries(graph.edges).forEach(([k,v])=>{
+                if(newEdges[k]){
+                    newEdges[k]=[...new Set([...newEdges[k],...graph.edges[k]])];
+                }else{
+                    newEdges[k]=[...graph.edges[k]];
+                }                
             })
-            return output;
+            let union = new Graph(this.directed);
+            union.edges = newEdges;
+            return union;
         }
-
     }
 
 
@@ -108,7 +123,41 @@ function DynamicNetwork(serialized) {
 
     let getListMaximumClique = () => {
         let output = [];
-        Object.entries(relationships).forEach(([k, v]) => output.push(v.maximumClique()));
+        Object.entries(relationships).forEach(([k, v]) => {
+            let reporter = [];
+            v.maximalCliques(reporter);
+            let maximumClique = []
+            reporter.forEach(a => {
+                maximumClique = a.length > maximumClique.length ? a : maximumClique;
+            });
+            output.push(maximumClique.length)
+        });
+        return output;
+    }
+
+    let intersectionGraph = function(start, end){
+        let output = this.relationships[start];
+        if(end) {
+            let keys = Object.keys(this.relationships);
+            let currentIdx = keys.indexOf(start);
+            let endIdx = keys.indexOf(end);
+            for(var i = currentIdx +1; i<=endIdx; i++){
+                output = output.intersection(this.relationships[keys[i]]);
+            }
+        }
+        return output;
+    }
+
+    let unionGraph = function(start, end){
+        let output = this.relationships[start];
+        if(end){
+            let keys = Object.keys(this.relationships);
+            let currentIdx = keys.indexOf(start);
+            let endIdx = keys.indexOf(end);
+            for(var i = currentIdx +1; i<=endIdx; i++){
+                output = output.union(this.relationships[keys[i]]);
+            }
+        }
         return output;
     }
 
@@ -123,7 +172,9 @@ function DynamicNetwork(serialized) {
         getTimeline: getTimeline,
         getListNrOfVertices: getListNrOfVertices,
         getListNrOfEdges: getListNrOfEdges,
-        getListMaximumClique: getListMaximumClique
+        getListMaximumClique: getListMaximumClique,
+        intersectionGraph:intersectionGraph,
+        unionGraph:unionGraph
     };
 }
 

@@ -102,7 +102,7 @@
             },
             legend: {
                 data: ['active nodes', 'active relations','max clique'],
-                left: 10
+                left: 80
             },
             toolbox: {
                 feature: {
@@ -111,7 +111,8 @@
                     },
                     restore: {},
                     saveAsImage: {}
-                }
+                },
+                right:80
             },
             axisPointer: {
                 link: { xAxisIndex: 'all' }
@@ -132,8 +133,8 @@
                     height: 20
                 }],
             grid: {
-                left: 60,
-                right: 60,
+                left: 80,
+                right: 80,
                 top: 28,
                 bottom: 55
             },
@@ -201,7 +202,11 @@
         window.onresize = function () { myChart.resize(); }
 
         myChart.on('dataZoom', function () {
-            vis.dataZoomScaleSlider(slider)
+            vis.dataZoomScaleSlider(slider);
+            tooltips = slider.noUiSlider.getTooltips();
+        });
+        myChart.on('restore',function(){
+            vis.dataZoomScaleSlider(slider);
             tooltips = slider.noUiSlider.getTooltips();
         });
 
