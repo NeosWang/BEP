@@ -11,13 +11,7 @@ function DynamicNetwork(serialized) {
         this.directed = directed;
     }
     Graph.prototype = {
-        _pick_random: function (array) {
-            if (array.length) {
-                let e = array.pop();
-                array.push(e);
-                return e
-            }
-        },
+
         _addVertex: function (node) {
             this.edges[node] = this._adjacent(node)
         },
@@ -40,13 +34,14 @@ function DynamicNetwork(serialized) {
             Object.entries(this.edges).forEach(([k, v]) => output += v.length / (2 - this.directed));
             return output
         },
+        // cliques === start
         maximalCliques: function (reporter, clique = [], candidates = Object.keys(this.edges), excluded = []) {
             if (!candidates.length && !excluded.length) {
                 reporter.push(clique);
                 return
             }
             let pivot = this._pick_random(candidates) || this._pick_random(excluded);
-            (candidates.filter(x => !this.edges[pivot].includes(x))).forEach(v => {
+            (candidates.filter(x => !this.edges[pivot].includes(x))).forEach(v => {  // the nodes which adjoins pivot will not be considered into iteration
                 let newCandidates = candidates.filter(x => this.edges[v].includes(x));
                 let newExcluded = excluded.filter(x => this.edges[v].includes(x));
                 let newClique = [...clique, v];
@@ -54,33 +49,70 @@ function DynamicNetwork(serialized) {
                 candidates = candidates.filter(x => x !== v);
                 excluded.push(v);
             });
-        },
-        intersection: function(graph){
+        },        
+        _pick_random: function (array) {
+            if (array.length) {
+                let e = array.pop();
+                array.push(e);
+                return e
+            }
+        },// cliques === end
+        // merge graphs === start
+        intersection: function (graph) {
             let newEdges = {};
-            Object.entries(this.edges).forEach(([k,v])=>{
-                if(graph.edges[k]){
+            Object.entries(this.edges).forEach(([k, v]) => {
+                if (graph.edges[k]) {
                     let lst = v.filter(x => graph.edges[k].includes(x));
-                    if(lst.length) newEdges[k] = lst;
-                }                
+                    if (lst.length) newEdges[k] = lst;
+                }
             });
             let intersection = new Graph(this.directed);
             intersection.edges = newEdges;
             return intersection;
         },
-        union: function(graph){
-            let newEdges =Object.assign({}, this.edges);
-            Object.entries(graph.edges).forEach(([k,v])=>{
-                if(newEdges[k]){
-                    newEdges[k]=[...new Set([...newEdges[k],...graph.edges[k]])];
-                }else{
-                    newEdges[k]=[...graph.edges[k]];
-                }                
+        union: function (graph) {
+            let newEdges = Object.assign({}, this.edges);
+            Object.entries(graph.edges).forEach(([k, v]) => {
+                if (newEdges[k]) {
+                    newEdges[k] = [...new Set([...newEdges[k], ...graph.edges[k]])];
+                } else {
+                    newEdges[k] = [...graph.edges[k]];
+                }
             })
             let union = new Graph(this.directed);
             union.edges = newEdges;
             return union;
+        },// merge graphs === end
+        // betweennes centrality === start
+        betweennes: function(){
+            var Q=[]; //queue
+            var S=[]; //stack
+            var pred = {}; //list of predecessors on shortest paths from source
+            var dist ={};  // distance from source
+            var sigma = {} //number of shortest paths from source to key
+            var delta ={} //dependency of source on key
+            var currentNode = 0;
+            var centrality = {};
+            Object.keys(this.edges).forEach(key=>this._setCentralityToZero(centrality, key));
+            Object.keys(this.edges).forEach(key=>this._calculateCentrality(currentNode,key));
+            console.log(currentNode);
+            if(!this.directed){
+                Object.keys(centrality).forEach(key=>this._divideByTwo(centrality,key));
+            }
+            return currentNode;
+        },
+        _setCentralityToZero:function(centrality,key){centrality[key]=0;},
+        _divideByTwo: function(centrality,key){centrality[key] /=2;},
+        _calculateCentrality:function(currentNode, key){
+            // to-do Dijkstra
+            currentNode = key;
         }
+
     }
+
+
+
+
 
 
 
@@ -135,26 +167,26 @@ function DynamicNetwork(serialized) {
         return output;
     }
 
-    let intersectionGraph = function(start, end){
+    let intersectionGraph = function (start, end) {
         let output = this.relationships[start];
-        if(end) {
+        if (end) {
             let keys = Object.keys(this.relationships);
             let currentIdx = keys.indexOf(start);
             let endIdx = keys.indexOf(end);
-            for(var i = currentIdx +1; i<=endIdx; i++){
+            for (var i = currentIdx + 1; i <= endIdx; i++) {
                 output = output.intersection(this.relationships[keys[i]]);
             }
         }
         return output;
     }
 
-    let unionGraph = function(start, end){
+    let unionGraph = function (start, end) {
         let output = this.relationships[start];
-        if(end){
+        if (end) {
             let keys = Object.keys(this.relationships);
             let currentIdx = keys.indexOf(start);
             let endIdx = keys.indexOf(end);
-            for(var i = currentIdx +1; i<=endIdx; i++){
+            for (var i = currentIdx + 1; i <= endIdx; i++) {
                 output = output.union(this.relationships[keys[i]]);
             }
         }
@@ -173,8 +205,8 @@ function DynamicNetwork(serialized) {
         getListNrOfVertices: getListNrOfVertices,
         getListNrOfEdges: getListNrOfEdges,
         getListMaximumClique: getListMaximumClique,
-        intersectionGraph:intersectionGraph,
-        unionGraph:unionGraph
+        intersectionGraph: intersectionGraph,
+        unionGraph: unionGraph
     };
 }
 
