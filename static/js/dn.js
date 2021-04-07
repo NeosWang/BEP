@@ -11,7 +11,9 @@ function DynamicNetwork(serialized) {
         this.directed = directed;
     }
     Graph.prototype = {
-
+        _cloneArray: function(items) {
+            return items.map(item => Array.isArray(item) ? this._cloneArray(item) : item);
+        },
         _addVertex: function (node) {
             this.edges[node] = this._adjacent(node)
         },
@@ -49,7 +51,7 @@ function DynamicNetwork(serialized) {
                 candidates = candidates.filter(x => x !== v);
                 excluded.push(v);
             });
-        },        
+        },
         _pick_random: function (array) {
             if (array.length) {
                 let e = array.pop();
@@ -83,32 +85,75 @@ function DynamicNetwork(serialized) {
             union.edges = newEdges;
             return union;
         },// merge graphs === end
-        // betweennes centrality === start
-        betweennes: function(){
-            var Q=[]; //queue
-            var S=[]; //stack
-            var pred = {}; //list of predecessors on shortest paths from source
-            var dist ={};  // distance from source
-            var sigma = {} //number of shortest paths from source to key
-            var delta ={} //dependency of source on key
-            var currentNode = 0;
+        // node betweeness centrality === start
+        nodeBetweeness: function () {
             var centrality = {};
-            Object.keys(this.edges).forEach(key=>this._setCentralityToZero(centrality, key));
-            Object.keys(this.edges).forEach(key=>this._calculateCentrality(currentNode,key));
-            console.log(currentNode);
-            if(!this.directed){
-                Object.keys(centrality).forEach(key=>this._divideByTwo(centrality,key));
+            Object.keys(this.edges).forEach(key => this._calculateCentrality(centrality, key));
+            if (!this.directed) {
+                Object.keys(centrality).forEach(key => centrality[key] /= 2);
             }
-            return currentNode;
+            return centrality;
         },
-        _setCentralityToZero:function(centrality,key){centrality[key]=0;},
-        _divideByTwo: function(centrality,key){centrality[key] /=2;},
-        _calculateCentrality:function(currentNode, key){
-            // to-do Dijkstra
-            currentNode = key;
-        }
+        _calculateCentrality: function (centrality, key) {
+            let betweeness = 0
+            Object.keys(this.edges).forEach(u=>{
+                if(u != key){
+                    let path = this._dijkstra(u);
+                    Object.keys(path).forEach(v=>{
+                        if(v != key){ 
+                            if(path[v].length){ //there has shortest path from u to v
+                                let count =0;
+                                path[v].forEach(array=> {
+                                    if(array.includes(key)){
+                                        count++;
+                                    }
+                                });
+                                betweeness += count/path[v].length
+                            }
+                        }
+                    });
+                }
+            });
+            centrality[key]=betweeness;       
+        },
+        _dijkstra: function (source) {
+            let dist = {};
+            let path = {};
+            let Q = {};
+            Object.keys(this.edges).forEach(key => {
+                dist[key] = key==source? 0:Infinity;
+                path[key] = [[]];
+                Q[key] = dist[key];
+            });
 
+            while (Object.keys(Q).length) {
+                let u = Object.keys(Q).reduce((key, v) => Q[v] < Q[key] ? v : key);
+                if(!isFinite(dist[u])) break;
+                delete Q[u];
+                this.edges[u].forEach(v => {                    
+                    let alt = dist[u] + 1;
+                    if (alt < dist[v]) {
+                        dist[v] = alt;
+                        path[v] = this._cloneArray(path[u]);
+                        path[v].forEach(array=>array.push(u))
+                        Q[v] = alt;
+                    }else if(alt == dist[v]){
+                        let newPath = this._cloneArray(path[u]);
+                        newPath.forEach(array=>array.push(u));
+                        path[v] = path[v].concat(newPath);
+                    }
+                });
+            };
+            delete path[source];
+            return path
+        },// node betweeness centrality === end
     }
+
+
+
+
+
+
 
 
 
@@ -209,5 +254,10 @@ function DynamicNetwork(serialized) {
         unionGraph: unionGraph
     };
 }
+
+
+
+
+
 
 
