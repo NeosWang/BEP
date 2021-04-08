@@ -28,10 +28,10 @@ function DynamicNetwork(serialized) {
             this._adjacent(u).push(v)
             if (!this.directed) { this._adjacent(v).push(u) }
         },
-        nrOfVertices: function () {
+        countVertices: function () {
             return Object.keys(this.edges).length
         },
-        nrOfEdges: function () {
+        countEdges: function () {
             let output = 0
             Object.entries(this.edges).forEach(([k, v]) => output += v.length / (2 - this.directed));
             return output
@@ -80,10 +80,25 @@ function DynamicNetwork(serialized) {
                 } else {
                     newEdges[k] = [...graph.edges[k]];
                 }
-            })
+            });
             let union = new Graph(this.directed);
             union.edges = newEdges;
             return union;
+        },
+        difference: function(graph){
+            let newEdges = Object.assign({}, this.edges);
+            Object.entries(graph.edges).forEach(([k,v])=>{
+                if(newEdges[k]){
+                    v.forEach(n=>{
+                        if(newEdges[k].includes(n)){
+                            newEdges[k] = newEdges[k].filter(e=> e!==n)
+                        }
+                    });
+                }
+            });
+            let difference = new Graph(this.directed);
+            difference.edges = newEdges;
+            return difference;
         },// merge graphs === end
         // node betweeness centrality === start
         nodeBetweeness: function () {
@@ -188,13 +203,13 @@ function DynamicNetwork(serialized) {
 
     let getListNrOfVertices = () => {
         let output = [];
-        Object.entries(relationships).forEach(([k, v]) => output.push(v.nrOfVertices()));
+        Object.entries(relationships).forEach(([k, v]) => output.push(v.countVertices()));
         return output;
     }
 
     let getListNrOfEdges = () => {
         let output = [];
-        Object.entries(relationships).forEach(([k, v]) => output.push(v.nrOfEdges()));
+        Object.entries(relationships).forEach(([k, v]) => output.push(v.countEdges()));
         return output;
     }
 

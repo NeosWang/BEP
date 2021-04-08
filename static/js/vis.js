@@ -42,8 +42,7 @@
                 to: function (value) {
                     return data[Math.round(value)]
                 }
-            }
-        ],
+            }],
             range: {
                 'min': 0,
                 'max': data.length - 1
