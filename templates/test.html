@@ -61,10 +61,12 @@
         dn.addNodes(nodes)
         dn.addRelationships(links)
 
-        const timeData = dn.getTimeline()
-        const nrNodes = dn.getListNrOfVertices()
-        const nrLinks = dn.getListNrOfEdges()
-        const maxClique = dn.getListMaximumClique()
+        const timeData = dn.getTimeline();
+        const nrNodes = dn.getListNrOfVertices();
+        const nrLinks = dn.getListNrOfEdges();
+        const activeDensity = dn.getListActiveDensity();
+        const disconnected = dn.getListNrOfdisconnected();
+        const maxClique = dn.getListMaximumClique();
 
         var chartDom = document.getElementById('timeline');
         var myChart = echarts.init(chartDom);
@@ -101,7 +103,7 @@
                 }
             },
             legend: {
-                data: ['active nodes', 'active relations','max clique'],
+                data: ['active nodes', 'active relations','active density','max clique','disconnected groups'],
                 left: 80
             },
             toolbox: {
@@ -153,7 +155,7 @@
                     name: 'active nodes',
                     type: 'line',
                     lineStyle: {
-                        width: 1
+                        width: .8
                     },
                     hoverAnimation: false,
                     data: nrNodes,
@@ -168,7 +170,7 @@
                     name: 'active relations',
                     type: 'line',
                     lineStyle: {
-                        width: 1
+                        width: .8
                     },
                     hoverAnimation: false,
                     data: nrLinks,
@@ -180,13 +182,43 @@
                     },
                 },
                 {
+                    name: 'active density',
+                    type: 'line',
+                    lineStyle: {
+                        width: .8
+                    },
+                    hoverAnimation: false,
+                    data: activeDensity,
+                    markLine: {
+                        symbol: 'none',
+                        data: [
+                            { type: 'max', name: 'max' }
+                        ],
+                    },  
+                },
+                {
                     name: 'max clique',
                     type: 'line',
                     lineStyle: {
-                        width: 1
+                        width: .8
                     },
                     hoverAnimation: false,
                     data: maxClique,
+                    markLine: {
+                        symbol: 'none',
+                        data: [
+                            { type: 'max', name: 'max' }
+                        ],
+                    },
+                },
+                {
+                    name: 'disconnected groups',
+                    type: 'line',
+                    lineStyle: {
+                        width: .8
+                    },
+                    hoverAnimation: false,
+                    data: disconnected,
                     markLine: {
                         symbol: 'none',
                         data: [

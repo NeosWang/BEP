@@ -11,7 +11,7 @@ function DynamicNetwork(serialized) {
         this.directed = directed;
     }
     Graph.prototype = {
-        _cloneArray: function(items) {
+        _cloneArray: function (items) {
             return items.map(item => Array.isArray(item) ? this._cloneArray(item) : item);
         },
         _addVertex: function (node) {
@@ -28,16 +28,19 @@ function DynamicNetwork(serialized) {
             this._adjacent(u).push(v)
             if (!this.directed) { this._adjacent(v).push(u) }
         },
+        nodes: function () {
+            return Object.keys(this.edges);
+        },
         countVertices: function () {
-            return Object.keys(this.edges).length
+            return this.nodes().length;
         },
         countEdges: function () {
             let output = 0
             Object.entries(this.edges).forEach(([k, v]) => output += v.length / (2 - this.directed));
             return output
         },
-        // cliques === start
-        maximalCliques: function (reporter, clique = [], candidates = Object.keys(this.edges), excluded = []) {
+        // cliques ====== start
+        maximalCliques: function (reporter, clique = [], candidates = this.nodes(), excluded = []) {
             if (!candidates.length && !excluded.length) {
                 reporter.push(clique);
                 return
@@ -58,8 +61,8 @@ function DynamicNetwork(serialized) {
                 array.push(e);
                 return e
             }
-        },// cliques === end
-        // merge graphs === start
+        },// cliques ====== end
+        // merge graphs ====== start
         intersection: function (graph) {
             let newEdges = {};
             Object.entries(this.edges).forEach(([k, v]) => {
@@ -85,13 +88,13 @@ function DynamicNetwork(serialized) {
             union.edges = newEdges;
             return union;
         },
-        difference: function(graph){
+        difference: function (graph) {
             let newEdges = Object.assign({}, this.edges);
-            Object.entries(graph.edges).forEach(([k,v])=>{
-                if(newEdges[k]){
-                    v.forEach(n=>{
-                        if(newEdges[k].includes(n)){
-                            newEdges[k] = newEdges[k].filter(e=> e!==n)
+            Object.entries(graph.edges).forEach(([k, v]) => {
+                if (newEdges[k]) {
+                    v.forEach(n => {
+                        if (newEdges[k].includes(n)) {
+                            newEdges[k] = newEdges[k].filter(e => e !== n)
                         }
                     });
                 }
@@ -99,69 +102,160 @@ function DynamicNetwork(serialized) {
             let difference = new Graph(this.directed);
             difference.edges = newEdges;
             return difference;
-        },// merge graphs === end
-        // node betweeness centrality === start
-        nodeBetweeness: function () {
-            var centrality = {};
-            Object.keys(this.edges).forEach(key => this._calculateCentrality(centrality, key));
+        },// merge graphs ====== end
+        // node betweenness centrality ====== start
+        /*
+        calculate node betweenness of all nodes in graph
+        return {int node_id : int unnormalized betweenness}
+        */
+        nodeBetweenness: function () {
+            var nodeBetweenness = {};
+            this.nodes().forEach(v => nodeBetweenness[v] = 0);
+            this.nodes().forEach(source => this._calculateNodeBetweenness(source, nodeBetweenness));
             if (!this.directed) {
-                Object.keys(centrality).forEach(key => centrality[key] /= 2);
+                Object.keys(nodeBetweenness).forEach(key => nodeBetweenness[key] /= 2);
             }
-            return centrality;
+            return nodeBetweenness;
         },
-        _calculateCentrality: function (centrality, key) {
-            let betweeness = 0
-            Object.keys(this.edges).forEach(u=>{
-                if(u != key){
-                    let path = this._dijkstra(u);
-                    Object.keys(path).forEach(v=>{
-                        if(v != key){ 
-                            if(path[v].length){ //there has shortest path from u to v
-                                let count =0;
-                                path[v].forEach(array=> {
-                                    if(array.includes(key)){
-                                        count++;
-                                    }
-                                });
-                                betweeness += count/path[v].length
-                            }
+        _calculateNodeBetweenness: function (source, betweenness) {
+            let shortestPaths = this._dijkstra(source);
+            Object.entries(shortestPaths).forEach(([dist, paths]) => {
+                let freq = {};
+                paths.flat().forEach(e => {
+                    if (e != source) {
+                        if (freq[e]) {
+                            freq[e]++;
+                        } else {
+                            freq[e] = 1;
                         }
-                    });
-                }
+                    }
+                });
+                Object.entries(freq).forEach(([k, v]) => {
+                    betweenness[k] += v / paths.length;
+                })
             });
-            centrality[key]=betweeness;       
         },
+        /*
+        shortest paths from source to all nodes
+        return {int distination : [[int]]}   if [[]] then no path from source to distination
+        */
         _dijkstra: function (source) {
             let dist = {};
             let path = {};
             let Q = {};
-            Object.keys(this.edges).forEach(key => {
-                dist[key] = key==source? 0:Infinity;
+            this.nodes().forEach(key => {
+                dist[key] = key == source ? 0 : Infinity;
                 path[key] = [[]];
                 Q[key] = dist[key];
             });
-
             while (Object.keys(Q).length) {
                 let u = Object.keys(Q).reduce((key, v) => Q[v] < Q[key] ? v : key);
-                if(!isFinite(dist[u])) break;
+                if (!isFinite(dist[u])) break;
                 delete Q[u];
-                this.edges[u].forEach(v => {                    
+                this.edges[u].forEach(v => {
                     let alt = dist[u] + 1;
                     if (alt < dist[v]) {
                         dist[v] = alt;
                         path[v] = this._cloneArray(path[u]);
-                        path[v].forEach(array=>array.push(u))
+                        path[v].forEach(array => array.push(u))
                         Q[v] = alt;
-                    }else if(alt == dist[v]){
+                    } else if (alt == dist[v]) {
                         let newPath = this._cloneArray(path[u]);
-                        newPath.forEach(array=>array.push(u));
+                        newPath.forEach(array => array.push(u));
                         path[v] = path[v].concat(newPath);
                     }
                 });
             };
             delete path[source];
             return path
-        },// node betweeness centrality === end
+        },// node betweenness centrality ====== end
+        // edge betweenness centrality ====== start
+        /*
+        calculate edge betweenness of all nodes in graph
+        return {int vertex_id : {int vertex_id : float unnormalized betweenness}}
+        */
+        edgeBetweenness: function () {
+            var edgeBetweenness = {};
+            Object.entries(this.edges).forEach(([u, value]) => {
+                edgeBetweenness[u] = {};
+                value.forEach(v => {
+                    edgeBetweenness[u][v] = 0;
+                });
+            });
+            this.nodes().forEach(source => this._calculateEdgeBetweenness(source, edgeBetweenness));
+            if (!this.directed) {
+                Object.keys(edgeBetweenness).forEach(key => Object.keys(edgeBetweenness[key]).forEach(k => edgeBetweenness[key][k] /= 2));
+            }
+            return edgeBetweenness;
+        },
+        _calculateEdgeBetweenness: function (source, betweenness) {
+            let shortestPaths = this._dijkstra(source);
+            let verticesDepth = {} //{int level : [vertices]}
+            Object.entries(shortestPaths).forEach(([dist, paths]) => { //indicate the level vertices in a shortest paths graph which rooted by u
+                let depth = paths[0].length;
+                if (depth) {
+                    if (depth in verticesDepth) {
+                        verticesDepth[depth].push(dist);
+                    } else {
+                        verticesDepth[depth] = [dist]
+                    }
+                }
+            });
+            let flow = {};
+            Object.keys(verticesDepth).sort().reverse().forEach(lvl => {
+                verticesDepth[lvl].forEach(v => { //for every vertices in current level
+                    if (flow[v]) { //if vertex has in-flow from deep level
+                        flow[v]++;
+                    } else {
+                        flow[v] = 1;
+                    }
+                    let prevs = {};
+                    shortestPaths[v].forEach(array => {
+                        let p = array[lvl - 1];
+                        let pct = (p == source ? 1 : shortestPaths[p].length) / shortestPaths[v].length;
+                        prevs[p] = pct.toFixed(2);
+                    });
+                    Object.entries(prevs).forEach(([p, pct]) => {
+                        let f = pct * flow[v];
+                        betweenness[v][p] += f;
+                        betweenness[p][v] += f;
+                        if (flow[p]) {
+                            flow[p] += f;
+                        } else {
+                            flow[p] = f;
+                        }
+
+                    });
+                });
+            });
+        },// edge betweenness centrality ====== end
+        activeDensity: function () {
+            let R = this.countEdges();
+            let N = this.countVertices();
+            return (2 * R / (N * (N - 1))).toFixed(5);
+        },
+        _disconnectedSubgraphs: function () {
+            let output = []
+            Object.entries(this.edges).forEach(([k, v]) => {
+                let lst = [...v]
+                lst.push(String(k))
+                output.push(new Set(lst));
+            });
+            for (let i = output.length - 1; i > 0; i--) {
+                for (let j = i - 1; j >= 0; j--) {
+                    let union = new Set([...output[i], ...output[j]])
+                    if (union.size < output[i].size + output[j].size) {
+                        output.splice(i, 1);
+                        output[j] = union;
+                        break;
+                    }
+                }
+            }
+            return output;
+        },
+        disconnected: function () {
+            return this._disconnectedSubgraphs().length;
+        }
     }
 
 
@@ -227,6 +321,18 @@ function DynamicNetwork(serialized) {
         return output;
     }
 
+    let getListActiveDensity = () => {
+        let output = [];
+        Object.entries(relationships).forEach(([k, v]) => output.push(v.activeDensity()));
+        return output;
+    }
+
+    let getListNrOfdisconnected = () => {
+        let output = [];
+        Object.entries(relationships).forEach(([k, v]) => output.push(v.disconnected()));
+        return output
+    }
+
     let intersectionGraph = function (start, end) {
         let output = this.relationships[start];
         if (end) {
@@ -265,8 +371,10 @@ function DynamicNetwork(serialized) {
         getListNrOfVertices: getListNrOfVertices,
         getListNrOfEdges: getListNrOfEdges,
         getListMaximumClique: getListMaximumClique,
+        getListActiveDensity: getListActiveDensity,
+        getListNrOfdisconnected: getListNrOfdisconnected,
         intersectionGraph: intersectionGraph,
-        unionGraph: unionGraph
+        unionGraph: unionGraph,
     };
 }
 
