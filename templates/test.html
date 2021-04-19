@@ -12,7 +12,6 @@
 
     <!-- /STYLES -->
     <!-- SCRIPTS -->
-    <!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
     <script src="{{ url_for('static', filename='js/echarts.min.js')}}"></script>
     <script src="{{ url_for('static', filename='js/nouislider.js')}}"></script>
     <script src="{{ url_for('static', filename='js/vis.js')}}"></script>
@@ -27,7 +26,7 @@
 
 <body>
     <div class="grid_container">
-        <div id="network" class="network">network plot</div>
+        <div id="network" class="network"></div>
 
         <div id="side" class="side">
 
@@ -37,12 +36,20 @@
             <input type="text" id="input-upper" name="input-upper"><br><br>
             <br><br><br><br><br><br>
             <label for="lname">idx:</label>
-            <input type="text" id="input-idx" name="input-idx">
+            <input type="text" id="input-idx" name="input-idx"><br><br>
+
+            <input type="radio" id="union" name="merge" onclick="unionRadio(this)" value="1" checked />
+            <label for="union">union</label><br>
+            <input type="radio" id="intersection" name="merge" onclick="unionRadio(this)" value="0">
+            <label for="intersection">intersection</label><br>
+
+            <br><br>
+            <input type="checkbox" id="twoHandles" value="2"> 2 handles
+
+
         </div>
         <div id="range-slider-box" class="range-slider-box">
-            <div id="range-slider" class="range-slider">
-
-            </div>
+            <div id="range-slider" class="range-slider"></div>
         </div>
 
         <div id="timeline" class="timeline"></div>
@@ -52,6 +59,23 @@
 
 
     <script>
+
+
+
+        var union=true;
+        function unionRadio(radioBtn){
+            union = parseInt(radioBtn.value);
+        }
+
+        document.getElementById('twoHandles').onclick = function() {
+            if ( this.checked ) {
+                slider.updateHandles(2,line.dataZoomBoundary());
+                
+            } else {
+                slider.updateHandles(1,line.dataZoomBoundary());
+            }
+            slider.bindNetwork(network);
+        };
 
 
         var links = JSON.parse('{{ links | safe}}').map(u => ({ t: u.t, i: u.i, j: u.j }));
@@ -68,15 +92,12 @@
         const disconnected = dn.getListNrOfdisconnected();
         const maxClique = dn.getListMaximumClique();
 
-        var chartDom = document.getElementById('timeline');
-        var myChart = echarts.init(chartDom);
-        var option;
 
-
-
-
-
-
+        var line = new vis.LineSummary('timeline')
+        var network = new vis.Network('network')
+        // setInterval(function(){
+        //     network.increase()
+        // },2000);
 
 
         // start and end are percentage
@@ -87,208 +108,42 @@
             option.dataZoom[0].end = end_q;
             myChart.setOption(option);
             vis.dataZoomScaleSlider(slider)
-            var tooltips = slider.noUiSlider.getTooltips();
         }
 
 
 
-        option = {
-            title: {
-                left: 'center'
-            },
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    animation: false
-                }
-            },
-            legend: {
-                data: ['active nodes', 'active relations','active density','max clique','disconnected groups'],
-                left: 80
-            },
-            toolbox: {
-                feature: {
-                    dataZoom: {
-                        yAxisIndex: 'none'
-                    },
-                    restore: {},
-                    saveAsImage: {}
-                },
-                right:80
-            },
-            axisPointer: {
-                link: { xAxisIndex: 'all' }
-            },
-            dataZoom: [
-                {
-                    type: 'inside',
-                    show: true,
-                    realtime: true,
-                },
-                {
-                    type: 'slider',
-                    handleSize: '80%',
-                    textStyle: {
-                        fontSize: 10
-                    },
-                    bottom: 15,
-                    height: 20
-                }],
-            grid: {
-                left: 80,
-                right: 80,
-                top: 28,
-                bottom: 55
-            },
-            xAxis: {
-                type: 'category',
-                boundaryGap: false,
-                axisLine: { onZero: true },
-                data: timeData
-            },
-            yAxis: {
-                name: '',
-                type: 'value',
-            },
-            series: [
-                {
-                    name: 'active nodes',
-                    type: 'line',
-                    lineStyle: {
-                        width: .8
-                    },
-                    hoverAnimation: false,
-                    data: nrNodes,
-                    markLine: {
-                        symbol: 'none',
-                        data: [
-                            { type: 'max', name: 'max' }
-                        ],
-                    },
-                },
-                {
-                    name: 'active relations',
-                    type: 'line',
-                    lineStyle: {
-                        width: .8
-                    },
-                    hoverAnimation: false,
-                    data: nrLinks,
-                    markLine: {
-                        symbol: 'none',
-                        data: [
-                            { type: 'max', name: 'max' }
-                        ],
-                    },
-                },
-                {
-                    name: 'active density',
-                    type: 'line',
-                    lineStyle: {
-                        width: .8
-                    },
-                    hoverAnimation: false,
-                    data: activeDensity,
-                    markLine: {
-                        symbol: 'none',
-                        data: [
-                            { type: 'max', name: 'max' }
-                        ],
-                    },  
-                },
-                {
-                    name: 'max clique',
-                    type: 'line',
-                    lineStyle: {
-                        width: .8
-                    },
-                    hoverAnimation: false,
-                    data: maxClique,
-                    markLine: {
-                        symbol: 'none',
-                        data: [
-                            { type: 'max', name: 'max' }
-                        ],
-                    },
-                },
-                {
-                    name: 'disconnected groups',
-                    type: 'line',
-                    lineStyle: {
-                        width: .8
-                    },
-                    hoverAnimation: false,
-                    data: disconnected,
-                    markLine: {
-                        symbol: 'none',
-                        data: [
-                            { type: 'max', name: 'max' }
-                        ],
-                    },
-                },
-            ]
-        };
 
-        option && myChart.setOption(option);
+        var slider = new vis.Slider('range-slider', line.dataZoomBoundary(),1)
 
-        window.onresize = function () { myChart.resize(); }
+        line.triggerSlider(slider);
+        slider.bindNetwork(network);
 
-        myChart.on('dataZoom', function () {
-            vis.dataZoomScaleSlider(slider);
-            tooltips = slider.noUiSlider.getTooltips();
-        });
-        myChart.on('restore',function(){
-            vis.dataZoomScaleSlider(slider);
-            tooltips = slider.noUiSlider.getTooltips();
-        });
+        // var inputLower = document.getElementById('input-lower');
+        // var inputUpper = document.getElementById('input-upper');
 
-        // <------------------ range-slider ------------------>
-
-        var slider = vis.slider('range-slider', timeData)
-
-        var inputLower = document.getElementById('input-lower');
-        var inputUpper = document.getElementById('input-upper');
-
-        var inputs = [inputLower, inputUpper]
+        // var inputs = [inputLower, inputUpper]
 
         // vis.bindSliderInputs(slider, inputs)
 
 
-        var tooltips = slider.noUiSlider.getTooltips();
-
-        vis.mergeTooltips(slider, 5, ' - ');
-
-       
+        // var tooltips = slider.noUiSlider.getTooltips();
 
 
-        var connect = slider.querySelectorAll('.noUi-connect');
-        var classes = ['c-1-color', 'c-2-color', 'c-3-color', 'c-4-color'];
 
-        for (var i = 0; i < connect.length; i++) {
-            connect[i].classList.add(classes[i]);
+
+
+        // var connect = slider.querySelectorAll('.noUi-connect');
+        // var classes = ['c-1-color', 'c-2-color', 'c-3-color', 'c-4-color'];
+
+        // for (var i = 0; i < connect.length; i++) {
+        //     connect[i].classList.add(classes[i]);
+        // }
+
+
+        window.onresize = function () {
+            line.resize();
+            network.resize();
         }
-
-
-
-        var relations = dn.relationships[31220]
-
-
-
-
-
-        function pick(array){
-            if(array.length){
-                elem = array.pop();
-                array.push(elem);
-                return elem
-            }
-        }
-
-
-
-
-
-
 
 
 

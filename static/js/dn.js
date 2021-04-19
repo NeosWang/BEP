@@ -255,6 +255,31 @@ function DynamicNetwork(serialized) {
         },
         disconnected: function () {
             return this._disconnectedSubgraphs().length;
+        },
+
+        // serialize ====== start
+        serializeEdges: function(){
+            let output=[];
+            Object.entries(this.edges).forEach(([k,v])=>{
+                v.forEach(e=>{
+                    if(this.directed){
+                        output.push({
+                            source:k,
+                            target:e,
+                            lineStyle:{width:3}
+                        })
+                    }else{
+                        if(k<e){
+                            output.push({
+                                source:k,
+                                target:e,
+                                lineStyle:{width:2}
+                            })
+                        }
+                    }
+                })
+            });
+            return output;
         }
     }
 
@@ -276,15 +301,26 @@ function DynamicNetwork(serialized) {
 
     var nodes = {}
     var relationships = {}
+    var features = {}
 
     let _addNode = (node) => {
         nodes[node.id] = Object.keys(node).reduce((object, key) => {
-            if (key != 'id') { object[key] = node[key] }
+            if (key != 'id') { 
+                object[key] = node[key];
+                features[key] = features[key] || [];
+                features[key].push(node[key]);
+            }
             return object
         }, {});
     }
 
-    let addNodes = (nodes) => nodes.forEach(e => _addNode(e));
+    let addNodes = (nodes) => {
+        nodes.forEach(e =>_addNode(e));
+        Object.entries(features).forEach(([k,v])=>{
+            features[k]=Array.from( new Set(v)).sort();
+
+        });
+    }
 
     let _addRelationship = (edge, directed) => {
         if (!relationships[edge.t]) { relationships[edge.t] = new Graph(directed); }
@@ -292,6 +328,10 @@ function DynamicNetwork(serialized) {
     }
 
     let addRelationships = (edges, directed = false) => edges.forEach(e => _addRelationship(e, directed));
+
+    let getGraph = (time)=>{
+        return relationships[time];
+    }
 
     let getTimeline = () => { return Object.keys(relationships); }
 
@@ -359,15 +399,37 @@ function DynamicNetwork(serialized) {
         return output;
     }
 
+    let serialize = function(g, all, cate, color=null){
+        let output={};
+        Object.entries(features).forEach(([k,v])=>{
+            output[k]=[];
+            v.forEach(e=> output[k].push({name:e}));
+        });
+        output.edges = g.serializeEdges();
+        output.nodes = []
+        Object.entries(nodes).forEach(([k,v])=>{
+            if(!all && !g.nodes().includes(String(k))){       
+            }else{
+                let obj = {};
+                obj.id = k;
+                obj.category = features[cate].indexOf(v[cate]);
+                obj.name = `id:${k}\nclass:${v.class}\ngender:${v.gender}`;
+                output.nodes.push(obj);
+            }  
+        });
+        return output;
+    }
 
     return {
         version: VERSION,
         author: AUTHOR,
         nodes: nodes,
         relationships: relationships,
+        features: features,
         addNodes: addNodes,
         addRelationships: addRelationships,
         getTimeline: getTimeline,
+        getGraph:getGraph,
         getListNrOfVertices: getListNrOfVertices,
         getListNrOfEdges: getListNrOfEdges,
         getListMaximumClique: getListMaximumClique,
@@ -375,6 +437,7 @@ function DynamicNetwork(serialized) {
         getListNrOfdisconnected: getListNrOfdisconnected,
         intersectionGraph: intersectionGraph,
         unionGraph: unionGraph,
+        serialize: serialize
     };
 }
 

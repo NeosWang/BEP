@@ -1,10 +1,14 @@
-from flask import Flask, request, render_template, jsonify
+import os 
+from flask import Flask, request, render_template, jsonify, send_from_directory 
 from backend import data_processor
 
 app = Flask(__name__)
 
 app.config.from_object("settings.DevelopmentConfig")
 
+@app.route('/favicon.ico') 
+def favicon(): 
+    return send_from_directory(os.path.join(app.root_path, 'static/img'), 'jads.png', mimetype='image/vnd.microsoft.icon')
 
 @app.route("/")
 def index():
