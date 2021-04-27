@@ -398,7 +398,15 @@ function DynamicNetwork(serialized) {
         }
         return output;
     }
-
+    /*
+    serialize Graph to json array for plot
+    param {
+        g: Graph,
+        all: bool // whether to show all nodes
+        cate: str // the feature to be categorized
+    }
+    return {int node_id : int unnormalized betweenness}
+    */
     let serialize = function(g, all, cate, color=null){
         let output={};
         Object.entries(features).forEach(([k,v])=>{

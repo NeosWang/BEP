@@ -16,7 +16,7 @@
 
     var AUTHOR = "Yichen Wang"
 
-    function Slider(id, boundary,  handles = 1) {
+    function Slider(id, boundary, handles = 1) {
         this.id = id;
         this.boundary = boundary;
         this.handles = handles;
@@ -51,7 +51,8 @@
             this.slider.noUiSlider.destroy();
             this.handles = handles;
             this.slider = this.initSlider();
-            this.mergeTooltips()
+            this.mergeTooltips();
+            this._paintRange();
         },
         toolTips: function () {
             return this.slider.noUiSlider.getTooltips();
@@ -108,22 +109,29 @@
         },
         bindNetwork: function (network) {
             this.slider.noUiSlider.on('update', function (values, handle) {
+                // let cate = 'gender';
                 let g;
-                if (values.length==1){
+                if (values.length == 1) {
                     let time = timeData[parseInt(values[handle])]
-                    g = dn.getGraph(time)
-                }else{
+                    theGraph = dn.getGraph(time)
+                } else {
                     let start = timeData[parseInt(values[0])]
                     let end = timeData[parseInt(values[1])]
-                    if(union){
-                        g = dn.unionGraph(start,end);
-                    }else{
-                        g = dn.intersectionGraph(start,end)
+                    if (union) {
+                        theGraph = dn.unionGraph(start, end);
+                    } else {
+                        theGraph = dn.intersectionGraph(start, end)
                     }
                 }
-                let data = dn.serialize(g, false, 'class')
-                network.update(data);            
+                network.update(dn.serialize(theGraph, false, cate), cate);
             });
+        },
+        _paintRange: function (){
+            let connect = this.slider.querySelectorAll('.noUi-connect');
+            let classes = ['c-1-color', 'c-2-color', 'c-3-color'];
+            for (var i = 0; i < connect.length; i++) {
+                connect[i].classList.add(classes[i]);
+            }
         }
     }
 
@@ -161,6 +169,7 @@
                     type: 'inside',
                     show: true,
                     realtime: true,
+                    rangeMode:['value','value']
                 },
                 {
                     type: 'slider',
@@ -268,16 +277,16 @@
         option && this.myChart.setOption(option);
     }
     LineSummary.prototype = {
-        triggerSlider: function (slider) {
-            let fn=[
+        triggerRangeSlider: function (slider, zoomFrom, zoomTo) {
+            let fn = [
                 this._dataZoomScaleSlider
             ]
             this.myChart.on('dataZoom', function () {
-                fn[0](this, slider)
+                fn[0](this, slider, zoomFrom, zoomTo)
 
             });
             this.myChart.on('restore', function () {
-                fn[0](this, slider)
+                fn[0](this, slider, zoomFrom, zoomTo)
             });
 
         },
@@ -288,13 +297,20 @@
                 end: option.dataZoom[0].endValue
             }
         },
-        _dataZoomScaleSlider: function (echart, slider) {
+        _dataZoomScaleSlider: function (echart, slider,zoomFrom, zoomTo) {
             let option = echart.getOption();
+            let start = option.dataZoom[0].startValue;
+            let end = option.dataZoom[0].endValue
             let boundary = {
-                start: option.dataZoom[0].startValue,
-                end: option.dataZoom[0].endValue
+                start: start,//index of timeData
+                end: end
             }
             slider.setRange(boundary);
+            zoomFrom.selectedIndex=start;
+            zoomTo.selectedIndex = end;
+        },
+        update: function(data){
+            this.myChart.setOption(data);
         },
         resize: function () {
             this.myChart.resize();
@@ -329,18 +345,17 @@
         option && this.myChart.setOption(option);
     }
     Network.prototype = {
-        update: function (data) {
+        update: function (data, cate) {
             this.myChart.setOption({
                 legend: [{
-                    // selectedMode: 'single',
-                    data: data.class.map(function (a) {
+                    data: data[cate].map(function (a) {
                         return a.name;
                     })
                 }],
                 series: [{
                     data: data.nodes,
                     links: data.edges,
-                    categories: data.class
+                    categories: data[cate]
                 }]
             });
         },
@@ -361,7 +376,7 @@
                 slider.noUiSlider.set(value);
             });
         });
-        slider.noUiSlider.on('update', function (values, handle) {
+        slider.slider.noUiSlider.on('update', function (values, handle) {
             inputs[handle].value = parseInt(values[handle]);
         });
     }

@@ -29,11 +29,10 @@
         <div id="network" class="network"></div>
 
         <div id="side" class="side">
-
-            <label for="fname">lower:</label>
+            <!-- <label for="fname">lower:</label>
             <input type="text" id="input-lower" name="input-lower"><br><br>
             <label for="lname">upper:</label>
-            <input type="text" id="input-upper" name="input-upper"><br><br>
+            <input type="text" id="input-upper" name="input-upper"><br><br> -->
             <br><br><br><br><br><br>
             <label for="lname">idx:</label>
             <input type="text" id="input-idx" name="input-idx"><br><br>
@@ -42,17 +41,65 @@
             <label for="union">union</label><br>
             <input type="radio" id="intersection" name="merge" onclick="unionRadio(this)" value="0">
             <label for="intersection">intersection</label><br>
-
             <br><br>
-            <input type="checkbox" id="twoHandles" value="2"> 2 handles
-
-
+            <select id="featureSelector" onchange="featureSelect(this)">
+                <option value="class" selected>class</option>
+                <option value="gender">gender</option>
+            </select>
         </div>
+
         <div id="range-slider-box" class="range-slider-box">
             <div id="range-slider" class="range-slider"></div>
         </div>
 
+        <div id="range-slider-side" class="range-slider-side">
+            <select id="handles" onchange="handlersSelect(this)">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+        </div>
+
         <div id="timeline" class="timeline"></div>
+
+        <div id="timeline-side-zoom-range" class="timeline-side-zoom-range">
+            <legend>Zoom range:</legend>
+
+
+            <div class="block">
+                <label for="zoom-select">from</label>
+                <select id="zoom-from" name="zoom-select" onchange="changeDataZoom()"></select>
+            </div>
+
+            <div class="block">
+                <label for="zoom-select">to</label>
+                <select id="zoom-to" name="zoom-select" onchange="changeDataZoom()"></select>
+            </div>
+
+            
+
+
+
+        </div>
+
+        <div id="timeline-side-measures" class="timeline-side-measures">
+            <legend>Measurements:</legend>
+            <input type="checkbox" /> measures <br />
+            <input type="checkbox" /> measures <br />
+            <input type="checkbox" /> measures <br />
+            <input type="checkbox" /> measures <br />
+            <input type="checkbox" /> measures <br />
+            <input type="checkbox" /> measures <br />
+            <input type="checkbox" /> measures <br />
+            <input type="checkbox" /> measures <br />
+            <input type="checkbox" /> measures <br />
+            <input type="checkbox" /> measures <br />    
+            <input type="checkbox" /> measures <br />
+            <input type="checkbox" /> measures <br />
+            <input type="checkbox" /> measures <br />
+            <input type="checkbox" /> measures <br />             
+        </div>
 
 
     </div>
@@ -62,20 +109,46 @@
 
 
 
-        var union=true;
-        function unionRadio(radioBtn){
+
+        /* global variable*/
+        var union = true;
+        var cate = document.getElementById('featureSelector').value;
+        var theGraph;
+
+
+        /*function on controls*/
+        function featureSelect(select) {
+            cate = select.value;
+            network.update(dn.serialize(theGraph, false, cate), cate);
+        }
+
+        function unionRadio(radioBtn) {
             union = parseInt(radioBtn.value);
         }
 
-        document.getElementById('twoHandles').onclick = function() {
-            if ( this.checked ) {
-                slider.updateHandles(2,line.dataZoomBoundary());
-                
-            } else {
-                slider.updateHandles(1,line.dataZoomBoundary());
-            }
+        function handlersSelect(select){        
+            slider.updateHandles(parseInt(select.value), line.dataZoomBoundary());
             slider.bindNetwork(network);
-        };
+            slider.paintRange();
+        }
+
+        function changeDataZoom(){
+            let dataZoomSelectors = document.getElementsByName("zoom-select");
+            let idxFrom = dataZoomSelectors[0].selectedIndex;
+            let idxTo = dataZoomSelectors[1].selectedIndex;
+            if(idxFrom>idxTo){
+                dataZoomSelectors[0].selectedIndex = idxTo;
+                dataZoomSelectors[1].selectedIndex = idxFrom;
+            }
+            line.update({dataZoom:{
+                startValue:dataZoomSelectors[0].selectedIndex,
+                endValue:dataZoomSelectors[1].selectedIndex
+            }});
+            slider.setRange(line.dataZoomBoundary());
+        }
+
+
+
 
 
         var links = JSON.parse('{{ links | safe}}').map(u => ({ t: u.t, i: u.i, j: u.j }));
@@ -86,6 +159,26 @@
         dn.addRelationships(links)
 
         const timeData = dn.getTimeline();
+
+        var zoomFrom = document.getElementById("zoom-from")
+        var zoomTo = document.getElementById("zoom-to")
+
+        timeData.forEach((e,i)=>{
+            let optionF = document.createElement("option");
+            let optionT = document.createElement("option");
+            optionF.textContent = e;
+            optionT.textContent = e;
+            optionF.value = e;
+            optionT.value = e;
+            zoomFrom.appendChild(optionF);
+            zoomTo.appendChild(optionT);
+        });
+        zoomFrom.selectedIndex=0;
+        zoomTo.selectedIndex=timeData.length-1;
+
+
+
+
         const nrNodes = dn.getListNrOfVertices();
         const nrLinks = dn.getListNrOfEdges();
         const activeDensity = dn.getListActiveDensity();
@@ -95,49 +188,36 @@
 
         var line = new vis.LineSummary('timeline')
         var network = new vis.Network('network')
-        // setInterval(function(){
-        //     network.increase()
-        // },2000);
+
+
+
+
+
 
 
         // start and end are percentage
-        function changeDataZoom(start, end) {
-            start_q = yc.quantile(timeData, start)
-            end_q = yc.quantile(timeData, end)
-            option.dataZoom[0].start = start_q;
-            option.dataZoom[0].end = end_q;
-            myChart.setOption(option);
-            vis.dataZoomScaleSlider(slider)
-        }
+        // function changeDataZoom(start, end) {
+        //     start_q = yc.quantile(timeData, start)
+        //     end_q = yc.quantile(timeData, end)
+        //     option.dataZoom[0].start = start_q;
+        //     option.dataZoom[0].end = end_q;
+        //     myChart.setOption(option);
+        //     vis.dataZoomScaleSlider(slider)
+        // }
 
 
 
 
-        var slider = new vis.Slider('range-slider', line.dataZoomBoundary(),1)
+        var slider = new vis.Slider('range-slider', line.dataZoomBoundary(), 1)
 
-        line.triggerSlider(slider);
+        line.triggerRangeSlider(slider,zoomFrom, zoomTo);
         slider.bindNetwork(network);
 
-        // var inputLower = document.getElementById('input-lower');
-        // var inputUpper = document.getElementById('input-upper');
-
-        // var inputs = [inputLower, inputUpper]
-
-        // vis.bindSliderInputs(slider, inputs)
-
-
-        // var tooltips = slider.noUiSlider.getTooltips();
 
 
 
 
 
-        // var connect = slider.querySelectorAll('.noUi-connect');
-        // var classes = ['c-1-color', 'c-2-color', 'c-3-color', 'c-4-color'];
-
-        // for (var i = 0; i < connect.length; i++) {
-        //     connect[i].classList.add(classes[i]);
-        // }
 
 
         window.onresize = function () {

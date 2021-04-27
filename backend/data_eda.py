@@ -41,3 +41,5 @@ df_links
 
 
 df_nodes[df_nodes['class']=='Teachers']
+
+len(df_links['t'].unique())
