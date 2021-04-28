@@ -111,25 +111,25 @@
 
 
         /* global variable*/
-        var union = true;
+        var gIsUnion = true;
         var cate = document.getElementById('featureSelector').value;
-        var theGraph;
+        var gGraph;
+
 
 
         /*function on controls*/
         function featureSelect(select) {
             cate = select.value;
-            network.update(dn.serialize(theGraph, false, cate), cate);
+            network.update(dn.serialize(gGraph, false, cate), cate);
         }
 
         function unionRadio(radioBtn) {
-            union = parseInt(radioBtn.value);
+            gIsUnion = parseInt(radioBtn.value);
         }
 
         function handlersSelect(select){        
             slider.updateHandles(parseInt(select.value), line.dataZoomBoundary());
             slider.bindNetwork(network);
-            slider.paintRange();
         }
 
         function changeDataZoom(){

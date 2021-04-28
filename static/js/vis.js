@@ -109,21 +109,19 @@
         },
         bindNetwork: function (network) {
             this.slider.noUiSlider.on('update', function (values, handle) {
-                // let cate = 'gender';
-                let g;
                 if (values.length == 1) {
                     let time = timeData[parseInt(values[handle])]
-                    theGraph = dn.getGraph(time)
+                    gGraph = dn.getGraph(time)
                 } else {
                     let start = timeData[parseInt(values[0])]
                     let end = timeData[parseInt(values[1])]
-                    if (union) {
-                        theGraph = dn.unionGraph(start, end);
+                    if (gIsUnion) {
+                        gGraph = dn.unionGraph(start, end);
                     } else {
-                        theGraph = dn.intersectionGraph(start, end)
+                        gGraph = dn.intersectionGraph(start, end)
                     }
                 }
-                network.update(dn.serialize(theGraph, false, cate), cate);
+                network.update(dn.serialize(gGraph, false, cate), cate);
             });
         },
         _paintRange: function (){
@@ -380,12 +378,6 @@
             inputs[handle].value = parseInt(values[handle]);
         });
     }
-
-
-
-
-
-
     return {
         version: VERSION,
         author: AUTHOR,

@@ -1,14 +1,20 @@
-"use strict";
-
 function DynamicNetwork(serialized) {
-
+    "use strict";
     var VERSION = "ver 0.0.1"
 
     var AUTHOR = "Yichen Wang"
 
-    function Graph(directed) {
+
+    /*
+    edges: obj
+    {
+        node:{node:weight}
+    }
+    */
+    function Graph(isDirected) {
+        this.discrete = 1;
         this.edges = {};
-        this.directed = directed;
+        this.isDirected = isDirected;
     }
     Graph.prototype = {
         _cloneArray: function (items) {
@@ -18,15 +24,17 @@ function DynamicNetwork(serialized) {
             this.edges[node] = this._adjacent(node)
         },
         _adjacent: function (node) {
-            return this.edges[node] || []
+            return this.edges[node] || {}
         },
         addEdge: function (u, v) {
             u = String(u)
             v = String(v)
             this._addVertex(u);
             this._addVertex(v);
-            this._adjacent(u).push(v)
-            if (!this.directed) { this._adjacent(v).push(u) }
+            this._adjacent(u)[v] = 1;
+            if (!this.isDirected) { 
+                this._adjacent(v)[u] = 1; 
+            }
         },
         nodes: function () {
             return Object.keys(this.edges);
@@ -36,7 +44,7 @@ function DynamicNetwork(serialized) {
         },
         countEdges: function () {
             let output = 0
-            Object.entries(this.edges).forEach(([k, v]) => output += v.length / (2 - this.directed));
+            Object.entries(this.edges).forEach(([k, v]) => output += Object.keys(v).length / (2 - this.isDirected));
             return output
         },
         // cliques ====== start
@@ -46,9 +54,9 @@ function DynamicNetwork(serialized) {
                 return
             }
             let pivot = this._pick_random(candidates) || this._pick_random(excluded);
-            (candidates.filter(x => !this.edges[pivot].includes(x))).forEach(v => {  // the nodes which adjoins pivot will not be considered into iteration
-                let newCandidates = candidates.filter(x => this.edges[v].includes(x));
-                let newExcluded = excluded.filter(x => this.edges[v].includes(x));
+            (candidates.filter(x => !this.edges[pivot].hasOwnProperty(x))).forEach(v => {  // the nodes which adjoins pivot will not be considered into iteration
+                let newCandidates = candidates.filter(x => this.edges[v].hasOwnProperty(x));
+                let newExcluded = excluded.filter(x => this.edges[v].hasOwnProperty(x));
                 let newClique = [...clique, v];
                 this.maximalCliques(reporter, newClique, newCandidates, newExcluded);
                 candidates = candidates.filter(x => x !== v);
@@ -67,25 +75,38 @@ function DynamicNetwork(serialized) {
             let newEdges = {};
             Object.entries(this.edges).forEach(([k, v]) => {
                 if (graph.edges[k]) {
-                    let lst = v.filter(x => graph.edges[k].includes(x));
-                    if (lst.length) newEdges[k] = lst;
+                    let adjNode = {};
+                    Object.keys(graph.edges[k]).forEach(e=>{
+                        if(v[e]){
+                            adjNode[e] = v[e]+1
+                        }
+                    });
+                    if (Object.keys(adjNode).length) newEdges[k] = adjNode;
                 }
             });
-            let intersection = new Graph(this.directed);
+            let intersection = new Graph(this.isDirected);
             intersection.edges = newEdges;
+            intersection.discrete += this.discrete;
             return intersection;
         },
         union: function (graph) {
-            let newEdges = Object.assign({}, this.edges);
+            let newEdges = JSON.parse(JSON.stringify( this.edges));
             Object.entries(graph.edges).forEach(([k, v]) => {
                 if (newEdges[k]) {
-                    newEdges[k] = [...new Set([...newEdges[k], ...graph.edges[k]])];
+                    Object.entries(v).forEach(([node,weight])=>{
+                        if(newEdges[k][node]){
+                            newEdges[k][node] +=weight;
+                        }else{
+                            newEdges[k][node] = weight;
+                        }
+                    });
                 } else {
-                    newEdges[k] = [...graph.edges[k]];
+                    newEdges[k] = JSON.parse(JSON.stringify(v));
                 }
             });
-            let union = new Graph(this.directed);
+            let union = new Graph(this.isDirected);
             union.edges = newEdges;
+            union.discrete += this.discrete;
             return union;
         },
         difference: function (graph) {
@@ -99,7 +120,7 @@ function DynamicNetwork(serialized) {
                     });
                 }
             });
-            let difference = new Graph(this.directed);
+            let difference = new Graph(this.isDirected);
             difference.edges = newEdges;
             return difference;
         },// merge graphs ====== end
@@ -112,7 +133,7 @@ function DynamicNetwork(serialized) {
             var nodeBetweenness = {};
             this.nodes().forEach(v => nodeBetweenness[v] = 0);
             this.nodes().forEach(source => this._calculateNodeBetweenness(source, nodeBetweenness));
-            if (!this.directed) {
+            if (!this.isDirected) {
                 Object.keys(nodeBetweenness).forEach(key => nodeBetweenness[key] /= 2);
             }
             return nodeBetweenness;
@@ -152,7 +173,7 @@ function DynamicNetwork(serialized) {
                 let u = Object.keys(Q).reduce((key, v) => Q[v] < Q[key] ? v : key);
                 if (!isFinite(dist[u])) break;
                 delete Q[u];
-                this.edges[u].forEach(v => {
+                Object.keys(this.edges[u]).forEach(v => {
                     let alt = dist[u] + 1;
                     if (alt < dist[v]) {
                         dist[v] = alt;
@@ -183,7 +204,7 @@ function DynamicNetwork(serialized) {
                 });
             });
             this.nodes().forEach(source => this._calculateEdgeBetweenness(source, edgeBetweenness));
-            if (!this.directed) {
+            if (!this.isDirected) {
                 Object.keys(edgeBetweenness).forEach(key => Object.keys(edgeBetweenness[key]).forEach(k => edgeBetweenness[key][k] /= 2));
             }
             return edgeBetweenness;
@@ -237,7 +258,7 @@ function DynamicNetwork(serialized) {
         _disconnectedSubgraphs: function () {
             let output = []
             Object.entries(this.edges).forEach(([k, v]) => {
-                let lst = [...v]
+                let lst = Object.keys(v)
                 lst.push(String(k))
                 output.push(new Set(lst));
             });
@@ -261,8 +282,8 @@ function DynamicNetwork(serialized) {
         serializeEdges: function(){
             let output=[];
             Object.entries(this.edges).forEach(([k,v])=>{
-                v.forEach(e=>{
-                    if(this.directed){
+                Object.keys(v).forEach(e=>{
+                    if(this.isDirected){
                         output.push({
                             source:k,
                             target:e,
@@ -322,12 +343,14 @@ function DynamicNetwork(serialized) {
         });
     }
 
-    let _addRelationship = (edge, directed) => {
-        if (!relationships[edge.t]) { relationships[edge.t] = new Graph(directed); }
+    let _addRelationship = (edge, isDirected) => {
+        if (!relationships[edge.t]) {
+            relationships[edge.t] = new Graph(isDirected); 
+        }
         relationships[edge.t].addEdge(edge.i, edge.j);
     }
 
-    let addRelationships = (edges, directed = false) => edges.forEach(e => _addRelationship(e, directed));
+    let addRelationships = (edges, isDirected = false) => edges.forEach(e => _addRelationship(e, isDirected));
 
     let getGraph = (time)=>{
         return relationships[time];
