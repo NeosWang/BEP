@@ -5,10 +5,12 @@
     <meta charset="utf-8">
     <title>JBP 000</title>
     <!-- STYLES -->
-
-
+    <!-- {{ fontawesome_html() }} -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/nouislider.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+
+ 
 
     <!-- /STYLES -->
     <!-- SCRIPTS -->
@@ -29,10 +31,8 @@
         <div id="network" class="network"></div>
 
         <div id="side" class="side">
-            <!-- <label for="fname">lower:</label>
-            <input type="text" id="input-lower" name="input-lower"><br><br>
-            <label for="lname">upper:</label>
-            <input type="text" id="input-upper" name="input-upper"><br><br> -->
+
+
             <br><br><br><br><br><br>
             <label for="lname">idx:</label>
             <input type="text" id="input-idx" name="input-idx"><br><br>
@@ -49,59 +49,68 @@
         </div>
 
         <div id="range-slider-box" class="range-slider-box">
+            <span class="bottomright">
+                <button class='btn' value = '-1' onclick="move(this.value)">
+                    <i class="fa fa-step-backward" aria-hidden="true"></i>
+                </button>
+                <button class='btn' value='0' onclick="playOrPause(this)">
+                    <i id="play-or-pause" class="fa fa-play" aria-hidden="true"></i>
+                </button>
+                <button id="btn-forward" class='btn' value = '1' onclick="move(this.value)">
+                    <i class="fa fa-step-forward" aria-hidden="true"></i>
+                </button>
+            </span>
+
             <div id="range-slider" class="range-slider"></div>
         </div>
 
         <div id="range-slider-side" class="range-slider-side">
-            <select id="handles" onchange="handlersSelect(this)">
-                <option value="1" selected>1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-            </select>
+            <div style="height: 50%;">
+                <select id="handles" onchange="handlersSelect(this)">
+                    <option class="imagebacked" style="background-image: url(/static/img/try.png);" value="1"  selected>discrete</option>
+                    <option value="2" >continuous</option>
+                    <option value="-3" >continuous(arise)</option>
+                    <option value="3"> continuous(die out) </option>
+                </select>
+            </div>
+            <div style="height: 50%;">
+                shit
+            </div>
+
+
+
+
+
         </div>
 
         <div id="timeline" class="timeline"></div>
 
         <div id="timeline-side-zoom-range" class="timeline-side-zoom-range">
             <legend>Zoom range:</legend>
-
-
             <div class="block">
                 <label for="zoom-select">from</label>
                 <select id="zoom-from" name="zoom-select" onchange="changeDataZoom()"></select>
             </div>
-
             <div class="block">
                 <label for="zoom-select">to</label>
                 <select id="zoom-to" name="zoom-select" onchange="changeDataZoom()"></select>
             </div>
-
-            
-
-
-
         </div>
-
         <div id="timeline-side-measures" class="timeline-side-measures">
             <legend>Measurements:</legend>
-            <input type="checkbox" /> measures <br />
-            <input type="checkbox" /> measures <br />
-            <input type="checkbox" /> measures <br />
-            <input type="checkbox" /> measures <br />
-            <input type="checkbox" /> measures <br />
-            <input type="checkbox" /> measures <br />
-            <input type="checkbox" /> measures <br />
-            <input type="checkbox" /> measures <br />
-            <input type="checkbox" /> measures <br />
-            <input type="checkbox" /> measures <br />    
-            <input type="checkbox" /> measures <br />
-            <input type="checkbox" /> measures <br />
-            <input type="checkbox" /> measures <br />
-            <input type="checkbox" /> measures <br />             
+            <input type="checkbox" class="cbxMeasurement" name="active nodes" value='0'
+                onclick="selectMeasurements()" /> active nodes <br />
+            <input type="checkbox" class="cbxMeasurement" name="active nodes (pct)" value='1'
+                onclick="selectMeasurements()" /> active nodes (pct) <br />
+            <input type="checkbox" class="cbxMeasurement" name="active relations" value='2'
+                onclick="selectMeasurements()" /> active relations <br />
+            <input type="checkbox" class="cbxMeasurement" name="active density" value='3'
+                onclick="selectMeasurements()" /> active density <br />
+            <input type="checkbox" class="cbxMeasurement" name="maximum clique" value='4'
+                onclick="selectMeasurements()" /> maximum clique <br />
+            <input type="checkbox" class="cbxMeasurement" name="disconnected groups" value='5'
+                onclick="selectMeasurements()" /> disconnected groups <br />
         </div>
-
-
     </div>
 
 
@@ -112,40 +121,102 @@
 
         /* global variable*/
         var gIsUnion = true;
-        var cate = document.getElementById('featureSelector').value;
+        var gCate = document.getElementById('featureSelector').value;
         var gGraph;
+        var gGraphAdj;
+        var gMeasurements = {}; //{0：{data,name,show}}
+
+        var dn = DynamicNetwork()
+
+
+        const gArrayFuncMeasurements = {
+            0: dn.getListNrOfVertices,
+            1: dn.getListPctOfVertices,
+            2: dn.getListNrOfEdges,
+            3: dn.getListActiveDensity,
+            4: dn.getListMaximumClique,
+            5: dn.getListNrOfdisconnected
+        }
+
+
+
+        function move(ctlValue){
+            slider.translation( parseInt(ctlValue));
+        }
+
+        var autoPlay= new yc.MySetInterval(function(){move(1)},1200);
+
+        function playOrPause(btn){   
+            let ico = document.getElementById("play-or-pause");
+            if (btn.value=='0'){
+                ico.classList.remove('fa-play'); 
+                ico.classList.add('fa-pause');
+                autoPlay.play();
+                btn.setAttribute("value", "1");
+            }else{
+                ico.classList.remove('fa-pause');
+                ico.classList.add('fa-play'); 
+                autoPlay.pause();
+                btn.setAttribute("value", "0");
+            }
+        }
+
+        
+
 
 
 
         /*function on controls*/
+        function selectMeasurements() {
+            let checkedBoxes = document.querySelectorAll('input[class=cbxMeasurement]:checked');
+            Object.entries(gMeasurements).forEach(([k, v]) => { v.show = false })
+            checkedBoxes.forEach(e => {
+                let key = e.value;
+                let name = e.name
+                let show = e.checked;
+
+                if (!gMeasurements.hasOwnProperty(key)) {
+                    gMeasurements[key] = {
+                        data: gArrayFuncMeasurements[key](),
+                        name: name
+                    }
+                }
+                gMeasurements[key].show = show;
+            });
+            line.updateTimeline();
+        }
+
         function featureSelect(select) {
-            cate = select.value;
-            network.update(dn.serialize(gGraph, false, cate), cate);
+            gCate = select.value;
+            network.update(dn.serialize(gGraph, false, gCate), gCate);
         }
 
         function unionRadio(radioBtn) {
             gIsUnion = parseInt(radioBtn.value);
         }
 
-        function handlersSelect(select){        
+        function handlersSelect(select) {
             slider.updateHandles(parseInt(select.value), line.dataZoomBoundary());
             slider.bindNetwork(network);
         }
 
-        function changeDataZoom(){
+        function changeDataZoom() {
             let dataZoomSelectors = document.getElementsByName("zoom-select");
             let idxFrom = dataZoomSelectors[0].selectedIndex;
             let idxTo = dataZoomSelectors[1].selectedIndex;
-            if(idxFrom>idxTo){
+            if (idxFrom > idxTo) {
                 dataZoomSelectors[0].selectedIndex = idxTo;
                 dataZoomSelectors[1].selectedIndex = idxFrom;
             }
-            line.update({dataZoom:{
-                startValue:dataZoomSelectors[0].selectedIndex,
-                endValue:dataZoomSelectors[1].selectedIndex
-            }});
+            line.update({
+                dataZoom: {
+                    startValue: dataZoomSelectors[0].selectedIndex,
+                    endValue: dataZoomSelectors[1].selectedIndex
+                }
+            });
             slider.setRange(line.dataZoomBoundary());
         }
+
 
 
 
@@ -154,7 +225,6 @@
         var links = JSON.parse('{{ links | safe}}').map(u => ({ t: u.t, i: u.i, j: u.j }));
         var nodes = JSON.parse('{{ nodes | safe}}');
 
-        var dn = DynamicNetwork()
         dn.addNodes(nodes)
         dn.addRelationships(links)
 
@@ -163,7 +233,7 @@
         var zoomFrom = document.getElementById("zoom-from")
         var zoomTo = document.getElementById("zoom-to")
 
-        timeData.forEach((e,i)=>{
+        timeData.forEach((e, i) => {
             let optionF = document.createElement("option");
             let optionT = document.createElement("option");
             optionF.textContent = e;
@@ -173,17 +243,10 @@
             zoomFrom.appendChild(optionF);
             zoomTo.appendChild(optionT);
         });
-        zoomFrom.selectedIndex=0;
-        zoomTo.selectedIndex=timeData.length-1;
+        zoomFrom.selectedIndex = 0;
+        zoomTo.selectedIndex = timeData.length - 1;
 
 
-
-
-        const nrNodes = dn.getListNrOfVertices();
-        const nrLinks = dn.getListNrOfEdges();
-        const activeDensity = dn.getListActiveDensity();
-        const disconnected = dn.getListNrOfdisconnected();
-        const maxClique = dn.getListMaximumClique();
 
 
         var line = new vis.LineSummary('timeline')
@@ -192,25 +255,9 @@
 
 
 
-
-
-
-        // start and end are percentage
-        // function changeDataZoom(start, end) {
-        //     start_q = yc.quantile(timeData, start)
-        //     end_q = yc.quantile(timeData, end)
-        //     option.dataZoom[0].start = start_q;
-        //     option.dataZoom[0].end = end_q;
-        //     myChart.setOption(option);
-        //     vis.dataZoomScaleSlider(slider)
-        // }
-
-
-
-
         var slider = new vis.Slider('range-slider', line.dataZoomBoundary(), 1)
 
-        line.triggerRangeSlider(slider,zoomFrom, zoomTo);
+        line.triggerRangeSlider(slider, zoomFrom, zoomTo);
         slider.bindNetwork(network);
 
 
@@ -219,7 +266,7 @@
 
 
 
-
+        // resize diagram
         window.onresize = function () {
             line.resize();
             network.resize();

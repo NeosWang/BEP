@@ -11,7 +11,7 @@ function DynamicNetwork(serialized) {
         node:{node:weight}
     }
     */
-    function Graph(isDirected) {
+    function Graph(isDirected=false) {
         this.discrete = 1;
         this.edges = {};
         this.isDirected = isDirected;
@@ -110,14 +110,19 @@ function DynamicNetwork(serialized) {
             return union;
         },
         difference: function (graph) {
-            let newEdges = Object.assign({}, this.edges);
-            Object.entries(graph.edges).forEach(([k, v]) => {
-                if (newEdges[k]) {
-                    v.forEach(n => {
-                        if (newEdges[k].includes(n)) {
-                            newEdges[k] = newEdges[k].filter(e => e !== n)
+            let newEdges = JSON.parse(JSON.stringify( this.edges));
+            Object.entries(newEdges).forEach(([k, v]) => {
+                //对于当前graph，如果邻接的graph里有相同的边，则pop该边
+                if (graph.edges[k]) {
+                    Object.entries(v).forEach(([node,weight])=>{
+                        if(graph.edges[k].hasOwnProperty(node)){
+                            delete newEdges[k][node];
+                            if(!Object.keys(newEdges[k]).length){
+                                delete newEdges[k];
+                            }
+                            
                         }
-                    });
+                    });                   
                 }
             });
             let difference = new Graph(this.isDirected);
@@ -287,14 +292,20 @@ function DynamicNetwork(serialized) {
                         output.push({
                             source:k,
                             target:e,
-                            lineStyle:{width:3}
+                            lineStyle:{
+                                width:2.5, 
+                                // color:'LightGray'
+                            }
                         })
                     }else{
                         if(k<e){
                             output.push({
                                 source:k,
                                 target:e,
-                                lineStyle:{width:2}
+                                lineStyle:{
+                                    width:2.5,
+                                    // color:'LightGray'
+                                }
                             })
                         }
                     }
@@ -364,6 +375,11 @@ function DynamicNetwork(serialized) {
         return output;
     }
 
+    let getListPctOfVertices = () =>{
+        let ttl = Object.keys(nodes).length;
+        return getListNrOfVertices().map(function(e) { return (e/ttl).toFixed(4) })
+    }
+
     let getListNrOfEdges = () => {
         let output = [];
         Object.entries(relationships).forEach(([k, v]) => output.push(v.countEdges()));
@@ -430,7 +446,7 @@ function DynamicNetwork(serialized) {
     }
     return {int node_id : int unnormalized betweenness}
     */
-    let serialize = function(g, all, cate, color=null){
+    let serialize = function(g, all, cate){
         let output={};
         Object.entries(features).forEach(([k,v])=>{
             output[k]=[];
@@ -448,8 +464,36 @@ function DynamicNetwork(serialized) {
                 output.nodes.push(obj);
             }  
         });
+
+        // if(showDiff){
+        //     let diffGraph = g.difference(gGraphAdj);
+        //     Object.entries(output.edges).forEach(([k,v])=>{
+        //         let s =  parseInt(v.source);
+        //         let t =  parseInt(v.target)
+        //         if(diffGraph.edges[s]){
+        //             if(diffGraph.edges[s][t]){
+        //                 v.lineStyle.color='red';
+        //             }
+        //         }
+        //     })
+        // }
         return output;
     }
+
+    let serializeUpdate = function(series, graph, color){
+        Object.entries(series.edges).forEach(([k,v])=>{
+            let s =  parseInt(v.source);
+            let t =  parseInt(v.target)
+            if(graph.edges[s]){
+                if(graph.edges[s][t]){
+                    v.lineStyle.color=color;
+                }
+            }
+        })
+        return series;
+    }
+
+    
 
     return {
         version: VERSION,
@@ -462,13 +506,15 @@ function DynamicNetwork(serialized) {
         getTimeline: getTimeline,
         getGraph:getGraph,
         getListNrOfVertices: getListNrOfVertices,
+        getListPctOfVertices: getListPctOfVertices,
         getListNrOfEdges: getListNrOfEdges,
         getListMaximumClique: getListMaximumClique,
         getListActiveDensity: getListActiveDensity,
         getListNrOfdisconnected: getListNrOfdisconnected,
         intersectionGraph: intersectionGraph,
         unionGraph: unionGraph,
-        serialize: serialize
+        serialize: serialize,
+        serializeUpdate:serializeUpdate
     };
 }
 

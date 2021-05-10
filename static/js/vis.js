@@ -25,8 +25,8 @@
     }
     Slider.prototype = {
         initSlider: function () {
-            let start = new Array(this.handles).fill(0);
-            let tooltips = new Array(this.handles).fill({
+            let start = new Array(Math.abs(this.handles)).fill(0);
+            let tooltips = new Array(Math.abs(this.handles)).fill({
                 to: function (value) {
                     return timeData[Math.round(value)];
                 }
@@ -56,6 +56,18 @@
         },
         toolTips: function () {
             return this.slider.noUiSlider.getTooltips();
+        },
+        translation:function(n){
+            let values = this.slider.noUiSlider.get();
+            if(Array.isArray(values)){
+                values = values.map(e=>{return parseInt(e) + n})
+                if(values[0] < this.boundary.start || values[values.length-1] > this.boundary.end) return;
+            }else{
+                values = parseInt(values)+n
+                if(values < this.boundary.start || values > this.boundary.end) return;
+            }
+            this.slider.noUiSlider.set(values);
+
         },
         setRange: function (boundary) {
             this.boundary = boundary;
@@ -108,28 +120,78 @@
             });
         },
         bindNetwork: function (network) {
-            this.slider.noUiSlider.on('update', function (values, handle) {
+            this.slider.noUiSlider.on('update', function (values, handle) {           
                 if (values.length == 1) {
-                    let time = timeData[parseInt(values[handle])]
-                    gGraph = dn.getGraph(time)
+                    let time = timeData[parseInt(values[handle])];
+                    gGraph = dn.getGraph(time);
+                    gGraphAdj=undefined;
                 } else {
-                    let start = timeData[parseInt(values[0])]
-                    let end = timeData[parseInt(values[1])]
-                    if (gIsUnion) {
-                        gGraph = dn.unionGraph(start, end);
-                    } else {
-                        gGraph = dn.intersectionGraph(start, end)
+                    let startIdx, endIdx, aStartIdx, aEndIdx
+                    switch(slider.handles){
+                        case 2:
+                            startIdx =parseInt(values[0]);
+                            endIdx = parseInt(values[1]);
+                            break;
+                        case -3:
+                            aStartIdx = parseInt(values[0]);
+                            aEndIdx = parseInt(values[1])-1;
+                            startIdx = parseInt(values[1]);
+                            endIdx = parseInt(values[2]);
+                            break;
+                        case 3:
+                            startIdx = parseInt(values[0]);
+                            endIdx = parseInt(values[1]);
+                            aStartIdx = parseInt(values[1])+1;
+                            aEndIdx = parseInt(values[2]);
+                            break;
                     }
+                    if (gIsUnion) {
+                        gGraph = dn.unionGraph(timeData[startIdx], timeData[endIdx]);
+                        gGraphAdj = dn.unionGraph(timeData[aStartIdx], timeData[aEndIdx]);
+                    } else {
+                        gGraph = dn.intersectionGraph(timeData[startIdx], timeData[endIdx]);
+                        gGraphAdj = dn.intersectionGraph(timeData[aStartIdx], timeData[aEndIdx]);
+                    }
+                    if(aStartIdx>aEndIdx){
+                        gGraphAdj=undefined;
+                    }                    
                 }
-                network.update(dn.serialize(gGraph, false, cate), cate);
+                let series = dn.serialize(gGraph, false, gCate);
+                
+                let color = {
+                    '-3':'limegreen',
+                    '3':'red'
+
+                }
+
+                if(gGraphAdj){
+                    series = dn.serializeUpdate(series, gGraph.difference(gGraphAdj), color[slider.handles])
+                }
+                network.update(series, gCate);
             });
         },
-        _paintRange: function (){
+
+        _paintRange: function () {
             let connect = this.slider.querySelectorAll('.noUi-connect');
-            let classes = ['c-1-color', 'c-2-color', 'c-3-color'];
-            for (var i = 0; i < connect.length; i++) {
-                connect[i].classList.add(classes[i]);
+            let classes = {
+                before: 'c-before-color',
+                center: 'c-center-color',
+                after: 'c-after-color'
+            };
+            switch (this.handles) {
+                case 2:
+                    connect[0].classList.add(classes.center);
+                    break;
+                case -3:
+                    connect[0].classList.add(classes.before)
+                    connect[1].classList.add(classes.center)
+                    break;
+                case 3:
+                    connect[0].classList.add(classes.center)
+                    connect[1].classList.add(classes.after)
+                    break;
             }
+
         }
     }
 
@@ -145,10 +207,6 @@
                     animation: false
                 }
             },
-            legend: {
-                data: ['active nodes', 'active relations', 'active density', 'max clique', 'disconnected groups'],
-                left: 80
-            },
             toolbox: {
                 feature: {
                     dataZoom: {
@@ -157,7 +215,7 @@
                     restore: {},
                     saveAsImage: {}
                 },
-                right: 80
+                right: 20
             },
             axisPointer: {
                 link: { xAxisIndex: 'all' }
@@ -167,7 +225,7 @@
                     type: 'inside',
                     show: true,
                     realtime: true,
-                    rangeMode:['value','value']
+                    rangeMode: ['value', 'value']
                 },
                 {
                     type: 'slider',
@@ -194,83 +252,6 @@
                 name: '',
                 type: 'value',
             },
-            series: [
-                {
-                    name: 'active nodes',
-                    type: 'line',
-                    lineStyle: {
-                        width: .8
-                    },
-                    hoverAnimation: false,
-                    data: nrNodes,
-                    markLine: {
-                        symbol: 'none',
-                        data: [
-                            { type: 'max', name: 'max' }
-                        ],
-                    },
-                },
-                {
-                    name: 'active relations',
-                    type: 'line',
-                    lineStyle: {
-                        width: .8
-                    },
-                    hoverAnimation: false,
-                    data: nrLinks,
-                    markLine: {
-                        symbol: 'none',
-                        data: [
-                            { type: 'max', name: 'max' }
-                        ],
-                    },
-                },
-                {
-                    name: 'active density',
-                    type: 'line',
-                    lineStyle: {
-                        width: .8
-                    },
-                    hoverAnimation: false,
-                    data: activeDensity,
-                    markLine: {
-                        symbol: 'none',
-                        data: [
-                            { type: 'max', name: 'max' }
-                        ],
-                    },
-                },
-                {
-                    name: 'max clique',
-                    type: 'line',
-                    lineStyle: {
-                        width: .8
-                    },
-                    hoverAnimation: false,
-                    data: maxClique,
-                    markLine: {
-                        symbol: 'none',
-                        data: [
-                            { type: 'max', name: 'max' }
-                        ],
-                    },
-                },
-                {
-                    name: 'disconnected groups',
-                    type: 'line',
-                    lineStyle: {
-                        width: .8
-                    },
-                    hoverAnimation: false,
-                    data: disconnected,
-                    markLine: {
-                        symbol: 'none',
-                        data: [
-                            { type: 'max', name: 'max' }
-                        ],
-                    },
-                },
-            ]
         };
         option && this.myChart.setOption(option);
     }
@@ -295,7 +276,7 @@
                 end: option.dataZoom[0].endValue
             }
         },
-        _dataZoomScaleSlider: function (echart, slider,zoomFrom, zoomTo) {
+        _dataZoomScaleSlider: function (echart, slider, zoomFrom, zoomTo) {
             let option = echart.getOption();
             let start = option.dataZoom[0].startValue;
             let end = option.dataZoom[0].endValue
@@ -304,14 +285,46 @@
                 end: end
             }
             slider.setRange(boundary);
-            zoomFrom.selectedIndex=start;
+            zoomFrom.selectedIndex = start;
             zoomTo.selectedIndex = end;
         },
-        update: function(data){
-            this.myChart.setOption(data);
+        update: function (data, merge = false) {
+            this.myChart.setOption(data, merge);
         },
         resize: function () {
             this.myChart.resize();
+        },
+        updateTimeline: function () {
+            let series = [];
+            let legend = {
+                data: [],
+                left: 80
+            }
+            Object.entries(gMeasurements).forEach(([k, v]) => {
+                if (v.show) {
+                    legend.data.push(v.name)
+                    let d = {
+                        name: v.name,
+                        type: 'line',
+                        lineStyle: {
+                            width: .8
+                        },
+                        hoverAnimation: false,
+                        data: v.data,
+                        markLine: {
+                            symbol: 'none',
+                            data: [
+                                { type: 'max', name: 'max' }
+                            ],
+                        },
+                    };
+                    series.push(d)
+                }
+            });
+            let opt = this.myChart.getOption()
+            opt.legend = legend;
+            opt.series = series;
+            this.update(opt, true);
         }
     }
 
@@ -322,8 +335,15 @@
         let option = {
             series: [{
                 type: 'graph',
+                animation: true,
+                // layout:'circular',
+                // circular: {
+                //     rotateLabel: true
+                // },
+                // lineStyle: {
+                //     curveness: 0.3
+                // },
                 layout: 'force',
-                animation: false,
                 force: {
                     initLayout: 'circular',
                     repulsion: 100,
@@ -336,7 +356,8 @@
                 },
                 draggable: true,
                 force: {
-                    gravity: 0.1
+                    // gravity: 0.1,
+                    repulsion: 40,
                 },
             }]
         };

@@ -49,10 +49,25 @@
         return array[Math.round(floatIndex)]
     }
 
+    var MySetInterval = function (callback, delay) {
+        var setIntervalId, start, remaining = delay;
+
+        this.pause = function () {
+            window.clearInterval(setIntervalId);
+        };
+
+        this.play= function () {
+            start = new Date();
+            window.clearInterval(setIntervalId);
+            setIntervalId= window.setInterval(callback, remaining);
+        };
+    }
+
 
     return {
         version: VERSION,
         author: AUTHOR,
+        MySetInterval:MySetInterval,
         sortKeyValuePair: sortKeyValuePair,
         sortByKey:sortByKey,
         max:max,
