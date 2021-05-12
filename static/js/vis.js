@@ -165,7 +165,7 @@
                 }
 
                 if(gGraphAdj){
-                    series = dn.serializeUpdate(series, gGraph.difference(gGraphAdj), color[slider.handles])
+                    series = dn.serializeColoring(series, gGraph.difference(gGraphAdj), color[slider.handles])
                 }
                 network.update(series, gCate);
             });

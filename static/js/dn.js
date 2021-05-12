@@ -110,15 +110,16 @@ function DynamicNetwork(serialized) {
             return union;
         },
         difference: function (graph) {
-            let newEdges = JSON.parse(JSON.stringify( this.edges));
-            Object.entries(newEdges).forEach(([k, v]) => {
+            let diffNodes = this.nodes().filter(e=>{return !graph.nodes().includes(e);})
+            let diffEdges = JSON.parse(JSON.stringify( this.edges));
+            Object.entries(diffEdges).forEach(([k, v]) => {
                 //对于当前graph，如果邻接的graph里有相同的边，则pop该边
                 if (graph.edges[k]) {
                     Object.entries(v).forEach(([node,weight])=>{
                         if(graph.edges[k].hasOwnProperty(node)){
-                            delete newEdges[k][node];
-                            if(!Object.keys(newEdges[k]).length){
-                                delete newEdges[k];
+                            delete diffEdges[k][node];
+                            if(!Object.keys(diffEdges[k]).length){
+                                delete diffEdges[k];
                             }
                             
                         }
@@ -126,7 +127,8 @@ function DynamicNetwork(serialized) {
                 }
             });
             let difference = new Graph(this.isDirected);
-            difference.edges = newEdges;
+            difference.edges = diffEdges;
+            difference.diffNodes = diffNodes;
             return difference;
         },// merge graphs ====== end
         // node betweenness centrality ====== start
@@ -461,32 +463,36 @@ function DynamicNetwork(serialized) {
                 obj.id = k;
                 obj.category = features[cate].indexOf(v[cate]);
                 obj.name = `id:${k}\nclass:${v.class}\ngender:${v.gender}`;
+
+                // obj.symbol = 'pin';
+                obj.itemStyle = {
+                    // color:'orange',
+                    // borderColor : '#00F',
+                    // borderWidth : 2,
+                }
+
                 output.nodes.push(obj);
             }  
         });
-
-        // if(showDiff){
-        //     let diffGraph = g.difference(gGraphAdj);
-        //     Object.entries(output.edges).forEach(([k,v])=>{
-        //         let s =  parseInt(v.source);
-        //         let t =  parseInt(v.target)
-        //         if(diffGraph.edges[s]){
-        //             if(diffGraph.edges[s][t]){
-        //                 v.lineStyle.color='red';
-        //             }
-        //         }
-        //     })
-        // }
         return output;
     }
 
-    let serializeUpdate = function(series, graph, color){
-        Object.entries(series.edges).forEach(([k,v])=>{
-            let s =  parseInt(v.source);
-            let t =  parseInt(v.target)
-            if(graph.edges[s]){
-                if(graph.edges[s][t]){
-                    v.lineStyle.color=color;
+    let serializeColoring = function(series, diffGraph, color){
+        series.nodes.forEach(n => { 
+            let s = n.id
+            if(diffGraph.diffNodes.includes(s)){
+                n.itemStyle={
+                    borderColor : color,
+                    borderWidth : 1.5,
+                }
+            }
+        });
+        series.edges.forEach(e => {
+            let s =  e.source;
+            let t =  e.target;
+            if(diffGraph.edges[s]){
+                if(diffGraph.edges[s][t]){
+                    e.lineStyle.color=color;
                 }
             }
         })
@@ -514,7 +520,7 @@ function DynamicNetwork(serialized) {
         intersectionGraph: intersectionGraph,
         unionGraph: unionGraph,
         serialize: serialize,
-        serializeUpdate:serializeUpdate
+        serializeColoring:serializeColoring
     };
 }
 
