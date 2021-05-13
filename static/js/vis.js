@@ -120,7 +120,7 @@
             });
         },
         bindNetwork: function (network) {
-            this.slider.noUiSlider.on('update', function (values, handle) {           
+            this.slider.noUiSlider.on('update', function (values, handle) {       
                 if (values.length == 1) {
                     let time = timeData[parseInt(values[handle])];
                     gGraph = dn.getGraph(time);
@@ -215,7 +215,7 @@
                     restore: {},
                     saveAsImage: {}
                 },
-                right: 20
+                // right: 2
             },
             axisPointer: {
                 link: { xAxisIndex: 'all' }
@@ -280,6 +280,20 @@
             let option = echart.getOption();
             let start = option.dataZoom[0].startValue;
             let end = option.dataZoom[0].endValue
+     
+            if(start==end){
+                start--;
+                if(start < 0){
+                    start++;    end++;
+                } 
+                echart.setOption({
+                    dataZoom: {
+                        startValue: start,
+                        endValue: end
+                    }
+                });        
+            }
+
             let boundary = {
                 start: start,//index of timeData
                 end: end
@@ -383,26 +397,9 @@
         }
     }
 
-
-
-
-
-    function bindSliderInputs(slider, inputs) {
-        inputs.forEach((input, i) => {
-            input.addEventListener('change', function () {
-                let value = new Array(inputs.length).fill(null);
-                value[i] = this.value;
-                slider.noUiSlider.set(value);
-            });
-        });
-        slider.slider.noUiSlider.on('update', function (values, handle) {
-            inputs[handle].value = parseInt(values[handle]);
-        });
-    }
     return {
         version: VERSION,
         author: AUTHOR,
-        bindSliderInputs: bindSliderInputs,
         LineSummary: LineSummary,
         Slider: Slider,
         Network: Network

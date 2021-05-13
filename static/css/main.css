@@ -2,25 +2,26 @@
     box-sizing: border-box;
     padding: 0;
     margin: 0;
-    font-size:  .95em !important;
+    font-size:  .95em ;
 }
 legend{
     color:dimgrey;
     margin: 1em 0 1em 0;
 }
 
-.grid_container {
+.grid-container {
     display: grid;
     border-style: solid;
     border-color: red;
     grid-template-columns: repeat(12, 1fr);
     grid-template-rows: repeat(12, 1fr);
-    grid-gap: 1px;
+    grid-gap: 2px;
     width: 100vw;
     height: 100vh;
 }
 
-.network {
+.network-grid {
+    position: relative;
     border-style: solid;
     border-color: blue;
     grid-row: 1/9;
@@ -28,15 +29,60 @@ legend{
 
 }
 
-.side {
+.network-statistics-grid{
+    border-style: solid;
+    border-color: darkorchid;
+    grid-row: 1/9;
+    grid-column: 7/9;
+}
+
+.data-preview-grid {
     border-style: solid;
     border-color: yellow;
     grid-row: 1/9;
     grid-column: 9/ 13;
 
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(12, 1fr);
+    grid-gap: 2px;
 }
 
-.range-slider-box {
+.inner-grid-1{
+    border-style: solid;
+    border-color:mediumvioletred;
+    grid-row: 1/3;
+    grid-column: 1/13;
+    overflow-x: scroll;
+    overflow-y: scroll;
+}
+
+.inner-grid-2{
+    border-style: solid;
+    border-color:midnightblue;
+    grid-row: 3/7;
+    grid-column: 1/13;
+    overflow-x: scroll;
+    overflow-y: scroll;
+}
+.inner-grid-3{
+    border-style: solid;
+    border-color:palevioletred;
+    grid-row: 7/9;
+    grid-column: 1/13;
+    overflow-x: scroll;
+    overflow-y: scroll;
+}
+.inner-grid-4{
+    border-style: solid;
+    border-color:mediumvioletred;
+    grid-row: 9/13;
+    grid-column: 1/13;
+    overflow-x: scroll;
+    overflow-y: scroll;
+}
+
+.range-slider-grid {
     position: relative;
     border-style: solid;
     border-color: brown;
@@ -45,13 +91,12 @@ legend{
     
 }
 
-.range-slider-box > div{
+.range-slider-grid > div{
   position: absolute;
   bottom : 0;
   left: 80px;
   right: 80px;
   height: 15px;
-
 }
 
 .range-slider-side{
@@ -62,14 +107,14 @@ grid-column: 9/13;
 }
 
 
-.timeline {
+.timeline-grid {
     border-style: solid;
     border-color: violet;
     grid-row: 10 / 13;
     grid-column: 1/9;
 }
 
-.timeline-side-zoom-range{
+.timeline-zoom-range-grid{
     border-style: solid;
     border-color:darkcyan;
     grid-row: 10 / 13;
@@ -79,7 +124,7 @@ grid-column: 9/13;
 }
 
 
-.timeline-side-measures{
+.timeline-measures-grid{
     border-style: solid;
     border-color:deeppink;
     grid-row: 10 / 13;
@@ -123,12 +168,13 @@ grid-column: 9/13;
     position: absolute;
     bottom: 0px;
     right: 2px;
-    font-size: 18px;
   }
 
 
-.btn{
+.btn-xs{
     width: 20px;
 }
 
-
+.fa {
+    font-size: 12px;
+}

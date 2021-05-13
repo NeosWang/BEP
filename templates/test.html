@@ -5,11 +5,10 @@
     <meta charset="utf-8">
     <title>JBP 000</title>
     <!-- STYLES -->
-    <!-- {{ fontawesome_html() }} -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/nouislider.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
  
 
     <!-- /STYLES -->
@@ -19,6 +18,7 @@
     <script src="{{ url_for('static', filename='js/vis.js')}}"></script>
     <script src="{{ url_for('static', filename='js/yc.js')}}"></script>
     <script src="{{ url_for('static', filename='js/dn.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/jquery-3.5.1.min.js')}}"></script>
 
     <!-- /SCRIPTS -->
 
@@ -27,41 +27,53 @@
 </head>
 
 <body>
-    <div class="grid_container">
-        <div id="network" class="network"></div>
+    <div class="grid-container">
+        <div class='network-grid'>
+            <div id="network" style="width:100; height:100%;" class="network"></div>
+            <span class="bottomright mb-1">                
+                <label for="intersection">operation: </label>
+                <select id="union-select" name="union-select" onchange="unionSelect(this)">
+                    <option value='1' >union</option>
+                    <option value='0' >intersection</option>                    
+                </select>
 
-        <div id="side" class="side">
-
-
-            <br><br><br><br><br><br>
-            <label for="lname">idx:</label>
-            <input type="text" id="input-idx" name="input-idx"><br><br>
-
-            <input type="radio" id="union" name="merge" onclick="unionRadio(this)" value="1" checked />
-            <label for="union">union</label><br>
-            <input type="radio" id="intersection" name="merge" onclick="unionRadio(this)" value="0">
-            <label for="intersection">intersection</label><br>
-            <br><br>
-            <select id="featureSelector" onchange="featureSelect(this)">
-                <option value="class" selected>class</option>
-                <option value="gender">gender</option>
-            </select>
+                <label for="intersection">category: </label>
+                <select id="feature-select" name="feature-select" onchange="featureSelect(this)"></select>
+            </span>
         </div>
 
-        <div id="range-slider-box" class="range-slider-box">
+        <div id="network-statistics-grid" class="network-statistics-grid"></div>
+
+        <div id="data-preview-grid" class="data-preview-grid">
+            <div class="inner-grid-1">
+                <button id="bang">bang!</button> 
+                <label for="sep-select">separator:</label>
+                <select id="sep-select" name="sep-select">
+                    <option value=',' selected>comma</option>
+                    <option value=';'>semicolon</option>
+                    <option value='\t'>tab</option>
+                </select>
+            </div> 
+            <div class="inner-grid-2"></div>   
+            <div class="inner-grid-3"></div> 
+            <div class="inner-grid-4"></div>     
+        </div>
+
+        <div id="range-slider-grid" class="range-slider-grid">
+            <div id="range-slider" class="range-slider"></div>
+            <!-- start -- button for slider -->
             <span class="bottomright">
-                <button class='btn' value = '-1' onclick="move(this.value)">
+                <button class='btn-xs' value = '-1' onclick="move(this.value)">
                     <i class="fa fa-step-backward" aria-hidden="true"></i>
                 </button>
-                <button class='btn' value='0' onclick="playOrPause(this)">
+                <button class='btn-xs' value='0' onclick="playOrPause(this)">
                     <i id="play-or-pause" class="fa fa-play" aria-hidden="true"></i>
                 </button>
-                <button id="btn-forward" class='btn' value = '1' onclick="move(this.value)">
+                <button class='btn-xs' value = '1' onclick="move(this.value)">
                     <i class="fa fa-step-forward" aria-hidden="true"></i>
                 </button>
             </span>
-
-            <div id="range-slider" class="range-slider"></div>
+            <!-- end -- button for slider --> 
         </div>
 
         <div id="range-slider-side" class="range-slider-side">
@@ -76,76 +88,137 @@
             <div style="height: 50%;">
                 shit
             </div>
-
-
-
-
-
         </div>
 
-        <div id="timeline" class="timeline"></div>
+        <div id="timeline-grid" class="timeline-grid"></div>
 
-        <div id="timeline-side-zoom-range" class="timeline-side-zoom-range">
+        <div id="timeline-zoom-range-grid" class="timeline-zoom-range-grid">
             <legend>Zoom range:</legend>
             <div class="block">
                 <label for="zoom-select">from</label>
-                <select id="zoom-from" name="zoom-select" onchange="changeDataZoom()"></select>
+                <select id="zoom-from" name="zoom-select" ></select>
             </div>
             <div class="block">
                 <label for="zoom-select">to</label>
-                <select id="zoom-to" name="zoom-select" onchange="changeDataZoom()"></select>
+                <select id="zoom-to" name="zoom-select" ></select>
             </div>
         </div>
-        <div id="timeline-side-measures" class="timeline-side-measures">
+        <div id="timeline-measures-grid" class="timeline-measures-grid">
             <legend>Measurements:</legend>
-            <input type="checkbox" class="cbxMeasurement" name="active nodes" value='0'
-                onclick="selectMeasurements()" /> active nodes <br />
-            <input type="checkbox" class="cbxMeasurement" name="active nodes (pct)" value='1'
-                onclick="selectMeasurements()" /> active nodes (pct) <br />
-            <input type="checkbox" class="cbxMeasurement" name="active relations" value='2'
-                onclick="selectMeasurements()" /> active relations <br />
-            <input type="checkbox" class="cbxMeasurement" name="active density" value='3'
-                onclick="selectMeasurements()" /> active density <br />
-            <input type="checkbox" class="cbxMeasurement" name="maximum clique" value='4'
-                onclick="selectMeasurements()" /> maximum clique <br />
-            <input type="checkbox" class="cbxMeasurement" name="disconnected groups" value='5'
-                onclick="selectMeasurements()" /> disconnected groups <br />
+            <input type="checkbox" class="cbxMeasurement" name="active nodes" value='0'/> active nodes <br />
+            <input type="checkbox" class="cbxMeasurement" name="active nodes (pct)" value='1'/> active nodes (pct) <br />
+            <input type="checkbox" class="cbxMeasurement" name="active relations" value='2'/> active relations <br />
+            <input type="checkbox" class="cbxMeasurement" name="active density" value='3'/> active density <br />
+            <input type="checkbox" class="cbxMeasurement" name="maximum clique" value='4'/> maximum clique <br />
+            <input type="checkbox" class="cbxMeasurement" name="disconnected groups" value='5'/> disconnected groups <br />
         </div>
     </div>
 
 
     <script>
 
+        $(document).ready(function(){
+            
+
+            $('#bang').click(function(){
+                var data= {
+                        data1: JSON.stringify({
+                            'word': 'fuck',
+                        }),
+                    }		
+                $.ajax({
+                    type: 'POST',
+                    url: "/preview",
+                    data: data,  // 这个data是要post的数据
+                    success: function(data){  // 这个data是接收到的响应的实体
+                        alert(data['data'].word);                       
+                    },
+                    error: function(){
+                        alert('ERROR')
+                    }
+                });
+            });
 
 
 
-        /* global variable*/
-        var gIsUnion = true;
-        var gCate = document.getElementById('featureSelector').value;
-        var gGraph;
-        var gGraphAdj;
-        var gMeasurements = {}; //{0：{data,name,show}}
 
-        var dn = DynamicNetwork()
+            
+            $('.cbxMeasurement').click(function(){
+                Object.entries(gMeasurements).forEach(([k, v]) => { v.show = false })
+                $('.cbxMeasurement:checkbox:checked').each((i, e) => {
+                    let key = e.value;
+                    let name = e.name
+                    let show = e.checked;
+                    if (!gMeasurements.hasOwnProperty(key)) {
+                        gMeasurements[key] = {
+                            data: gArrayFuncMeasurements[key](),
+                            name: name
+                        }
+                    }
+                    gMeasurements[key].show = show;            
+                });
+                line.updateTimeline();
+            });
+            
+            $('select[name="zoom-select"]').change(function(){
+                let dataZoomSelectors = $('select[name="zoom-select"]');
+                let idxFrom = dataZoomSelectors[0].selectedIndex;
+                let idxTo = dataZoomSelectors[1].selectedIndex;        
+                if (idxFrom >= idxTo) {
+                    if(this.id=="zoom-from")    
+                        dataZoomSelectors[1].selectedIndex = dataZoomSelectors[0].selectedIndex + 1;
+                        if(dataZoomSelectors[1].selectedIndex == -1){
+                            dataZoomSelectors[1].selectedIndex = dataZoomSelectors[0].selectedIndex;
+                            dataZoomSelectors[0].selectedIndex--;
+                        }
+                    else
+                        dataZoomSelectors[0].selectedIndex = dataZoomSelectors[1].selectedIndex-1;
+                        if(dataZoomSelectors[0].selectedIndex == -1){
+                            dataZoomSelectors[0].selectedIndex++;
+                            dataZoomSelectors[1].selectedIndex++;
+                        }
+                }                               
+                line.update({
+                    dataZoom: {
+                        startValue: dataZoomSelectors[0].selectedIndex,
+                        endValue: dataZoomSelectors[1].selectedIndex
+                    }
+                });
+                slider.setRange(line.dataZoomBoundary());
+            });          
+        });
 
 
-        const gArrayFuncMeasurements = {
-            0: dn.getListNrOfVertices,
-            1: dn.getListPctOfVertices,
-            2: dn.getListNrOfEdges,
-            3: dn.getListActiveDensity,
-            4: dn.getListMaximumClique,
-            5: dn.getListNrOfdisconnected
+
+
+
+        /*-- start -- function on controls*/
+
+
+        function featureSelect(select) {
+            gCate = select.value;
+            slider.translation(0);
+        }
+
+        function unionSelect(select) {
+            gIsUnion = parseInt(select.value);
+            slider.translation(0);
+        }
+
+        function handlersSelect(select) {
+            slider.updateHandles(parseInt(select.value), line.dataZoomBoundary());
+            slider.bindNetwork(network);
         }
 
 
-
+        
+        // button for slider
         function move(ctlValue){
-            slider.translation( parseInt(ctlValue));
+            slider.translation(parseInt(ctlValue));
         }
 
         var autoPlay= new yc.MySetInterval(function(){move(1)},1200);
-
+        
         function playOrPause(btn){   
             let ico = document.getElementById("play-or-pause");
             if (btn.value=='0'){
@@ -160,73 +233,52 @@
                 btn.setAttribute("value", "0");
             }
         }
-
-        
-
+        /*-- end -- function on controls*/
 
 
 
-        /*function on controls*/
-        function selectMeasurements() {
-            let checkedBoxes = document.querySelectorAll('input[class=cbxMeasurement]:checked');
-            Object.entries(gMeasurements).forEach(([k, v]) => { v.show = false })
-            checkedBoxes.forEach(e => {
-                let key = e.value;
-                let name = e.name
-                let show = e.checked;
-
-                if (!gMeasurements.hasOwnProperty(key)) {
-                    gMeasurements[key] = {
-                        data: gArrayFuncMeasurements[key](),
-                        name: name
-                    }
-                }
-                gMeasurements[key].show = show;
-            });
-            line.updateTimeline();
-        }
-
-        function featureSelect(select) {
-            gCate = select.value;
-            network.update(dn.serialize(gGraph, false, gCate), gCate);
-        }
-
-        function unionRadio(radioBtn) {
-            gIsUnion = parseInt(radioBtn.value);
-        }
-
-        function handlersSelect(select) {
-            slider.updateHandles(parseInt(select.value), line.dataZoomBoundary());
-            slider.bindNetwork(network);
-        }
-
-        function changeDataZoom() {
-            let dataZoomSelectors = document.getElementsByName("zoom-select");
-            let idxFrom = dataZoomSelectors[0].selectedIndex;
-            let idxTo = dataZoomSelectors[1].selectedIndex;
-            if (idxFrom > idxTo) {
-                dataZoomSelectors[0].selectedIndex = idxTo;
-                dataZoomSelectors[1].selectedIndex = idxFrom;
-            }
-            line.update({
-                dataZoom: {
-                    startValue: dataZoomSelectors[0].selectedIndex,
-                    endValue: dataZoomSelectors[1].selectedIndex
-                }
-            });
-            slider.setRange(line.dataZoomBoundary());
-        }
+        /*-- start -- global variable*/
+        var gIsUnion = true;
+        var gCate;
+        var gGraph;
+        var gGraphAdj;
+        var gMeasurements = {}; //{0：{data,name,show}}
+        var dn = DynamicNetwork()
+        const gArrayFuncMeasurements = {
+            0: dn.getListNrOfVertices,
+            1: dn.getListPctOfVertices,
+            2: dn.getListNrOfEdges,
+            3: dn.getListActiveDensity,
+            4: dn.getListMaximumClique,
+            5: dn.getListNrOfdisconnected
+        }  
+        /*-- end -- global variable*/
 
 
-
-
-
-
+        /* -- start -- read data*/
         var links = JSON.parse('{{ links | safe}}').map(u => ({ t: u.t, i: u.i, j: u.j }));
-        var nodes = JSON.parse('{{ nodes | safe}}');
-
+        var nodes = JSON.parse('{{ nodes | safe}}');        
         dn.addNodes(nodes)
         dn.addRelationships(links)
+        /* -- end -- read data*/
+
+
+
+
+
+        var select = document.getElementById('feature-select');
+        Object.keys(dn.features).forEach((f,i) =>{            
+            let opt = document.createElement('option');
+            opt.textContent = f;
+            opt.value = f;
+            if(i==0){
+                gCate=f;
+                opt.selected=true;
+            }
+            select.appendChild(opt)
+        });
+
+
 
         const timeData = dn.getTimeline();
 
@@ -247,12 +299,8 @@
         zoomTo.selectedIndex = timeData.length - 1;
 
 
-
-
-        var line = new vis.LineSummary('timeline')
+        var line = new vis.LineSummary('timeline-grid')
         var network = new vis.Network('network')
-
-
 
 
         var slider = new vis.Slider('range-slider', line.dataZoomBoundary(), 1)
@@ -262,15 +310,12 @@
 
 
 
-
-
-
-
-        // resize diagram
+        /*-- start -- resize diagram */
         window.onresize = function () {
             line.resize();
             network.resize();
         }
+        /*-- end -- resize diagram */
 
 
 
