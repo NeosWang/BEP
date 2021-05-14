@@ -5,10 +5,11 @@
     <meta charset="utf-8">
     <title>JBP 000</title>
     <!-- STYLES -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/nouislider.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+
  
 
     <!-- /STYLES -->
@@ -46,17 +47,39 @@
 
         <div id="data-preview-grid" class="data-preview-grid">
             <div class="inner-grid-1">
-                <button id="bang">bang!</button> 
-                <label for="sep-select">separator:</label>
-                <select id="sep-select" name="sep-select">
+
+                <button id="bang1">bang!</button> 
+
+                <label for="sep-select1">separator:</label>
+                <select style="font-family: Georgia" id="sep-select1" name="sep-select1">
+                    <option value=',' selected>,</option>
+                    <option value=';'>;</option>
+                    <option value='\t'>\t</option>
+                </select>
+
+                <input type="checkbox" class="cbx-none-header" id="cbx-none-header1" name="cbx-none-header1"/> <label for="cbx-none-header">None header</label> 
+            </div> 
+
+            <div class="inner-grid-2 px-3" id="inner-grid-2">
+                <table class="table" id="table1"></table>
+            </div>   
+
+            <div class="inner-grid-3">
+                <button id="bang2">bang!</button> 
+
+                <label for="sep-select2">separator:</label>
+                <select style="font-family: Georgia" id="sep-select2" name="sep-select2">
                     <option value=',' selected>comma</option>
                     <option value=';'>semicolon</option>
                     <option value='\t'>tab</option>
                 </select>
+
+                <input type="checkbox" class="cbx-none-header" id="cbx-none-header2" name="cbx-none-header2"/> <label for="cbx-none-header">None header</label> 
             </div> 
-            <div class="inner-grid-2"></div>   
-            <div class="inner-grid-3"></div> 
-            <div class="inner-grid-4"></div>     
+
+            <div class="inner-grid-4 px-3">
+                <table class="table" id="table2"></table>
+            </div>     
         </div>
 
         <div id="range-slider-grid" class="range-slider-grid">
@@ -79,7 +102,7 @@
         <div id="range-slider-side" class="range-slider-side">
             <div style="height: 50%;">
                 <select id="handles" onchange="handlersSelect(this)">
-                    <option class="imagebacked" style="background-image: url(/static/img/try.png);" value="1"  selected>discrete</option>
+                    <option value="1"  selected>discrete</option>
                     <option value="2" >continuous</option>
                     <option value="-3" >continuous(arise)</option>
                     <option value="3"> continuous(die out) </option>
@@ -117,32 +140,109 @@
 
     <script>
 
-        $(document).ready(function(){
-            
-
-            $('#bang').click(function(){
+        /*-- start -- function on controls*/
+        $(document).ready(function(){           
+            $('#bang1').click(function(){
+                let NoneHeader = + $('#cbx-none-header1').prop('checked');
+                let sep = $('#sep-select1').val()
                 var data= {
                         data1: JSON.stringify({
-                            'word': 'fuck',
+                            'sep':sep,
+                            'noneHeader':NoneHeader
                         }),
                     }		
                 $.ajax({
                     type: 'POST',
                     url: "/preview",
-                    data: data,  // 这个data是要post的数据
-                    success: function(data){  // 这个data是接收到的响应的实体
-                        alert(data['data'].word);                       
+                    data: data,
+                    success: function(data){
+
+                        data = JSON.parse(data)
+                        
+                        let table = $('#table1');
+                        table.empty();
+
+
+                        let th = "";
+                        data.columns.forEach(col => {
+                            th += `
+                            <th>
+                                <select name='link-feature-select' onchange='checkLinkFeature(this)'>
+                                    <option>${col}</option>
+                                    <option>time</option>
+                                    <option>i</option>
+                                    <option>j</option>
+                                </select>                                
+                            </th>
+                            `;
+                        });
+                        table.append(`<thead class="thead-light"> <tr>${th}</tr> </thead>`);
+
+                        data.data.forEach(row => {
+                            let str = "";
+                            row.forEach(cell=>{
+                                str += `<td>${cell}</td>`;
+                            })
+                            table.append(`<tr>${str}</tr>`);
+                        });
                     },
                     error: function(){
-                        alert('ERROR')
+                        alert('ERROR');
+                    }
+                });
+            });
+
+            $('#bang2').click(function(){
+                let NoneHeader = + $('#cbx-none-header2').prop('checked');
+                let sep = $('#sep-select2').val()
+                var data= {
+                        data1: JSON.stringify({
+                            'sep':sep,
+                            'noneHeader':NoneHeader
+                        }),
+                    }		
+                $.ajax({
+                    type: 'POST',
+                    url: "/preview",
+                    data: data,
+                    success: function(data){
+
+                        data = JSON.parse(data)
+                        
+                        let table = $('#table2');
+                        table.empty();
+
+                        let th = "";
+                        data.columns.forEach(col => {
+                            th += `
+                            <th>
+                                <select name='link-feature-select' onchange='checkLinkFeature(this)'>
+                                    <option>${col}</option>
+                                    <option>time</option>
+                                    <option>i</option>
+                                    <option>j</option>
+                                </select>                                
+                            </th>
+                            `;
+                        });
+                        table.append(`<thead class="thead-light"> <tr>${th}</tr> </thead>`);
+
+                        data.data.forEach(row => {
+                            let str = "";
+                            row.forEach(cell=>{
+                                str += `<td>${cell}</td>`;
+                            })
+                            table.append(`<tr>${str}</tr>`);
+                        });
+                    },
+                    error: function(){
+                        alert('ERROR');
                     }
                 });
             });
 
 
-
-
-            
+            // select summary statistics
             $('.cbxMeasurement').click(function(){
                 Object.entries(gMeasurements).forEach(([k, v]) => { v.show = false })
                 $('.cbxMeasurement:checkbox:checked').each((i, e) => {
@@ -160,39 +260,56 @@
                 line.updateTimeline();
             });
             
+            // select range of datazoom
             $('select[name="zoom-select"]').change(function(){
-                let dataZoomSelectors = $('select[name="zoom-select"]');
-                let idxFrom = dataZoomSelectors[0].selectedIndex;
-                let idxTo = dataZoomSelectors[1].selectedIndex;        
+                let dataZoomSelects = $('select[name="zoom-select"]');
+                let idxFrom = dataZoomSelects[0].selectedIndex;
+                let idxTo = dataZoomSelects[1].selectedIndex;        
                 if (idxFrom >= idxTo) {
                     if(this.id=="zoom-from")    
-                        dataZoomSelectors[1].selectedIndex = dataZoomSelectors[0].selectedIndex + 1;
-                        if(dataZoomSelectors[1].selectedIndex == -1){
-                            dataZoomSelectors[1].selectedIndex = dataZoomSelectors[0].selectedIndex;
-                            dataZoomSelectors[0].selectedIndex--;
+                        dataZoomSelects[1].selectedIndex = dataZoomSelects[0].selectedIndex + 1;
+                        if(dataZoomSelects[1].selectedIndex == -1){
+                            dataZoomSelects[1].selectedIndex = dataZoomSelects[0].selectedIndex;
+                            dataZoomSelects[0].selectedIndex--;
                         }
                     else
-                        dataZoomSelectors[0].selectedIndex = dataZoomSelectors[1].selectedIndex-1;
-                        if(dataZoomSelectors[0].selectedIndex == -1){
-                            dataZoomSelectors[0].selectedIndex++;
-                            dataZoomSelectors[1].selectedIndex++;
+                        dataZoomSelects[0].selectedIndex = dataZoomSelects[1].selectedIndex-1;
+                        if(dataZoomSelects[0].selectedIndex == -1){
+                            dataZoomSelects[0].selectedIndex++;
+                            dataZoomSelects[1].selectedIndex++;
                         }
                 }                               
                 line.update({
                     dataZoom: {
-                        startValue: dataZoomSelectors[0].selectedIndex,
-                        endValue: dataZoomSelectors[1].selectedIndex
+                        startValue: dataZoomSelects[0].selectedIndex,
+                        endValue: dataZoomSelects[1].selectedIndex
                     }
                 });
                 slider.setRange(line.dataZoomBoundary());
-            });          
+            });
+            
+            
+
+
+
         });
 
 
 
 
 
-        /*-- start -- function on controls*/
+        
+
+        function checkLinkFeature(select){
+            if(select.selectedIndex>0){
+                let linkFeatureSelects = $("select[name='link-feature-select']")
+                linkFeatureSelects.each((i, e)=>{
+                    if(e!=select && e.selectedIndex == select.selectedIndex){
+                        e.selectedIndex = 0;
+                    }
+                });
+            }           
+        }
 
 
         function featureSelect(select) {

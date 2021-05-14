@@ -1,20 +1,18 @@
 import pandas as pd
 
 
-path = "data/"
+# path = "data/"
+# path = "backend/data/"
 
-data_links = 'primaryschool.csv'
+# data_links = 'primaryschool.csv'
 
-data_nodes = 'metadata_primaryschool.txt'
+# data_nodes = 'metadata_primaryschool.txt'
 
-sep = "\t"
+# sep = "\t"
 
 
-def getDataPreview(path, data, sep, header = None):
-
+def preview(path, data , sep, header = 0):
     df = pd.read_csv(path + data, sep = sep, header = header)
-    return df
+    df = df.head()
+    return df.to_json(orient='split')
 
-
-df = getDataPreview(path, data_nodes, sep)
-df

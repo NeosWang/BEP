@@ -2,11 +2,17 @@
     box-sizing: border-box;
     padding: 0;
     margin: 0;
-    font-size:  .95em ;
+    font-size:  .9em ;
 }
 legend{
     color:dimgrey;
-    margin: 1em 0 1em 0;
+    margin: .5em 0 .5em 0;
+    font-size: 1.3em;
+}
+
+th tr td{
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 .grid-container {
@@ -175,6 +181,4 @@ grid-column: 9/13;
     width: 20px;
 }
 
-.fa {
-    font-size: 12px;
-}
+

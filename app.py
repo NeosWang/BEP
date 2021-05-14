@@ -1,7 +1,7 @@
 import os 
 from flask import Flask, request, render_template, jsonify, send_from_directory 
 import requests,json
-from backend import data_processor
+from backend import data_processor, data_preview
 import pandas as pd
 
 app = Flask(__name__)
@@ -32,10 +32,23 @@ def html_table():
 
 
 @app.route("/preview", methods=['GET','POST'])
-def data_preview():
+def ajax_preview():
         data = json.loads(request.form.get('data1'))
-        data['word'] = data['word']+' that fucking shit'
-        return jsonify({"success": 200, "data": data})
+        sep = data['sep']
+        header = None if data['noneHeader']==1 else 0
+
+        
+        
+        path = "backend/data/"
+
+        data_links = 'primaryschool.csv'
+
+        data_nodes = 'metadata_primaryschool.txt'               
+        
+        result = data_preview.preview(path=path, data=data_links, sep = sep, header=header)
+        
+
+        return result
 
 if __name__ == '__main__':
     app.run()
