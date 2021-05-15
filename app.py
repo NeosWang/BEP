@@ -3,10 +3,14 @@ from flask import Flask, request, render_template, jsonify, send_from_directory
 import requests,json
 from backend import data_processor, data_preview
 import pandas as pd
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
 app.config.from_object("settings.DevelopmentConfig")
+
+
+
 
 @app.route('/favicon.ico') 
 def favicon(): 
@@ -31,24 +35,49 @@ def html_table():
 
 
 
-@app.route("/preview", methods=['GET','POST'])
+
+UPLOAD_FOLDER = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+ALLOWED_EXTENSIONS = set(['pdf','txt','csv','tsv'])
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/preview', methods=['GET', 'POST'])
 def ajax_preview():
-        data = json.loads(request.form.get('data1'))
-        sep = data['sep']
-        header = None if data['noneHeader']==1 else 0
+    if request.method == 'POST':
 
         
+        file = request.files['file']
+
+        data = json.loads(request.form.get('param'))
+
         
+        sep = data['sep']
+        header = None if data['noneHeader']=='1' else 0
+        is_relationships = data['isRelationships']
+        
+
         path = "backend/data/"
 
         data_links = 'primaryschool.csv'
 
-        data_nodes = 'metadata_primaryschool.txt'               
+        data_nodes = 'metadata_primaryschool.txt'
         
-        result = data_preview.preview(path=path, data=data_links, sep = sep, header=header)
+        raw_data  = data_links if is_relationships else data_nodes             
+        
+        result = data_preview.preview(path=path, data=raw_data, sep = sep, header=header)
         
 
-        return result
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return  result
+        return  result
+    return ''
+
+
 
 if __name__ == '__main__':
     app.run()

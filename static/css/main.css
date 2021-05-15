@@ -10,11 +10,6 @@ legend{
     font-size: 1.3em;
 }
 
-th tr td{
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
 .grid-container {
     display: grid;
     border-style: solid;
@@ -57,32 +52,18 @@ th tr td{
 .inner-grid-1{
     border-style: solid;
     border-color:mediumvioletred;
-    grid-row: 1/3;
+    grid-row: 1/4;
     grid-column: 1/13;
     overflow-x: scroll;
     overflow-y: scroll;
 }
 
-.inner-grid-2{
-    border-style: solid;
-    border-color:midnightblue;
-    grid-row: 3/7;
-    grid-column: 1/13;
-    overflow-x: scroll;
-    overflow-y: scroll;
-}
-.inner-grid-3{
-    border-style: solid;
-    border-color:palevioletred;
-    grid-row: 7/9;
-    grid-column: 1/13;
-    overflow-x: scroll;
-    overflow-y: scroll;
-}
-.inner-grid-4{
+
+
+.inner-grid-tables{
     border-style: solid;
     border-color:mediumvioletred;
-    grid-row: 9/13;
+    grid-row: 4/13;
     grid-column: 1/13;
     overflow-x: scroll;
     overflow-y: scroll;
@@ -179,6 +160,9 @@ grid-column: 9/13;
 
 .btn-xs{
     width: 20px;
+    padding: 0;
 }
 
-
+.cursor-pointer{
+    cursor: pointer;
+  }

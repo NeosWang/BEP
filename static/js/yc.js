@@ -49,6 +49,10 @@
         return array[Math.round(floatIndex)]
     }
 
+    function cleanedElement(str){
+        return $(str).empty()
+    }
+
     var MySetInterval = function (callback, delay) {
         var setIntervalId, start, remaining = delay;
 
@@ -64,6 +68,8 @@
     }
 
 
+
+
     return {
         version: VERSION,
         author: AUTHOR,
@@ -72,6 +78,7 @@
         sortByKey:sortByKey,
         max:max,
         quantile: quantile,
-        formatter:formatter
+        formatter:formatter,
+        cleanedElement:cleanedElement
     };
 });

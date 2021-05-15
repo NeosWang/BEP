@@ -5,21 +5,29 @@
     <meta charset="utf-8">
     <title>JBP 000</title>
     <!-- STYLES -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/nouislider.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
 
- 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+
 
     <!-- /STYLES -->
     <!-- SCRIPTS -->
+
+    <script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/popper.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+
     <script src="{{ url_for('static', filename='js/echarts.min.js')}}"></script>
     <script src="{{ url_for('static', filename='js/nouislider.js')}}"></script>
+
     <script src="{{ url_for('static', filename='js/vis.js')}}"></script>
     <script src="{{ url_for('static', filename='js/yc.js')}}"></script>
     <script src="{{ url_for('static', filename='js/dn.js')}}"></script>
-    <script src="{{ url_for('static', filename='js/jquery-3.5.1.min.js')}}"></script>
 
     <!-- /SCRIPTS -->
 
@@ -29,82 +37,153 @@
 
 <body>
     <div class="grid-container">
+        <!-- start -- network graph  -->
         <div class='network-grid'>
             <div id="network" style="width:100; height:100%;" class="network"></div>
-            <span class="bottomright mb-1">                
+            <span class="bottomright mb-1">
                 <label for="intersection">operation: </label>
-                <select id="union-select" name="union-select" onchange="unionSelect(this)">
-                    <option value='1' >union</option>
-                    <option value='0' >intersection</option>                    
+                <select id="select-union" name="select-union" onchange="unionSelect(this)">
+                    <option value='1'>union</option>
+                    <option value='0'>intersection</option>
                 </select>
 
                 <label for="intersection">category: </label>
-                <select id="feature-select" name="feature-select" onchange="featureSelect(this)"></select>
+                <select id="select-categorized-feature" name="select-categorized-feature"
+                    onchange="featureSelect(this)"></select>
             </span>
         </div>
+        <!-- end -- network graph  -->
 
+        <!-- start -- network statistics  -->
         <div id="network-statistics-grid" class="network-statistics-grid"></div>
+        <!-- end -- network statistics  -->
 
+        <!-- start -- data upload & preview  -->
         <div id="data-preview-grid" class="data-preview-grid">
-            <div class="inner-grid-1">
+            <div class="inner-grid-1"></div>
 
-                <button id="bang1">bang!</button> 
+            <div class="inner-grid-tables px-3">
+                <legend>Data Preview:</legend>
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#panel-entities">Entities</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#panel-relationships">Relationships</a>
+                    </li>
+                </ul>
 
-                <label for="sep-select1">separator:</label>
-                <select style="font-family: Georgia" id="sep-select1" name="sep-select1">
-                    <option value=',' selected>,</option>
-                    <option value=';'>;</option>
-                    <option value='\t'>\t</option>
-                </select>
+                <!-- start -- tab panels -->
+                <div class="tab-content">
+                    <div id="panel-entities" class="container tab-pane active"><br>
+                        <div class="row">
+                            <div class="col-6">
+                                <div>
+                                    <input type="file" id="file-entities" name="file-entities">
+                                </div>
+                            </div>
+                            <div class='col'>
+                                <div>
+                                    <select style="font-family: Georgia;" id="select-entities-sep"
+                                        name="select-entities-sep">
+                                        <option value='' selected >- separator -</option>
+                                        <option value=','>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; , </option>
+                                        <option value=';'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;</option>
+                                        <option value='\t'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \t</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class='col'>
+                                <div>
+                                    <select style="font-family: Georgia;" id="select-entities-header"
+                                        name="select-entities-header">
+                                        <option value='' selected >- header -</option>
+                                        <option value='0'>1st line</option>
+                                        <option value='1'>none</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
 
-                <input type="checkbox" class="cbx-none-header" id="cbx-none-header1" name="cbx-none-header1"/> <label for="cbx-none-header">None header</label> 
-            </div> 
+                        <div>
+                            <button id="btn-submit-entities" class="btn btn-primary-outline btn-xs float-right" value = '0'>
+                                <i class="fa fa-table"></i> 
+                            </button>
+                        </div>
 
-            <div class="inner-grid-2 px-3" id="inner-grid-2">
-                <table class="table" id="table1"></table>
-            </div>   
+                        <div class= "mt-1">
+                            <table class="table" id="table-entities"></table>
+                        </div>
+                    </div>
 
-            <div class="inner-grid-3">
-                <button id="bang2">bang!</button> 
-
-                <label for="sep-select2">separator:</label>
-                <select style="font-family: Georgia" id="sep-select2" name="sep-select2">
-                    <option value=',' selected>comma</option>
-                    <option value=';'>semicolon</option>
-                    <option value='\t'>tab</option>
-                </select>
-
-                <input type="checkbox" class="cbx-none-header" id="cbx-none-header2" name="cbx-none-header2"/> <label for="cbx-none-header">None header</label> 
-            </div> 
-
-            <div class="inner-grid-4 px-3">
-                <table class="table" id="table2"></table>
-            </div>     
+                    <div id="panel-relationships" class="container tab-pane fade"><br>
+                        <div class="row">
+                            <div class="col-6">
+                                <div>
+                                    <input type="file" id="file-relationships" name="file-relationships">
+                                </div>
+                            </div>
+                            <div class='col'>
+                                <div>
+                                    <select style="font-family: Georgia" id="select-relationships-sep" name="select-relationships-sep">
+                                        <option value='' >- separator -</option>
+                                        <option value=','>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; , </option>
+                                        <option value=';'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;</option>
+                                        <option value='\t'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \t</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class='col'>
+                                <div>
+                                    <select style="font-family: Georgia;" id="select-relationships-header"
+                                        name="select-relationships-header">
+                                        <option value='' >- header -</option>
+                                        <option value='0'>1st line</option>
+                                        <option value='1'>none</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <button id="btn-submit-relationships" class="btn btn-primary-outline btn-xs float-right" value = '1'>
+                                <i class="fa fa-table"></i> 
+                            </button>
+                        </div>
+                        
+                        <div class="mt-1">
+                            <table class="table" id="table-relationships"></table>
+                        </div>
+                    </div>
+                </div>
+                <!-- end -- tab panels -->
+            </div>
         </div>
+        <!-- end -- data upload & preview  -->
+        
 
         <div id="range-slider-grid" class="range-slider-grid">
             <div id="range-slider" class="range-slider"></div>
             <!-- start -- button for slider -->
             <span class="bottomright">
-                <button class='btn-xs' value = '-1' onclick="move(this.value)">
+                <button class='btn-xs' value='-1' onclick="move(this.value)">
                     <i class="fa fa-step-backward" aria-hidden="true"></i>
                 </button>
                 <button class='btn-xs' value='0' onclick="playOrPause(this)">
                     <i id="play-or-pause" class="fa fa-play" aria-hidden="true"></i>
                 </button>
-                <button class='btn-xs' value = '1' onclick="move(this.value)">
+                <button class='btn-xs' value='1' onclick="move(this.value)">
                     <i class="fa fa-step-forward" aria-hidden="true"></i>
                 </button>
             </span>
-            <!-- end -- button for slider --> 
+            <!-- end -- button for slider -->
         </div>
 
         <div id="range-slider-side" class="range-slider-side">
             <div style="height: 50%;">
                 <select id="handles" onchange="handlersSelect(this)">
-                    <option value="1"  selected>discrete</option>
-                    <option value="2" >continuous</option>
-                    <option value="-3" >continuous(arise)</option>
+                    <option value="1" selected>discrete</option>
+                    <option value="2">continuous</option>
+                    <option value="-3">continuous(arise)</option>
                     <option value="3"> continuous(die out) </option>
                 </select>
             </div>
@@ -116,134 +195,209 @@
         <div id="timeline-grid" class="timeline-grid"></div>
 
         <div id="timeline-zoom-range-grid" class="timeline-zoom-range-grid">
-            <legend>Zoom range:</legend>
+            <legend>Zoom Range:</legend>
             <div class="block">
-                <label for="zoom-select">from</label>
-                <select id="zoom-from" name="zoom-select" ></select>
+                <label for="select-zoom">from</label>
+                <select id="zoom-from" name="select-zoom"></select>
             </div>
             <div class="block">
-                <label for="zoom-select">to</label>
-                <select id="zoom-to" name="zoom-select" ></select>
+                <label for="select-zoom">to</label>
+                <select id="zoom-to" name="select-zoom"></select>
             </div>
         </div>
         <div id="timeline-measures-grid" class="timeline-measures-grid">
             <legend>Measurements:</legend>
-            <input type="checkbox" class="cbxMeasurement" name="active nodes" value='0'/> active nodes <br />
-            <input type="checkbox" class="cbxMeasurement" name="active nodes (pct)" value='1'/> active nodes (pct) <br />
-            <input type="checkbox" class="cbxMeasurement" name="active relations" value='2'/> active relations <br />
-            <input type="checkbox" class="cbxMeasurement" name="active density" value='3'/> active density <br />
-            <input type="checkbox" class="cbxMeasurement" name="maximum clique" value='4'/> maximum clique <br />
-            <input type="checkbox" class="cbxMeasurement" name="disconnected groups" value='5'/> disconnected groups <br />
+            <input type="checkbox" class="cbxMeasurement" name="active nodes" value='0' /> active nodes <br />
+            <input type="checkbox" class="cbxMeasurement" name="active nodes (pct)" value='1' /> active nodes (pct)
+            <br />
+            <input type="checkbox" class="cbxMeasurement" name="active relations" value='2' /> active relations <br />
+            <input type="checkbox" class="cbxMeasurement" name="active density" value='3' /> active density <br />
+            <input type="checkbox" class="cbxMeasurement" name="maximum clique" value='4' /> maximum clique <br />
+            <input type="checkbox" class="cbxMeasurement" name="disconnected groups" value='5' /> disconnected groups
+            <br />
         </div>
     </div>
 
 
     <script>
 
+
+        function getDataPreview(){
+
+        }
+
+        function tableShowPreview(table, res, isRelationships){
+            // -- start -- table header
+            let th = "";
+            res.columns.forEach(col => {
+                if(isRelationships){
+                    th += `
+                        <th>
+                            <select name='select-link-feature' onchange='checkLinkFeature(this)'>
+                                <option>${String(col).toLowerCase()}</option>
+                                <option value='1'>time</option>
+                                <option value='2'>i</option>
+                                <option value='3'>j</option>
+                            </select>                                
+                        </th>
+                        `;
+                }else{
+                    th += `
+                        <th>
+                            <input type="text" class="form-control form-control-sm" value="${String(col).toLowerCase()}" aria-label="Small">              
+                        </th>
+                        `;
+                }                
+            });
+            table.append(`<thead class="thead-light"> <tr>${th}</tr> </thead>`);
+            // -- end -- table header
+
+            // -- start -- table body
+            let tb = ""
+            res.data.forEach(row => {
+                let str = "";
+                row.forEach(cell => {
+                    str += `<td>${cell}</td>`;
+                })
+                tb += `<tr>${str}</tr>`;
+            });
+            table.append(`<tbody>${tb}</tbody>`);
+            // -- end -- table body
+
+            // -- start -- table foot
+            let tf = "";
+            res.columns.forEach((col,i)=>{
+                if(i==0){
+                    tf+=`<td>...</td>`
+                }else if(i==res.columns.length-1){
+                    tf +=`<td><button class="btn btn-primary-outline btn-xs float-right"><i class="fa fa-upload"></i></button></td>`
+                }else{
+                    tf+=`<td></td>`
+                }
+
+            });
+            table.append(`<tfoot> <tr> ${tf} </tr> </tfoot>`);
+            // -- end -- table foot
+        }
+
+
+
+
+
         /*-- start -- function on controls*/
-        $(document).ready(function(){           
-            $('#bang1').click(function(){
-                let NoneHeader = + $('#cbx-none-header1').prop('checked');
-                let sep = $('#sep-select1').val()
-                var data= {
-                        data1: JSON.stringify({
-                            'sep':sep,
-                            'noneHeader':NoneHeader
-                        }),
-                    }		
+        $(document).ready(function () {
+            $('#btn-submit-entities').click(function () {
+
+                let table = yc.cleanedElement('#table-entities');
+
+                let toReturn = false
+                let fileObj = $('#file-entities').prop('files')[0]
+
+                if (typeof (fileObj) == "undefined" || fileObj.size <= 0) {
+                    tableShowWarning(table,'file not selected');
+                    toReturn = true;
+                }
+
+                let sep = $('#select-entities-sep').val()
+                if (sep === '') {
+                    tableShowWarning(table,'separator not selected');
+                    toReturn = true;
+                }
+
+                let noneHeader = $('#select-entities-header').val();
+                if (noneHeader === '') {
+                    tableShowWarning(table,'header not selected');
+                    toReturn = true;
+                }
+
+                if (toReturn) return;
+
+                let isRelationships = parseInt(this.value);
+                
+                var param = JSON.stringify({
+                    'sep': sep,
+                    'noneHeader': noneHeader,
+                    'isRelationships': isRelationships
+                });
+
+                var formData = new FormData();
+                formData.append("file", fileObj); //加入文件对象
+                formData.append("param", param)
+
                 $.ajax({
-                    type: 'POST',
+                    type: "Post",
                     url: "/preview",
-                    data: data,
-                    success: function(data){
-
-                        data = JSON.parse(data)
-                        
-                        let table = $('#table1');
-                        table.empty();
-
-
-                        let th = "";
-                        data.columns.forEach(col => {
-                            th += `
-                            <th>
-                                <select name='link-feature-select' onchange='checkLinkFeature(this)'>
-                                    <option>${col}</option>
-                                    <option>time</option>
-                                    <option>i</option>
-                                    <option>j</option>
-                                </select>                                
-                            </th>
-                            `;
-                        });
-                        table.append(`<thead class="thead-light"> <tr>${th}</tr> </thead>`);
-
-                        data.data.forEach(row => {
-                            let str = "";
-                            row.forEach(cell=>{
-                                str += `<td>${cell}</td>`;
-                            })
-                            table.append(`<tr>${str}</tr>`);
-                        });
+                    data: formData,
+                    dataType: "json",
+                    cache: false,//上传文件无需缓存
+                    processData: false,//用于对data参数进行序列化处理 这里必须false
+                    contentType: false, //必须
+                    success: function (res) {
+                        tableShowPreview(table, res,  isRelationships)
                     },
-                    error: function(){
-                        alert('ERROR');
+                    error: function () {
+                        tableShowWarning(table,'ERROR')
                     }
                 });
             });
 
-            $('#bang2').click(function(){
-                let NoneHeader = + $('#cbx-none-header2').prop('checked');
-                let sep = $('#sep-select2').val()
-                var data= {
-                        data1: JSON.stringify({
-                            'sep':sep,
-                            'noneHeader':NoneHeader
-                        }),
-                    }		
+            $('#btn-submit-relationships').click(function () {
+                let table = yc.cleanedElement('#table-relationships');
+
+                let toReturn = false
+
+                let fileObj = $('#file-relationships').prop('files')[0]
+                if (typeof (fileObj) == "undefined" || fileObj.size <= 0) {
+                    tableShowWarning(table,'file not selected');
+                    toReturn = true;
+                }
+
+                let sep = $('#select-relationships-sep').val()
+                if (sep === "") {
+                    tableShowWarning(table,'separator not selected');
+                    toReturn = true;
+                }
+
+                let noneHeader = $('#select-relationships-header').val();
+                if (noneHeader === "") {
+                    tableShowWarning(table,'header not selected');
+                    toReturn = true;
+                }
+
+                if (toReturn) return;
+
+                let isRelationships = parseInt(this.value);
+
+                var param = JSON.stringify({
+                    'sep': sep,
+                    'noneHeader': noneHeader,
+                    'isRelationships': isRelationships
+                });
+
+                var formData = new FormData();
+                formData.append("file", fileObj); //加入文件对象
+                formData.append("param", param)
+
                 $.ajax({
-                    type: 'POST',
+                    type: "Post",
                     url: "/preview",
-                    data: data,
-                    success: function(data){
-
-                        data = JSON.parse(data)
-                        
-                        let table = $('#table2');
-                        table.empty();
-
-                        let th = "";
-                        data.columns.forEach(col => {
-                            th += `
-                            <th>
-                                <select name='link-feature-select' onchange='checkLinkFeature(this)'>
-                                    <option>${col}</option>
-                                    <option>time</option>
-                                    <option>i</option>
-                                    <option>j</option>
-                                </select>                                
-                            </th>
-                            `;
-                        });
-                        table.append(`<thead class="thead-light"> <tr>${th}</tr> </thead>`);
-
-                        data.data.forEach(row => {
-                            let str = "";
-                            row.forEach(cell=>{
-                                str += `<td>${cell}</td>`;
-                            })
-                            table.append(`<tr>${str}</tr>`);
-                        });
+                    data: formData,
+                    dataType: "json",
+                    cache: false,//上传文件无需缓存
+                    processData: false,//用于对data参数进行序列化处理 这里必须false
+                    contentType: false, //必须
+                    success: function (res) {
+                        tableShowPreview(table, res,  isRelationships);
                     },
-                    error: function(){
-                        alert('ERROR');
+                    error: function () {
+                        tableShowWarning(table,'ERROR')
                     }
                 });
             });
 
 
             // select summary statistics
-            $('.cbxMeasurement').click(function(){
+            $('.cbxMeasurement').click(function () {
                 Object.entries(gMeasurements).forEach(([k, v]) => { v.show = false })
                 $('.cbxMeasurement:checkbox:checked').each((i, e) => {
                     let key = e.value;
@@ -255,30 +409,30 @@
                             name: name
                         }
                     }
-                    gMeasurements[key].show = show;            
+                    gMeasurements[key].show = show;
                 });
                 line.updateTimeline();
             });
-            
+
             // select range of datazoom
-            $('select[name="zoom-select"]').change(function(){
-                let dataZoomSelects = $('select[name="zoom-select"]');
+            $('select[name="select-zoom"]').change(function () {
+                let dataZoomSelects = $('select[name="select-zoom"]');
                 let idxFrom = dataZoomSelects[0].selectedIndex;
-                let idxTo = dataZoomSelects[1].selectedIndex;        
+                let idxTo = dataZoomSelects[1].selectedIndex;
                 if (idxFrom >= idxTo) {
-                    if(this.id=="zoom-from")    
+                    if (this.id == "zoom-from")
                         dataZoomSelects[1].selectedIndex = dataZoomSelects[0].selectedIndex + 1;
-                        if(dataZoomSelects[1].selectedIndex == -1){
-                            dataZoomSelects[1].selectedIndex = dataZoomSelects[0].selectedIndex;
-                            dataZoomSelects[0].selectedIndex--;
-                        }
+                    if (dataZoomSelects[1].selectedIndex == -1) {
+                        dataZoomSelects[1].selectedIndex = dataZoomSelects[0].selectedIndex;
+                        dataZoomSelects[0].selectedIndex--;
+                    }
                     else
-                        dataZoomSelects[0].selectedIndex = dataZoomSelects[1].selectedIndex-1;
-                        if(dataZoomSelects[0].selectedIndex == -1){
-                            dataZoomSelects[0].selectedIndex++;
-                            dataZoomSelects[1].selectedIndex++;
-                        }
-                }                               
+                        dataZoomSelects[0].selectedIndex = dataZoomSelects[1].selectedIndex - 1;
+                    if (dataZoomSelects[0].selectedIndex == -1) {
+                        dataZoomSelects[0].selectedIndex++;
+                        dataZoomSelects[1].selectedIndex++;
+                    }
+                }
                 line.update({
                     dataZoom: {
                         startValue: dataZoomSelects[0].selectedIndex,
@@ -287,28 +441,25 @@
                 });
                 slider.setRange(line.dataZoomBoundary());
             });
-            
-            
-
-
-
         });
 
+        /*-- start -- functions for ajax */
+        function tableShowWarning(table, str){
+            table.append(`<tr><td class="text-danger font-weight-bold">${str}</td></tr>`)
+        }
 
 
 
 
-        
-
-        function checkLinkFeature(select){
-            if(select.selectedIndex>0){
-                let linkFeatureSelects = $("select[name='link-feature-select']")
-                linkFeatureSelects.each((i, e)=>{
-                    if(e!=select && e.selectedIndex == select.selectedIndex){
+        function checkLinkFeature(select) {
+            if (select.selectedIndex > 0) {
+                let linkFeatureSelects = $("select[name='select-link-feature']")
+                linkFeatureSelects.each((i, e) => {
+                    if (e != select && e.selectedIndex == select.selectedIndex) {
                         e.selectedIndex = 0;
                     }
                 });
-            }           
+            }
         }
 
 
@@ -328,24 +479,24 @@
         }
 
 
-        
+
         // button for slider
-        function move(ctlValue){
+        function move(ctlValue) {
             slider.translation(parseInt(ctlValue));
         }
 
-        var autoPlay= new yc.MySetInterval(function(){move(1)},1200);
-        
-        function playOrPause(btn){   
+        var autoPlay = new yc.MySetInterval(function () { move(1) }, 1200);
+
+        function playOrPause(btn) {
             let ico = document.getElementById("play-or-pause");
-            if (btn.value=='0'){
-                ico.classList.remove('fa-play'); 
+            if (btn.value == '0') {
+                ico.classList.remove('fa-play');
                 ico.classList.add('fa-pause');
                 autoPlay.play();
                 btn.setAttribute("value", "1");
-            }else{
+            } else {
                 ico.classList.remove('fa-pause');
-                ico.classList.add('fa-play'); 
+                ico.classList.add('fa-play');
                 autoPlay.pause();
                 btn.setAttribute("value", "0");
             }
@@ -368,13 +519,13 @@
             3: dn.getListActiveDensity,
             4: dn.getListMaximumClique,
             5: dn.getListNrOfdisconnected
-        }  
+        }
         /*-- end -- global variable*/
 
 
         /* -- start -- read data*/
         var links = JSON.parse('{{ links | safe}}').map(u => ({ t: u.t, i: u.i, j: u.j }));
-        var nodes = JSON.parse('{{ nodes | safe}}');        
+        var nodes = JSON.parse('{{ nodes | safe}}');
         dn.addNodes(nodes)
         dn.addRelationships(links)
         /* -- end -- read data*/
@@ -383,14 +534,14 @@
 
 
 
-        var select = document.getElementById('feature-select');
-        Object.keys(dn.features).forEach((f,i) =>{            
+        var select = document.getElementById('select-categorized-feature');
+        Object.keys(dn.features).forEach((f, i) => {
             let opt = document.createElement('option');
             opt.textContent = f;
             opt.value = f;
-            if(i==0){
-                gCate=f;
-                opt.selected=true;
+            if (i == 0) {
+                gCate = f;
+                opt.selected = true;
             }
             select.appendChild(opt)
         });
