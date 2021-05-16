@@ -49,24 +49,27 @@ legend{
     grid-gap: 2px;
 }
 
-.inner-grid-1{
+.inner-grid-logo{
     border-style: solid;
     border-color:mediumvioletred;
-    grid-row: 1/4;
+    grid-row: 1/3;
+    grid-column: 1/13;
+}
+
+.inner-grid-tables{
+    border-style: solid;
+    border-color:mediumvioletred;
+    grid-row: 3/12;
     grid-column: 1/13;
     overflow-x: scroll;
     overflow-y: scroll;
 }
 
-
-
-.inner-grid-tables{
+.inner-grid-submit{
     border-style: solid;
     border-color:mediumvioletred;
-    grid-row: 4/13;
+    grid-row: 12/13;
     grid-column: 1/13;
-    overflow-x: scroll;
-    overflow-y: scroll;
 }
 
 .range-slider-grid {

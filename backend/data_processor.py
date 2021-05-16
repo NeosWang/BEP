@@ -27,3 +27,4 @@ def get_data():
             file, fieldnames=nodes_colnames, delimiter="\t")
         nodes = json.dumps(list(reader))
     return links, nodes
+

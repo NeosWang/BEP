@@ -67,8 +67,45 @@
         };
     }
 
+    function uniqueSubArray (master, sub){
+        return sub.every(e=> master.filter(v => v == e).length == 1);
+    }
 
+    function tickIcon(i, toTick){
+        if(toTick){
+            i.removeClass("fa-square-o");
+            i.addClass("fa-check-square-o");
+        }else{
+            i.removeClass("fa-check-square-o");
+            i.addClass("fa-square-o");
+        }
+    }
 
+    function replaceIcon(i,before, after){
+        i.removeClass(before);
+        i.addClass(after);
+    }
+
+    function uniqueElements(array) {
+        return (new Set(array)).size === array.length;
+    }
+
+    function limitFileSize (file, limitSize) {
+        var arr = ["KB", "MB", "GB"]
+        var limit = limitSize.toUpperCase();
+        var limitNum = 0;
+        for (var i = 0; i < arr.length; i++) {
+            var leval = limit.indexOf(arr[i]);
+            if (leval > -1) {
+                limitNum = parseInt(limit.substr(0, leval)) * Math.pow(1024, (i + 1))
+                break
+            }
+        }
+        if (file.size > limitNum) {
+            return false
+        }
+        return true
+    }
 
     return {
         version: VERSION,
@@ -79,6 +116,11 @@
         max:max,
         quantile: quantile,
         formatter:formatter,
-        cleanedElement:cleanedElement
+        cleanedElement:cleanedElement,
+        uniqueSubArray:uniqueSubArray,
+        tickIcon:tickIcon,
+        replaceIcon:replaceIcon,
+        limitFileSize:limitFileSize,
+        uniqueElements:uniqueElements
     };
 });
