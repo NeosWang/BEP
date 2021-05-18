@@ -24,11 +24,14 @@
         this.mergeTooltips();
     }
     Slider.prototype = {
+        destory:function(){
+            this.slider.noUiSlider.destroy();
+        },
         initSlider: function () {
             let start = new Array(Math.abs(this.handles)).fill(0);
             let tooltips = new Array(Math.abs(this.handles)).fill({
                 to: function (value) {
-                    return timeData[Math.round(value)];
+                    return gDn.timeSeries[Math.round(value)];
                 }
             })
             let slider = document.getElementById(this.id);
@@ -84,15 +87,15 @@
             if (!Array.isArray(tooltips)) return;
             this.slider.noUiSlider.on('update', function (values, handle, unencoded, tap, positions) {
                 let handleGroup = [[0]];
-                let valueGroup = [[yc.formatter(timeData, values[0])]];
+                let valueGroup = [[yc.formatter(gDn.timeSeries, values[0])]];
                 for (let i = 1; i < values.length; i++) {
                     if (positions[i] - positions[i - 1] > threshold) {
                         handleGroup.push([i]);
-                        valueGroup.push([yc.formatter(timeData, values[i])]);
+                        valueGroup.push([yc.formatter(gDn.timeSeries, values[i])]);
                     }
                     else {
                         handleGroup[handleGroup.length - 1].push(i);
-                        valueGroup[valueGroup.length - 1].push(yc.formatter(timeData, values[i]));
+                        valueGroup[valueGroup.length - 1].push(yc.formatter(gDn.timeSeries, values[i]));
                     }
                 }
                 for (let i = 0; i < handleGroup.length; i++) {
@@ -122,12 +125,12 @@
         bindNetwork: function (network) {
             this.slider.noUiSlider.on('update', function (values, handle) {       
                 if (values.length == 1) {
-                    let time = timeData[parseInt(values[handle])];
-                    gGraph = dn.getGraph(time);
+                    let time = gDn.timeSeries[parseInt(values[handle])];
+                    gGraph = gDn.getGraph(time);
                     gGraphAdj=undefined;
                 } else {
                     let startIdx, endIdx, aStartIdx, aEndIdx
-                    switch(slider.handles){
+                    switch(gSlider.handles){
                         case 2:
                             startIdx =parseInt(values[0]);
                             endIdx = parseInt(values[1]);
@@ -146,17 +149,17 @@
                             break;
                     }
                     if (gIsUnion) {
-                        gGraph = dn.unionGraph(timeData[startIdx], timeData[endIdx]);
-                        gGraphAdj = dn.unionGraph(timeData[aStartIdx], timeData[aEndIdx]);
+                        gGraph = gDn.unionGraph(gDn.timeSeries[startIdx], gDn.timeSeries[endIdx]);
+                        gGraphAdj = gDn.unionGraph(gDn.timeSeries[aStartIdx], gDn.timeSeries[aEndIdx]);
                     } else {
-                        gGraph = dn.intersectionGraph(timeData[startIdx], timeData[endIdx]);
-                        gGraphAdj = dn.intersectionGraph(timeData[aStartIdx], timeData[aEndIdx]);
+                        gGraph = gDn.intersectionGraph(gDn.timeSeries[startIdx], gDn.timeSeries[endIdx]);
+                        gGraphAdj = gDn.intersectionGraph(gDn.timeSeries[aStartIdx], gDn.timeSeries[aEndIdx]);
                     }
                     if(aStartIdx>aEndIdx){
                         gGraphAdj=undefined;
                     }                    
                 }
-                let series = dn.serialize(gGraph, false, gCate);
+                let series = gDn.serialize(gGraph, false, gCate);
                 
                 let color = {
                     '-3':'limegreen',
@@ -165,7 +168,7 @@
                 }
 
                 if(gGraphAdj){
-                    series = dn.serializeColoring(series, gGraph.difference(gGraphAdj), color[slider.handles])
+                    series = gDn.serializeColoring(series, gGraph.difference(gGraphAdj), color[gSlider.handles])
                 }
                 network.update(series, gCate);
             });
@@ -246,7 +249,7 @@
                 type: 'category',
                 boundaryGap: false,
                 axisLine: { onZero: true },
-                data: timeData
+                data: gDn.timeSeries
             },
             yAxis: {
                 name: '',
@@ -256,6 +259,9 @@
         option && this.myChart.setOption(option);
     }
     LineSummary.prototype = {
+        destory:function(){
+            this.myChart.dispose();
+        },
         triggerRangeSlider: function (slider, zoomFrom, zoomTo) {
             let fn = [
                 this._dataZoomScaleSlider
@@ -295,7 +301,7 @@
             }
 
             let boundary = {
-                start: start,//index of timeData
+                start: start,//index of timeSeries
                 end: end
             }
             slider.setRange(boundary);
@@ -378,6 +384,9 @@
         option && this.myChart.setOption(option);
     }
     Network.prototype = {
+        destory:function(){
+            this.myChart.dispose();
+        },
         update: function (data, cate) {
             this.myChart.setOption({
                 legend: [{

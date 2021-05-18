@@ -22,7 +22,7 @@
 
     <script src="{{ url_for('static', filename='js/vis.js')}}"></script>
     <script src="{{ url_for('static', filename='js/yc.js')}}"></script>
-    <script src="{{ url_for('static', filename='js/dn.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/dn_copy.js')}}"></script>
     <!-- /SCRIPTS -->
 
 </head>
@@ -31,7 +31,7 @@
     <div class="grid-container">
         <!-- start -- network graph  -->
         <div class='network-grid'>
-            <div id="network" style="width:100; height:100%;" class="network"></div>
+            <div id="network" class="vis-component w-100 h-100"></div>
             <span class="bottomright mb-1">
                 <label for="intersection">operation: </label>
                 <select id="select-union" name="select-union" onchange="unionSelect(this)">
@@ -40,8 +40,8 @@
                 </select>
 
                 <label for="intersection">category: </label>
-                <select id="select-categorized-feature" name="select-categorized-feature"
-                    onchange="featureSelect(this)"></select>
+                <select id="select-categorized-feature" class="vis-component" name="select-categorized-feature"
+                    onchange="featureSelect(this)" ></select>
             </span>
         </div>
         <!-- end -- network graph  -->
@@ -222,7 +222,7 @@
         </div>
 
         <!-- start -- timeline -->
-        <div id="timeline-grid" class="timeline-grid"></div>
+        <div id="timeline-grid" class="timeline-grid vis-component"></div>
         <!-- end  -- timeline -->
 
         <!-- start -- datazoom range -->
@@ -230,11 +230,11 @@
             <legend>Zoom Range:</legend>
             <div class="block">
                 <label for="select-zoom">from</label>
-                <select id="zoom-from" name="select-zoom"></select>
+                <select id="zoom-from" class="vis-component" name="select-zoom"></select>
             </div>
             <div class="block">
                 <label for="select-zoom">to</label>
-                <select id="zoom-to" name="select-zoom"></select>
+                <select id="zoom-to" class="vis-component" name="select-zoom"></select>
             </div>
         </div>
         <!-- end -- datazoom range -->
@@ -242,13 +242,13 @@
         <!-- start -- summary statistics -->
         <div id="timeline-measures-grid" class="timeline-measures-grid">
             <legend>Measurements:</legend>
-            <input type="checkbox" class="cbxMeasurement" name="active nodes" value='0' /> active nodes <br />
-            <input type="checkbox" class="cbxMeasurement" name="active nodes (pct)" value='1' /> active nodes (pct)
+            <input type="checkbox" class="cbx-measurement" name="active nodes" value='0'/> active nodes <br />
+            <input type="checkbox" class="cbx-measurement" name="active nodes (pct)" value='1' /> active nodes (pct)
             <br />
-            <input type="checkbox" class="cbxMeasurement" name="active relations" value='2' /> active relations <br />
-            <input type="checkbox" class="cbxMeasurement" name="active density" value='3' /> active density <br />
-            <input type="checkbox" class="cbxMeasurement" name="maximum clique" value='4' /> maximum clique <br />
-            <input type="checkbox" class="cbxMeasurement" name="disconnected groups" value='5' /> disconnected groups
+            <input type="checkbox" class="cbx-measurement" name="active relations" value='2' /> active relations <br />
+            <input type="checkbox" class="cbx-measurement" name="active density" value='3' /> active density <br />
+            <input type="checkbox" class="cbx-measurement" name="maximum clique" value='4' /> maximum clique <br />
+            <input type="checkbox" class="cbx-measurement" name="disconnected groups" value='5' /> disconnected groups
             <br />
         </div>
         <!-- end -- summary statistics -->
@@ -257,16 +257,13 @@
 
     <script>
         /*-- start -- initializing function on controls*/
-        var linkTest;
-        var nodeTest;
-        $(document).ready(function () {
+            $(document).ready(function () {
             $('.btn-preview').click(function () {
                 previewData(this);
             });
             $('.btn-refresh-preview-panel').click(function(){
                 refreshPreviewData(this);
             });
-
             $('#btn-confirm').click(function(){
                 let flag = false
 
@@ -293,10 +290,9 @@
                 processData: false,//用于对data参数进行序列化处理 这里必须false
                 contentType: false, //必须
                 success: function (res) {
+                    initializeComponents();
                     showMsg(warningDiv,res['msg'],false);
-                    // nodeTest= res['entities']
-                    // linkTest = res['relationships']
-                    loadData(dn,res['entities'],res['relationships'])
+                    loadData(gDn,res['entities'],res['relationships'])
 
                 },
                 error: function () {
@@ -308,7 +304,7 @@
                 
             });
             // range slider buttons
-            var move = v => slider.translation(v);
+            var move = v => gSlider.translation(v);
             var autoPlay = new yc.MySetInterval(function () { move(1) }, 1200);
             $('.btn-slider-step').click(function(){
                 move(parseInt($(this).val()));
@@ -345,31 +341,52 @@
                         dataZoomSelects[1].selectedIndex++;
                     }
                 }
-                line.update({
+                gLineSummary.update({
                     dataZoom: {
                         startValue: dataZoomSelects[0].selectedIndex,
                         endValue: dataZoomSelects[1].selectedIndex
                     }
                 });
-                slider.setRange(line.dataZoomBoundary());
+                gSlider.setRange(gLineSummary.dataZoomBoundary());
             });
         
             // select summary statistics
-            $('.cbxMeasurement').click(function () {
+            $('.cbx-measurement').click(function () {
                 Object.entries(gMeasurements).forEach(([k, v]) => { v.show = false })
-                $('.cbxMeasurement:checkbox:checked').each((i, e) => {
+                $('.cbx-measurement:checkbox:checked').each((i, e) => {
                     let key = e.value;
                     let name = e.name
                     let show = e.checked;
+                    let data;
                     if (!gMeasurements.hasOwnProperty(key)) {
+                        switch(key){
+                            case '0':
+                                data = gDn.getListNrOfVertices();
+                                break;
+                            case '1':
+                                data = gDn.getListPctOfVertices();
+                                break;
+                            case '2':
+                                data = gDn.getListNrOfEdges();
+                                break;
+                            case '3':
+                                data = gDn.getListActiveDensity();
+                                break;
+                            case '4':
+                                data = gDn.getListMaximumClique();
+                                break;
+                            case '5':
+                                data = gDn.getListNrOfdisconnected();
+                                break;
+                        }
                         gMeasurements[key] = {
-                            data: gArrayFuncMeasurements[key](),
+                            data: data,
                             name: name
                         }
                     }
                     gMeasurements[key].show = show;
                 });
-                line.updateTimeline();
+                gLineSummary.updateTimeline();
             });
 
 
@@ -378,7 +395,22 @@
 
 
 
-
+        function initializeComponents(){
+            if(gSlider!=undefined) gSlider.destory();
+            if(gNetwork!=undefined) gNetwork.destory();
+            if(gLineSummary!=undefined) gLineSummary.destory();
+            gCate=undefined;
+            gGraph=undefined;
+            gGraphAdj=undefined;
+            gSlider=undefined;
+            gLineSummary=undefined;
+            gNetwork=undefined;
+            gMeasurements = {};
+            gDn = new dn.DynamicNetwork();
+            yc.cleanedElement('.vis-component');
+            $('#handles').val('1');
+            $('.cbx-measurement').prop('checked', false);
+        }
 
 
 
@@ -646,17 +678,17 @@
 
         function featureSelect(select) {
             gCate = select.value;
-            slider.translation(0);
+            gSlider.translation(0);
         }
 
         function unionSelect(select) {
             gIsUnion = parseInt(select.value);
-            slider.translation(0);
+            gSlider.translation(0);
         }
 
         function handlersSelect(select) {
-            slider.updateHandles(parseInt(select.value), line.dataZoomBoundary());
-            slider.bindNetwork(network);
+            gSlider.updateHandles(parseInt(select.value), gLineSummary.dataZoomBoundary());
+            gSlider.bindNetwork(gNetwork);
         }
 
 
@@ -665,39 +697,30 @@
         // var gDataParam = {};
         var gDataParam = {
             'entities':{
-                'columns':["id", "class", "gender"],
-                'filename': "metadata_primaryschool.txt",
+                'columns':["id", "class", "sex"],
+                'filename': "metadata_primaryschool_sub.txt",
                 'noneHeader': 1,
                 'path': "static/uploads",
                 'sep': "\\t"
             },
             'relationships':{
                 'columns': ["time", "i", "j", "3", "4"],
-                'filename': "primaryschool.csv",
+                'filename': "primaryschool_sub.csv",
                 'noneHeader': 1,
                 'path': "static/uploads",
                 'sep': "\\t"
             }
         };
-
         var gIsUnion = true;
         var gCate;
         var gGraph;
         var gGraphAdj;
         var gMeasurements = {}; //{0：{data,name,show}}
-        var dn = DynamicNetwork();
-        var timeData;
-        var slider;
-        var line;
-        var network;
-        const gArrayFuncMeasurements = {
-            0: dn.getListNrOfVertices,
-            1: dn.getListPctOfVertices,
-            2: dn.getListNrOfEdges,
-            3: dn.getListActiveDensity,
-            4: dn.getListMaximumClique,
-            5: dn.getListNrOfdisconnected
-        }
+        var gDn = new dn.DynamicNetwork();
+        var gSlider;
+        var gLineSummary;
+        var gNetwork;
+
         /*-- end -- global variable*/
 
 
@@ -717,12 +740,12 @@
             });
 
 
-            timeData = dn.getTimeline();
+            // timeData = dn.getTimeline();
 
             var zoomFrom = document.getElementById("zoom-from")
             var zoomTo = document.getElementById("zoom-to")
 
-            timeData.forEach((e, i) => {
+            dn.timeSeries.forEach((e, i) => {
                 let optionF = document.createElement("option");
                 let optionT = document.createElement("option");
                 optionF.textContent = e;
@@ -733,23 +756,23 @@
                 zoomTo.appendChild(optionT);
             });
             zoomFrom.selectedIndex = 0;
-            zoomTo.selectedIndex = timeData.length - 1;
+            zoomTo.selectedIndex = dn.timeSeries.length - 1;
 
-            line = new vis.LineSummary('timeline-grid')
-            network = new vis.Network('network')
+            gLineSummary = new vis.LineSummary('timeline-grid')
+            gNetwork = new vis.Network('network')
 
 
-            slider = new vis.Slider('range-slider', line.dataZoomBoundary(), 1)
+            gSlider = new vis.Slider('range-slider', gLineSummary.dataZoomBoundary(), 1)
 
-            line.triggerRangeSlider(slider, zoomFrom, zoomTo);
-            slider.bindNetwork(network);
+            gLineSummary.triggerRangeSlider(gSlider, zoomFrom, zoomTo);
+            gSlider.bindNetwork(gNetwork);
 
 
 
             /*-- start -- resize diagram */
             window.onresize = function () {
-                line.resize();
-                network.resize();
+                gLineSummary.resize();
+                gNetwork.resize();
             }
         }
 
@@ -757,11 +780,8 @@
 
 
         // /* -- start -- read data*/
-        // // console.log('{{ links | safe}}')
         // var links = JSON.parse('{{ links | safe}}').map(u => ({ t: u.t, i: u.i, j: u.j }));
         // var nodes = JSON.parse('{{ nodes | safe}}');
-        // dn.addNodes(nodes)
-        // dn.addRelationships(links)
         // /* -- end -- read data*/
 
 

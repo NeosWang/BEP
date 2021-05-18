@@ -1,21 +1,16 @@
-(function (factory) {
-    if (typeof define === "function" && define.amd) {
-        // AMD. Register as an anonymous module.
-        define([], factory);
-    } else if (typeof exports === "object") {
-        // Node/CommonJS
-        module.exports = factory();
-    } else {
-        // Browser globals
-        window.dn = factory();
-    }
-})(function(){
+function DynamicNetwork(serialized) {
     "use strict";
-
     var VERSION = "ver 0.0.1"
 
     var AUTHOR = "Yichen Wang"
 
+
+    /*
+    edges: obj
+    {
+        node:{node:weight}
+    }
+    */
     function Graph(isDirected=false) {
         this.discrete = 1;
         this.edges = {};
@@ -334,177 +329,210 @@
 
 
 
-
-    function DynamicNetwork(isDirected=false) {
-        this.nodes = {}
-        this.relationships = {}
-        this.features = {}
-        this.timeSeries;
+    if (serialized) {
+        alert('shit');
     }
-    DynamicNetwork.prototype = {
-        _addNode : function(node) {
-            this.nodes[node.id] = Object.keys(node).reduce((object, key) => {
-                if (key != 'id') { 
-                    object[key] = node[key];
-                    this.features[key] = this.features[key] || [];
-                    this.features[key].push(node[key]);
-                }
-                return object
-            }, {});
-        },
 
-        addNodes : function(nodes) {
-            nodes.forEach(e =>this._addNode(e));
-            Object.entries(this.features).forEach(([k,v])=>{
-                this.features[k]=Array.from( new Set(v)).sort();
-    
-            });
-        },
+    var nodes = {}
+    var relationships = {}
+    var features = {}
 
-        _addRelationship : function(edge, isDirected) {
-            if (!this.relationships[edge.t]) {
-                this.relationships[edge.t] = new Graph(isDirected); 
+
+    let _addNode = (node) => {
+        nodes[node.id] = Object.keys(node).reduce((object, key) => {
+            if (key != 'id') { 
+                object[key] = node[key];
+                features[key] = features[key] || [];
+                features[key].push(node[key]);
             }
-            this.relationships[edge.t].addEdge(edge.i, edge.j);
-        },
+            return object
+        }, {});
+    }
 
-        addRelationships : function(edges, isDirected = false) {
-            edges.forEach(e => this._addRelationship(e, isDirected));
-            this.timeSeries = Object.keys(this.relationships);
-        },
+    let addNodes = (nodes) => {
+        nodes.forEach(e =>_addNode(e));
+        Object.entries(features).forEach(([k,v])=>{
+            features[k]=Array.from( new Set(v)).sort();
 
-        getGraph : function(time) {
-            return this.relationships[time];
-        },
+        });        
 
-        getListNrOfVertices : function() {
-            let output = [];
-            console.log(this.nodes);
-            Object.entries(this.relationships).forEach(([k, v]) =>{
-                output.push(v.countVertices())
-            });
-            return output;
-        },
+    }
 
-        getListPctOfVertices : function() {
-            let ttl = Object.keys(this.nodes).length;
-            return this.getListNrOfVertices().map(function(e) { return (e/ttl).toFixed(4) })
-        },
-
-        getListNrOfEdges : function() {
-            let output = [];
-            Object.entries(this.relationships).forEach(([k, v]) => output.push(v.countEdges()));
-            return output;
-        },
-
-        getListMaximumClique : function() {
-            let output = [];
-            Object.entries(this.relationships).forEach(([k, v]) => {
-                let reporter = [];
-                v.maximalCliques(reporter);
-                let maximumClique = []
-                reporter.forEach(a => {
-                    maximumClique = a.length > maximumClique.length ? a : maximumClique;
-                });
-                output.push(maximumClique.length)
-            });
-            return output;
-        },
-
-        getListActiveDensity : function() {
-            let output = [];
-            Object.entries(this.relationships).forEach(([k, v]) => output.push(v.activeDensity()));
-            return output;
-        },
-
-        getListNrOfdisconnected : function() {
-            let output = [];
-            Object.entries(this.relationships).forEach(([k, v]) => output.push(v.disconnected()));
-            return output
-        },
-
-        intersectionGraph : function (start, end) {
-            let output = this.relationships[start];
-            if (end) {
-                let keys = Object.keys(this.relationships);
-                let currentIdx = keys.indexOf(start);
-                let endIdx = keys.indexOf(end);
-                for (var i = currentIdx + 1; i <= endIdx; i++) {
-                    output = output.intersection(this.relationships[keys[i]]);
-                }
-            }
-            return output;
-        },
-
-        unionGraph : function (start, end) {
-            let output = this.relationships[start];
-            if (end) {
-                let keys = Object.keys(this.relationships);
-                let currentIdx = keys.indexOf(start);
-                let endIdx = keys.indexOf(end);
-                for (var i = currentIdx + 1; i <= endIdx; i++) {
-                    output = output.union(this.relationships[keys[i]]);
-                }
-            }
-            return output;
-        },
-
-        serialize : function(g, all, cate){
-            let output={};
-            Object.entries(this.features).forEach(([k,v])=>{
-                output[k]=[];
-                v.forEach(e=> output[k].push({name:e}));
-            });
-            output.edges = g.serializeEdges();
-            output.nodes = []
-            Object.entries(this.nodes).forEach(([k,v])=>{
-                if(!all && !g.nodes().includes(String(k))){       
-                }else{
-                    let obj = {};
-                    obj.id = k;
-                    obj.category = this.features[cate].indexOf(v[cate]);
-                    obj.name = `id:${k}\nclass:${v.class}\ngender:${v.gender}`;
-    
-                    // obj.symbol = 'pin';
-                    obj.itemStyle = {
-                        // color:'orange',
-                        // borderColor : '#00F',
-                        // borderWidth : 2,
-                    }
-    
-                    output.nodes.push(obj);
-                }  
-            });
-            return output;
-        },
-
-        serializeColoring : function(series, diffGraph, color){
-            series.nodes.forEach(n => { 
-                let s = n.id
-                if(diffGraph.diffNodes.includes(s)){
-                    n.itemStyle={
-                        borderColor : color,
-                        borderWidth : 1.5,
-                    }
-                }
-            });
-            series.edges.forEach(e => {
-                let s =  e.source;
-                let t =  e.target;
-                if(diffGraph.edges[s]){
-                    if(diffGraph.edges[s][t]){
-                        e.lineStyle.color=color;
-                    }
-                }
-            })
-            return series;
+    let _addRelationship = (edge, isDirected) => {
+        if (!relationships[edge.t]) {
+            relationships[edge.t] = new Graph(isDirected); 
         }
+        relationships[edge.t].addEdge(edge.i, edge.j);
     }
 
+    let addRelationships = (edges, isDirected = false) => {
+        edges.forEach(e => _addRelationship(e, isDirected));
+        console.log(Object.keys(relationships));
+    }
 
-    return{
+    let getGraph = (time)=>{
+        return relationships[time];
+    }
+
+    let getTimeline = () => { return Object.keys(relationships); }
+
+    let getListNrOfVertices = () => {
+        let output = [];
+        Object.entries(relationships).forEach(([k, v]) => output.push(v.countVertices()));
+        return output;
+    }
+
+    let getListPctOfVertices = () =>{
+        let ttl = Object.keys(nodes).length;
+        return getListNrOfVertices().map(function(e) { return (e/ttl).toFixed(4) })
+    }
+
+    let getListNrOfEdges = () => {
+        let output = [];
+        Object.entries(relationships).forEach(([k, v]) => output.push(v.countEdges()));
+        return output;
+    }
+
+    let getListMaximumClique = () => {
+        let output = [];
+        Object.entries(relationships).forEach(([k, v]) => {
+            let reporter = [];
+            v.maximalCliques(reporter);
+            let maximumClique = []
+            reporter.forEach(a => {
+                maximumClique = a.length > maximumClique.length ? a : maximumClique;
+            });
+            output.push(maximumClique.length)
+        });
+        return output;
+    }
+
+    let getListActiveDensity = () => {
+        let output = [];
+        Object.entries(relationships).forEach(([k, v]) => output.push(v.activeDensity()));
+        return output;
+    }
+
+    let getListNrOfdisconnected = () => {
+        let output = [];
+        Object.entries(relationships).forEach(([k, v]) => output.push(v.disconnected()));
+        return output
+    }
+
+    let intersectionGraph = function (start, end) {
+        let output = this.relationships[start];
+        if (end) {
+            let keys = Object.keys(this.relationships);
+            let currentIdx = keys.indexOf(start);
+            let endIdx = keys.indexOf(end);
+            for (var i = currentIdx + 1; i <= endIdx; i++) {
+                output = output.intersection(this.relationships[keys[i]]);
+            }
+        }
+        return output;
+    }
+
+    let unionGraph = function (start, end) {
+        let output = this.relationships[start];
+        if (end) {
+            let keys = Object.keys(this.relationships);
+            let currentIdx = keys.indexOf(start);
+            let endIdx = keys.indexOf(end);
+            for (var i = currentIdx + 1; i <= endIdx; i++) {
+                output = output.union(this.relationships[keys[i]]);
+            }
+        }
+        return output;
+    }
+    /*
+    serialize Graph to json array for plot
+    param {
+        g: Graph,
+        all: bool // whether to show all nodes
+        cate: str // the feature to be categorized
+    }
+    return {int node_id : int unnormalized betweenness}
+    */
+    let serialize = function(g, all, cate){
+        let output={};
+        Object.entries(features).forEach(([k,v])=>{
+            output[k]=[];
+            v.forEach(e=> output[k].push({name:e}));
+        });
+        output.edges = g.serializeEdges();
+        output.nodes = []
+        Object.entries(nodes).forEach(([k,v])=>{
+            if(!all && !g.nodes().includes(String(k))){       
+            }else{
+                let obj = {};
+                obj.id = k;
+                obj.category = features[cate].indexOf(v[cate]);
+                obj.name = `id:${k}\nclass:${v.class}\ngender:${v.gender}`;
+
+                // obj.symbol = 'pin';
+                obj.itemStyle = {
+                    // color:'orange',
+                    // borderColor : '#00F',
+                    // borderWidth : 2,
+                }
+
+                output.nodes.push(obj);
+            }  
+        });
+        return output;
+    }
+
+    let serializeColoring = function(series, diffGraph, color){
+        series.nodes.forEach(n => { 
+            let s = n.id
+            if(diffGraph.diffNodes.includes(s)){
+                n.itemStyle={
+                    borderColor : color,
+                    borderWidth : 1.5,
+                }
+            }
+        });
+        series.edges.forEach(e => {
+            let s =  e.source;
+            let t =  e.target;
+            if(diffGraph.edges[s]){
+                if(diffGraph.edges[s][t]){
+                    e.lineStyle.color=color;
+                }
+            }
+        })
+        return series;
+    }
+
+    
+
+    return {
         version: VERSION,
         author: AUTHOR,
-        DynamicNetwork: DynamicNetwork,
-    }
-});
+        nodes: nodes,
+        relationships: relationships,
+        features: features,
+        timeSeries:timeSeries,
+        addNodes: addNodes,
+        addRelationships: addRelationships,
+        getTimeline: getTimeline,
+        getGraph:getGraph,
+        getListNrOfVertices: getListNrOfVertices,
+        getListPctOfVertices: getListPctOfVertices,
+        getListNrOfEdges: getListNrOfEdges,
+        getListMaximumClique: getListMaximumClique,
+        getListActiveDensity: getListActiveDensity,
+        getListNrOfdisconnected: getListNrOfdisconnected,
+        intersectionGraph: intersectionGraph,
+        unionGraph: unionGraph,
+        serialize: serialize,
+        serializeColoring:serializeColoring
+    };
+}
+
+
+
+
+
+
+

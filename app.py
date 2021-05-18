@@ -1,9 +1,8 @@
 import os 
-from flask import make_response,Flask, request, render_template, jsonify, send_from_directory 
+from flask import Flask, request, render_template, jsonify, send_from_directory 
 import requests,json
 from backend import data_processor, data_preview
 from werkzeug.utils import secure_filename
-from gevent.pywsgi import WSGIServer
 
 app = Flask(__name__)
 
@@ -27,8 +26,8 @@ def favicon():
 #     return render_template("test.html", links=links, nodes=nodes)
 @app.route("/")
 def index():
-    links, nodes = data_processor.get_data()
-    return render_template("test.html", links=links, nodes=nodes)
+    # links, nodes = data_processor.get_data()
+    return render_template("test.html")
 
 
 def allowed_file(filename):
@@ -40,8 +39,7 @@ def allowed_file(filename):
 def ajax_process():
     if request.method=='POST':
         param = json.loads(request.form.get('param'))
-
-        
+ 
     result ={
         'success':200,
         'msg': 'success',  
