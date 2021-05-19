@@ -71,15 +71,6 @@
         return sub.every(e=> master.filter(v => v == e).length == 1);
     }
 
-    function tickIcon(i, toTick){
-        if(toTick){
-            i.removeClass("fa-square-o");
-            i.addClass("fa-check-square-o");
-        }else{
-            i.removeClass("fa-check-square-o");
-            i.addClass("fa-square-o");
-        }
-    }
 
     function replaceIcon(i,before, after){
         i.removeClass(before);
@@ -124,7 +115,6 @@
         formatter:formatter,
         cleanedElement:cleanedElement,
         uniqueSubArray:uniqueSubArray,
-        tickIcon:tickIcon,
         replaceIcon:replaceIcon,
         limitFileSize:limitFileSize,
         uniqueElements:uniqueElements,

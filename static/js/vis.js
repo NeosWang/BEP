@@ -171,7 +171,7 @@
                 }
                 network.update(series, gCate);
 
-                let seriesStat = gDn.serializeStatistics(gGraph,false,'sex','gang');
+                let seriesStat = gDn.serializeStatistics(gGraph,false,gCateS);
                 barchart.update(seriesStat);
             });
         },
@@ -356,21 +356,15 @@
         }
     }
 
+
+
+
+
+
+
     function BarChart(id){
         this.myChart = echarts.init(document.getElementById(id));
-        let option = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {            // Use axis to trigger tooltip
-                    type: 'shadow'        // 'shadow' as default; can also be 'line' or 'shadow'
-                },               
-            },
-            grid: {
-                left: '.5%',
-                right: '4%',
-                bottom: '100px',
-                containLabel: true
-            },
+        let option = {     
         };
         option && this.myChart.setOption(option);
     }
@@ -378,20 +372,39 @@
         destory:function(){
             this.myChart.dispose();
         },
-        update: function (data) {
+        update: function (data, merge = true) {
             let newOption = {
-                yAxis: {
-                    type: 'value'
+                grid: {
+                    top: '90px',
+                    left: '5px',
+                    right: '15px',
+                    bottom: '50px',
+                    containLabel: true
                 },
-                xAxis: {
-                    type: 'category',
-                    data: data.x
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {            // Use axis to trigger tooltip
+                        type: 'shadow'        // 'shadow' as default; can also be 'line' or 'shadow'
+                    },               
                 },
                 legend:{
                     data:data.y
                 },
                 series:[]
+            };
+
+            let c = {type: 'category', data: data.x};
+            let v = {type: 'value'};
+
+            if(data.horizontal){
+                newOption['xAxis'] = v;
+                newOption['yAxis'] = c;
+            }else{
+
+                newOption['xAxis'] = c;
+                newOption['yAxis'] = v;
             }
+
             data.data.forEach((x,i) =>{
                 newOption.series.push({
                     name: data.y[i],
@@ -410,7 +423,7 @@
                 });
 
             });
-            this.myChart.setOption(newOption);
+            this.myChart.setOption(newOption,merge);
         },
         resize: function () {
             this.myChart.resize();

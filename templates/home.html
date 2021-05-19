@@ -32,25 +32,32 @@
         <!-- start -- network graph  -->
         <div class='network-grid'>
             <div id="network-plot" class="vis-component w-100 h-100"></div>
-            <span class="bottomcenter">
+            <span class="bottomright">
                 <label for="intersection">operation: </label>
-                <select id="select-union" class="vis-component-select" name="select-union" onchange="unionSelect(this)">
+                <select id="select-union" class="vis-component-select mr-4" name="select-union" onchange="unionSelect(this)">
                     <option value='1'>union</option>
                     <option value='0'>intersection</option>
                 </select>
 
                 <label for="intersection">category: </label>
-                <select id="select-categorized-feature" class="vis-component" name="select-categorized-feature"
-                    onchange="featureSelect(this)" ></select>
+                <select id="select-categorized-feature" class="vis-component select-features mr-4" name="select-categorized-feature"></select>
             </span>
         </div>
         <!-- end -- network graph  -->
 
         <!-- start -- network statistics  -->
         <div id="network-statistics-grid" class="network-statistics-grid">
-            <div id="barchart-plot" class="w-100 h-100">
+            <div id="barchart-plot" class="vis-component w-100 h-100"></div>
+            <span class="bottomright">
+                <label for="intersection">features: </label>
+                <select class="vis-component select-features select-statistical-feature" ></select>
+                 X 
+                <select class="vis-component select-features select-statistical-feature" ></select>
 
-            </div>
+                <button id="btn-bar-rotate" class="btn btn-primary-outline btn-xs mx-2">
+                    <i class="fa fa-repeat"></i>
+                </button>
+            </span>
         </div>
         <!-- end -- network statistics  -->
 
@@ -265,7 +272,24 @@
 
     <script>
         /*-- start -- initializing function on controls*/
-            $(document).ready(function () {
+        $(document).ready(function () {
+            $('#select-categorized-feature').change(function(){
+                gCate = this.value;
+                gSlider.translation(0);
+            });
+            $('.select-statistical-feature').change(function(){
+                $('.select-statistical-feature').map((i,el) => {gCateS[i]=el.value})
+                gBarChart.update(gDn.serializeStatistics(gGraph,false,gCateS));
+            });
+            
+            
+            $('#btn-bar-rotate').click(function(){
+                gCateS[2] = gCateS[2] ? 0 : 1;
+                gBarChart.update(gDn.serializeStatistics(gGraph,false,gCateS));
+            })
+
+
+
             $('.btn-preview').click(function () {
                 previewData(this);
             });
@@ -315,6 +339,7 @@
             
                 
             });
+            
             // range slider buttons
             var move = v => gSlider.translation(v);
             var autoPlay = new yc.MySetInterval(function () { move(1) }, 1200);
@@ -686,11 +711,6 @@
 
 
 
-        function featureSelect(select) {
-            gCate = select.value;
-            gSlider.translation(0);
-        }
-
         function unionSelect(select) {
             gIsUnion = parseInt(select.value);
             gSlider.translation(0);
@@ -723,6 +743,7 @@
         };
         var gIsUnion = true;
         var gCate;
+        var gCateS;
         var gGraph;
         var gGraphAdj;
         var gMeasurements = {}; //{0：{data,name,show}}
@@ -738,16 +759,21 @@
         function loadData(dn,nodes,links){
             dn.addNodes(nodes);
             dn.addRelationships(links);
-            var select = document.getElementById('select-categorized-feature');
+            var select = $('.select-features');
             Object.keys(dn.features).forEach((f, i) => {
-                let opt = document.createElement('option');
-                opt.textContent = f;
-                opt.value = f;
-                if (i == 0) {
-                    gCate = f;
-                    opt.selected = true;
+                if(i==0){
+                    gCate=f
+                    gCateS=[f,f,0]
                 }
-                select.appendChild(opt);
+                select.each(function(){
+                    $(this).append(
+                        `
+                        <option value='${f}'>
+                            ${f}
+                        </option>
+                        `
+                    )
+                })
             });
 
 

@@ -31,6 +31,7 @@ legend{
 }
 
 .network-statistics-grid{
+    position: relative;
     border-style: solid;
     border-color: darkorchid;
     grid-row: 1/19;
@@ -164,7 +165,7 @@ grid-column: 18/25;
     position: absolute;
     left: 50%;
     bottom: 0px;
-    transform: translate(-50%, -10%);
+    transform: translate(-10%, -10%);
 }
 
 .btn-xs{
@@ -175,3 +176,9 @@ grid-column: 18/25;
 .cursor-pointer{
     cursor: pointer;
   }
+
+.fa-bar-transpose{
+    transform: rotate(90deg) scaleX(-1);
+}
+
+

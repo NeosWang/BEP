@@ -9,14 +9,14 @@
         // Browser globals
         window.dn = factory();
     }
-})(function(){
+})(function () {
     "use strict";
 
     var VERSION = "ver 0.0.1"
 
     var AUTHOR = "Yichen Wang"
 
-    function Graph(isDirected=false) {
+    function Graph(isDirected = false) {
         this.discrete = 1;
         this.edges = {};
         this.isDirected = isDirected;
@@ -37,8 +37,8 @@
             this._addVertex(u);
             this._addVertex(v);
             this._adjacent(u)[v] = 1;
-            if (!this.isDirected) { 
-                this._adjacent(v)[u] = 1; 
+            if (!this.isDirected) {
+                this._adjacent(v)[u] = 1;
             }
         },
         nodes: function () {
@@ -79,11 +79,11 @@
         intersection: function (graph) {
             let newEdges = {};
             Object.entries(this.edges).forEach(([k, v]) => {
-                if(graph.edges[k]){
-                    newEdges[k]={};
-                    Object.keys(graph.edges[k]).forEach(e=>{
-                        if(v[e]){
-                            newEdges[k][e] = v[e]+1
+                if (graph.edges[k]) {
+                    newEdges[k] = {};
+                    Object.keys(graph.edges[k]).forEach(e => {
+                        if (v[e]) {
+                            newEdges[k][e] = v[e] + 1
                         }
                     })
                 }
@@ -94,13 +94,13 @@
             return intersection;
         },
         union: function (graph) {
-            let newEdges = JSON.parse(JSON.stringify( this.edges));
+            let newEdges = JSON.parse(JSON.stringify(this.edges));
             Object.entries(graph.edges).forEach(([k, v]) => {
                 if (newEdges[k]) {
-                    Object.entries(v).forEach(([node,weight])=>{
-                        if(newEdges[k][node]){
-                            newEdges[k][node] +=weight;
-                        }else{
+                    Object.entries(v).forEach(([node, weight]) => {
+                        if (newEdges[k][node]) {
+                            newEdges[k][node] += weight;
+                        } else {
                             newEdges[k][node] = weight;
                         }
                     });
@@ -114,20 +114,20 @@
             return union;
         },
         difference: function (graph) {
-            let diffNodes = this.nodes().filter(e=>{return !graph.nodes().includes(e);})
-            let diffEdges = JSON.parse(JSON.stringify( this.edges));
+            let diffNodes = this.nodes().filter(e => { return !graph.nodes().includes(e); })
+            let diffEdges = JSON.parse(JSON.stringify(this.edges));
             Object.entries(diffEdges).forEach(([k, v]) => {
                 //对于当前graph，如果邻接的graph里有相同的边，则pop该边
                 if (graph.edges[k]) {
-                    Object.entries(v).forEach(([node,weight])=>{
-                        if(graph.edges[k].hasOwnProperty(node)){
+                    Object.entries(v).forEach(([node, weight]) => {
+                        if (graph.edges[k].hasOwnProperty(node)) {
                             delete diffEdges[k][node];
-                            if(!Object.keys(diffEdges[k]).length){
+                            if (!Object.keys(diffEdges[k]).length) {
                                 delete diffEdges[k];
                             }
-                            
+
                         }
-                    });                   
+                    });
                 }
             });
             let difference = new Graph(this.isDirected);
@@ -290,40 +290,34 @@
         },
 
         // serialize ====== start
-        serializeEdges: function(){
-            let output=[];
-            Object.entries(this.edges).forEach(([k,v])=>{
-                Object.entries(v).forEach(([e,w])=>{
-                    let pct = Math.round((w / this.discrete) * 100) / 100 ;
-                    if(this.isDirected){
+        serializeEdges: function (isWeighted) {
+            let output = [];
+            Object.entries(this.edges).forEach(([k, v]) => {
+                Object.entries(v).forEach(([e, w]) => {
+                    if (this.isDirected || k < e) {
+                        let w0 = 3;
+                        let w1 = 5 ;
+                        let pct = Math.round((w / this.discrete) * 100) / 100;
+                        let width = isWeighted ? w1 * pct : w0;
                         output.push({
-                            source : k,
-                            target : e,
-                            lineStyle : {
-                                width : 4 * pct,
-                            }
-                        })
-                    }else{
-                        if(k < e){
-                            output.push({
-                                source : k,
-                                target : e,
-                                lineStyle : {
-                                    width : 4 * pct,
-                                },
-                                label:{
-                                    formatter:`${k}${this.isDirected?'>':'—'}${e} : ${pct}`,
-                                    padding:[3,0]
-                                },
-                                emphasis:{
-                                    label:{
-                                        show:true
-                                    }
+                            source: k,
+                            target: e,
+                            lineStyle: {
+                                width: width,
+                                color: 'dimgrey'
+                            },
+                            label: {
+                                formatter: `${k}${this.isDirected ? '>' : '—'}${e}${isWeighted? ' : '+ pct : ''}`,
+                                padding: [3, 0]
+                            },
+                            emphasis: {
+                                label: {
+                                    show: true
                                 }
-                            })
-                        }
+                            }
+                        });
                     }
-                })
+                });
             });
             return output;
         }
@@ -342,16 +336,16 @@
 
 
 
-    function DynamicNetwork(isDirected=false) {
+    function DynamicNetwork(isDirected = false) {
         this.nodes = {}
         this.relationships = {}
         this.features = {}
         this.timeSeries;
     }
     DynamicNetwork.prototype = {
-        _addNode : function(node) {
+        _addNode: function (node) {
             this.nodes[node.id] = Object.keys(node).reduce((object, key) => {
-                if (key != 'id') { 
+                if (key != 'id') {
                     object[key] = node[key];
                     this.features[key] = this.features[key] || [];
                     this.features[key].push(node[key]);
@@ -360,51 +354,51 @@
             }, {});
         },
 
-        addNodes : function(nodes) {
-            nodes.forEach(e =>this._addNode(e));
-            Object.entries(this.features).forEach(([k,v])=>{
-                this.features[k]=Array.from( new Set(v)).sort();
-    
+        addNodes: function (nodes) {
+            nodes.forEach(e => this._addNode(e));
+            Object.entries(this.features).forEach(([k, v]) => {
+                this.features[k] = Array.from(new Set(v)).sort();
+
             });
         },
 
-        _addRelationship : function(edge, isDirected) {
+        _addRelationship: function (edge, isDirected) {
             if (!this.relationships[edge.t]) {
-                this.relationships[edge.t] = new Graph(isDirected); 
+                this.relationships[edge.t] = new Graph(isDirected);
             }
             this.relationships[edge.t].addEdge(edge.i, edge.j);
         },
 
-        addRelationships : function(edges, isDirected = false) {
+        addRelationships: function (edges, isDirected = false) {
             edges.forEach(e => this._addRelationship(e, isDirected));
             this.timeSeries = Object.keys(this.relationships);
         },
 
-        getGraph : function(time) {
+        getGraph: function (time) {
             return this.relationships[time];
         },
 
-        getListNrOfVertices : function() {
+        getListNrOfVertices: function () {
             let output = [];
             console.log(this.nodes);
-            Object.entries(this.relationships).forEach(([k, v]) =>{
+            Object.entries(this.relationships).forEach(([k, v]) => {
                 output.push(v.countVertices())
             });
             return output;
         },
 
-        getListPctOfVertices : function() {
+        getListPctOfVertices: function () {
             let ttl = Object.keys(this.nodes).length;
-            return this.getListNrOfVertices().map(function(e) { return (e/ttl).toFixed(4) })
+            return this.getListNrOfVertices().map(function (e) { return (e / ttl).toFixed(4) })
         },
 
-        getListNrOfEdges : function() {
+        getListNrOfEdges: function () {
             let output = [];
             Object.entries(this.relationships).forEach(([k, v]) => output.push(v.countEdges()));
             return output;
         },
 
-        getListMaximumClique : function() {
+        getListMaximumClique: function () {
             let output = [];
             Object.entries(this.relationships).forEach(([k, v]) => {
                 let reporter = [];
@@ -418,19 +412,19 @@
             return output;
         },
 
-        getListActiveDensity : function() {
+        getListActiveDensity: function () {
             let output = [];
             Object.entries(this.relationships).forEach(([k, v]) => output.push(v.activeDensity()));
             return output;
         },
 
-        getListNrOfdisconnected : function() {
+        getListNrOfdisconnected: function () {
             let output = [];
             Object.entries(this.relationships).forEach(([k, v]) => output.push(v.disconnected()));
             return output
         },
 
-        intersectionGraph : function (start, end) {
+        intersectionGraph: function (start, end) {
             let output = this.relationships[start];
             if (end) {
                 let keys = Object.keys(this.relationships);
@@ -443,7 +437,7 @@
             return output;
         },
 
-        unionGraph : function (start, end) {
+        unionGraph: function (start, end) {
             let output = this.relationships[start];
             if (end) {
                 let keys = Object.keys(this.relationships);
@@ -456,74 +450,77 @@
             return output;
         },
 
-        serialize : function(g, all, cate){
-            let output={};
-            Object.entries(this.features).forEach(([k,v])=>{
-                output[k]=[];
-                v.forEach(e=> output[k].push({name:e}));
+        serialize: function (g, all, cate, isWeighted=true) {
+            let output = {};
+            Object.entries(this.features).forEach(([k, v]) => {
+                output[k] = [];
+                v.forEach(e => output[k].push({ name: e }));
             });
-            output.edges = g.serializeEdges();
+            output.edges = g.serializeEdges(isWeighted);
             output.nodes = []
-            Object.entries(this.nodes).forEach(([k,v])=>{
-                if(!all && !g.nodes().includes(String(k))){       
-                }else{
+            Object.entries(this.nodes).forEach(([k, v]) => {
+                if (!all && !g.nodes().includes(String(k))) {
+                } else {
                     let obj = {};
                     obj.id = k;
                     obj.category = this.features[cate].indexOf(v[cate]);
                     obj.name = `id: ${k}`;
-                    Object.entries(v).forEach(([key,value])=>{
-                        if(key!='id'){
+                    Object.entries(v).forEach(([key, value]) => {
+                        if (key != 'id') {
                             obj.name += `\n${key}: ${value}`
                         }
                     })
-    
+
                     // obj.symbol = 'pin';
                     obj.itemStyle = {
                         // color:'orange',
                         // borderColor : '#00F',
                         // borderWidth : 2,
                     }
-    
+
                     output.nodes.push(obj);
-                }  
+                }
             });
             return output;
         },
 
-        serializeStatistics : function(g, all, cateX, cateY){
-            let lstCateX = [...this.features[cateX]];           
-            let lstCateY = cateX==cateY? [null] : [...this.features[cateY]];
+        serializeStatistics: function (g, all, cateS) {
+            let cateX = cateS[0];
+            let cateY = cateS[1];
+            let lstCateX = [...this.features[cateX]];
+            let lstCateY = cateX == cateY ? [null] : [...this.features[cateY]];
             let data = Array(lstCateY.length).fill().map(() => Array(lstCateX.length).fill(0));
-            g.nodes().forEach(e=>{
+            g.nodes().forEach(e => {
                 let n = this.nodes[e];
                 let x = lstCateX.indexOf(n[cateX]);
-                let y = lstCateY.indexOf(n[cateY]) ;
-                y = y == -1 ? 0 : y
-                data[y][x]++
+                let y = lstCateY.indexOf(n[cateY]);
+                y = y == -1 ? 0 : y;
+                data[y][x]++;
             })
             return {
-                x:lstCateX,
-                y:lstCateY,
-                data:data
+                x: lstCateX,
+                y: lstCateY,
+                data: data,
+                horizontal: cateS[2]
             }
         },
 
-        serializeColoring : function(series, diffGraph, color){
-            series.nodes.forEach(n => { 
+        serializeColoring: function (series, diffGraph, color) {
+            series.nodes.forEach(n => {
                 let s = n.id
-                if(diffGraph.diffNodes.includes(s)){
-                    n.itemStyle={
-                        borderColor : color,
-                        borderWidth : 1.5,
+                if (diffGraph.diffNodes.includes(s)) {
+                    n.itemStyle = {
+                        borderColor: color,
+                        borderWidth: 1.5,
                     }
                 }
             });
             series.edges.forEach(e => {
-                let s =  e.source;
-                let t =  e.target;
-                if(diffGraph.edges[s]){
-                    if(diffGraph.edges[s][t]){
-                        e.lineStyle.color=color;
+                let s = e.source;
+                let t = e.target;
+                if (diffGraph.edges[s]) {
+                    if (diffGraph.edges[s][t]) {
+                        e.lineStyle.color = color;
                     }
                 }
             })
@@ -532,7 +529,7 @@
     }
 
 
-    return{
+    return {
         version: VERSION,
         author: AUTHOR,
         DynamicNetwork: DynamicNetwork,
