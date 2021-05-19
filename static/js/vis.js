@@ -122,7 +122,7 @@
                 }
             });
         },
-        bindNetwork: function (network) {
+        bindNetwork: function (network, barchart) {
             this.slider.noUiSlider.on('update', function (values, handle) {       
                 if (values.length == 1) {
                     let time = gDn.timeSeries[parseInt(values[handle])];
@@ -164,16 +164,17 @@
                 let color = {
                     '-3':'limegreen',
                     '3':'red'
-
                 }
 
                 if(gGraphAdj){
                     series = gDn.serializeColoring(series, gGraph.difference(gGraphAdj), color[gSlider.handles])
                 }
                 network.update(series, gCate);
+
+                let seriesStat = gDn.serializeStatistics(gGraph,false,'sex','gang');
+                barchart.update(seriesStat);
             });
         },
-
         _paintRange: function () {
             let connect = this.slider.querySelectorAll('.noUi-connect');
             let classes = {
@@ -197,6 +198,13 @@
 
         }
     }
+
+
+
+
+
+
+
 
     function LineSummary(id) {
         this.myChart = echarts.init(document.getElementById(id));
@@ -348,6 +356,70 @@
         }
     }
 
+    function BarChart(id){
+        this.myChart = echarts.init(document.getElementById(id));
+        let option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {            // Use axis to trigger tooltip
+                    type: 'shadow'        // 'shadow' as default; can also be 'line' or 'shadow'
+                },               
+            },
+            grid: {
+                left: '.5%',
+                right: '4%',
+                bottom: '100px',
+                containLabel: true
+            },
+        };
+        option && this.myChart.setOption(option);
+    }
+    BarChart.prototype = {
+        destory:function(){
+            this.myChart.dispose();
+        },
+        update: function (data) {
+            let newOption = {
+                yAxis: {
+                    type: 'value'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.x
+                },
+                legend:{
+                    data:data.y
+                },
+                series:[]
+            }
+            data.data.forEach((x,i) =>{
+                newOption.series.push({
+                    name: data.y[i],
+                    type: 'bar',
+                    stack: 'total',
+                    label: {
+                        show: true,
+                        formatter: function(d) {
+                            return d.data > 0 ? d.data : '';
+                        }
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: x  
+                });
+
+            });
+            this.myChart.setOption(newOption);
+        },
+        resize: function () {
+            this.myChart.resize();
+        }
+    }
+
+
+
+
 
 
     function Network(id) {
@@ -379,6 +451,12 @@
                     // gravity: 0.1,
                     repulsion: 40,
                 },
+                emphasis: {
+                    focus: 'adjacency',
+                    lineStyle: {
+                        width: 10
+                    }
+                }
             }]
         };
         option && this.myChart.setOption(option);
@@ -411,6 +489,7 @@
         author: AUTHOR,
         LineSummary: LineSummary,
         Slider: Slider,
-        Network: Network
+        Network: Network,
+        BarChart:BarChart
     };
 });

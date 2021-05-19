@@ -107,6 +107,12 @@
         return true
     }
 
+    function transpose(m){
+        return m[0].map(function (_, c) { 
+            return m.map(function (r) { return r[c]; }); 
+        });
+    }
+
     return {
         version: VERSION,
         author: AUTHOR,
@@ -121,6 +127,7 @@
         tickIcon:tickIcon,
         replaceIcon:replaceIcon,
         limitFileSize:limitFileSize,
-        uniqueElements:uniqueElements
+        uniqueElements:uniqueElements,
+        transpose:transpose
     };
 });

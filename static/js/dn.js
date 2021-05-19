@@ -79,14 +79,13 @@
         intersection: function (graph) {
             let newEdges = {};
             Object.entries(this.edges).forEach(([k, v]) => {
-                if (graph.edges[k]) {
-                    let adjNode = {};
+                if(graph.edges[k]){
+                    newEdges[k]={};
                     Object.keys(graph.edges[k]).forEach(e=>{
                         if(v[e]){
-                            adjNode[e] = v[e]+1
+                            newEdges[k][e] = v[e]+1
                         }
-                    });
-                    if (Object.keys(adjNode).length) newEdges[k] = adjNode;
+                    })
                 }
             });
             let intersection = new Graph(this.isDirected);
@@ -269,7 +268,7 @@
         },
         _disconnectedSubgraphs: function () {
             let output = []
-            Object.entries(this.edges).forEach(([k, v]) => {
+            Object.entries(this.edges).forEach((k, v) => {
                 let lst = Object.keys(v)
                 lst.push(String(k))
                 output.push(new Set(lst));
@@ -294,24 +293,32 @@
         serializeEdges: function(){
             let output=[];
             Object.entries(this.edges).forEach(([k,v])=>{
-                Object.keys(v).forEach(e=>{
+                Object.entries(v).forEach(([e,w])=>{
+                    let pct = Math.round((w / this.discrete) * 100) / 100 ;
                     if(this.isDirected){
                         output.push({
-                            source:k,
-                            target:e,
-                            lineStyle:{
-                                width:2.5, 
-                                // color:'LightGray'
+                            source : k,
+                            target : e,
+                            lineStyle : {
+                                width : 4 * pct,
                             }
                         })
                     }else{
-                        if(k<e){
+                        if(k < e){
                             output.push({
-                                source:k,
-                                target:e,
-                                lineStyle:{
-                                    width:2.5,
-                                    // color:'LightGray'
+                                source : k,
+                                target : e,
+                                lineStyle : {
+                                    width : 4 * pct,
+                                },
+                                label:{
+                                    formatter:`${k}${this.isDirected?'>':'—'}${e} : ${pct}`,
+                                    padding:[3,0]
+                                },
+                                emphasis:{
+                                    label:{
+                                        show:true
+                                    }
                                 }
                             })
                         }
@@ -463,7 +470,12 @@
                     let obj = {};
                     obj.id = k;
                     obj.category = this.features[cate].indexOf(v[cate]);
-                    obj.name = `id:${k}\nclass:${v.class}\ngender:${v.gender}`;
+                    obj.name = `id: ${k}`;
+                    Object.entries(v).forEach(([key,value])=>{
+                        if(key!='id'){
+                            obj.name += `\n${key}: ${value}`
+                        }
+                    })
     
                     // obj.symbol = 'pin';
                     obj.itemStyle = {
@@ -476,6 +488,24 @@
                 }  
             });
             return output;
+        },
+
+        serializeStatistics : function(g, all, cateX, cateY){
+            let lstCateX = [...this.features[cateX]];           
+            let lstCateY = cateX==cateY? [null] : [...this.features[cateY]];
+            let data = Array(lstCateY.length).fill().map(() => Array(lstCateX.length).fill(0));
+            g.nodes().forEach(e=>{
+                let n = this.nodes[e];
+                let x = lstCateX.indexOf(n[cateX]);
+                let y = lstCateY.indexOf(n[cateY]) ;
+                y = y == -1 ? 0 : y
+                data[y][x]++
+            })
+            return {
+                x:lstCateX,
+                y:lstCateY,
+                data:data
+            }
         },
 
         serializeColoring : function(series, diffGraph, color){

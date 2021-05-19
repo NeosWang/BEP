@@ -22,7 +22,7 @@
 
     <script src="{{ url_for('static', filename='js/vis.js')}}"></script>
     <script src="{{ url_for('static', filename='js/yc.js')}}"></script>
-    <script src="{{ url_for('static', filename='js/dn_copy.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/dn.js')}}"></script>
     <!-- /SCRIPTS -->
 
 </head>
@@ -31,10 +31,10 @@
     <div class="grid-container">
         <!-- start -- network graph  -->
         <div class='network-grid'>
-            <div id="network" class="vis-component w-100 h-100"></div>
-            <span class="bottomright mb-1">
+            <div id="network-plot" class="vis-component w-100 h-100"></div>
+            <span class="bottomcenter">
                 <label for="intersection">operation: </label>
-                <select id="select-union" name="select-union" onchange="unionSelect(this)">
+                <select id="select-union" class="vis-component-select" name="select-union" onchange="unionSelect(this)">
                     <option value='1'>union</option>
                     <option value='0'>intersection</option>
                 </select>
@@ -47,7 +47,11 @@
         <!-- end -- network graph  -->
 
         <!-- start -- network statistics  -->
-        <div id="network-statistics-grid" class="network-statistics-grid"></div>
+        <div id="network-statistics-grid" class="network-statistics-grid">
+            <div id="barchart-plot" class="w-100 h-100">
+
+            </div>
+        </div>
         <!-- end -- network statistics  -->
 
         <!-- start -- data upload & preview  -->
@@ -75,11 +79,13 @@
                 <div class="tab-content">
                     <div id="panel-entities" class="container tab-pane active"><br>
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col">
                                 <div>
                                     <input type="file" id="file-entities" name="file-entities">
                                 </div>
                             </div>
+                        </div>
+                        <div class="row">
                             <div class='col'>
                                 <div>
                                     <select style="font-family: Georgia;" id="select-entities-sep"
@@ -103,8 +109,8 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div id="warning-entities" class="col-10"></div>
-                            <div class="col-2">
+                            <div id="warning-entities" class="col-8"></div>
+                            <div class="col-4">
                                 <div class="float-right">
                                     <button class="btn-refresh-preview-panel btn btn-primary-outline btn-xs " value='0'>
                                         <i class="fa fa-refresh"></i>
@@ -122,11 +128,13 @@
 
                     <div id="panel-relationships" class="container tab-pane fade"><br>
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col">
                                 <div>
                                     <input type="file" id="file-relationships" name="file-relationships">
                                 </div>
                             </div>
+                            </div>
+                        <div class="row">
                             <div class='col'>
                                 <div>
                                     <select style="font-family: Georgia" id="select-relationships-sep"
@@ -150,8 +158,8 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div id="warning-relationships" class="col-10"></div>
-                            <div class="col-2">
+                            <div id="warning-relationships" class="col-8"></div>
+                            <div class="col-4">
                                 <div class="float-right">
                                     <button class="btn-refresh-preview-panel btn btn-primary-outline btn-xs " value='1'>
                                         <i class="fa fa-refresh"></i>
@@ -173,9 +181,7 @@
 
             <div class="inner-grid-submit">
                 <!-- <div class="row"> -->
-                    <div id="warning-main" class="float-left pl-2">
-                        
-                    </div>
+                    <div id="warning-main" class="float-left pl-5 py-2"></div>
                     <div id="btn-confirm" class="float-right pr-5 py-2">
                         <button class="btn btn-outline-success btn-sm"> confirm</button>
                     </div>
@@ -209,7 +215,7 @@
 
         <div id="range-slider-side" class="range-slider-side">
             <div style="height: 50%;">
-                <select id="handles" onchange="handlersSelect(this)">
+                <select id="handles" class="vis-component-select" onchange="handlersSelect(this)">
                     <option value="1" selected>discrete</option>
                     <option value="2">continuous</option>
                     <option value="-3">continuous(arise)</option>
@@ -222,7 +228,9 @@
         </div>
 
         <!-- start -- timeline -->
-        <div id="timeline-grid" class="timeline-grid vis-component"></div>
+        <div class="timeline-grid">
+            <div id="timeline-plot" class="vis-component w-100 h-100"></div>
+        </div>
         <!-- end  -- timeline -->
 
         <!-- start -- datazoom range -->
@@ -281,6 +289,9 @@
 
                 var formData = new FormData()
                 formData.append("param",JSON.stringify(gDataParam))
+
+                showMsg(warningDiv, '<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>', false);
+
                 $.ajax({
                 type: "Post",
                 url: "/process",
@@ -290,12 +301,13 @@
                 processData: false,//用于对data参数进行序列化处理 这里必须false
                 contentType: false, //必须
                 success: function (res) {
+                    yc.cleanedElement("#warning-main");
                     initializeComponents();
                     showMsg(warningDiv,res['msg'],false);
-                    loadData(gDn,res['entities'],res['relationships'])
-
+                    loadData(gDn,res['entities'],res['relationships']);
                 },
                 error: function () {
+                    yc.cleanedElement("#warning-main");
                     showMsg(warningDiv, 'ERROR');
                 }
             });
@@ -393,8 +405,6 @@
         });
         /*-- end -- initializing function on controls*/
 
-
-
         function initializeComponents(){
             if(gSlider!=undefined) gSlider.destory();
             if(gNetwork!=undefined) gNetwork.destory();
@@ -408,7 +418,7 @@
             gMeasurements = {};
             gDn = new dn.DynamicNetwork();
             yc.cleanedElement('.vis-component');
-            $('#handles').val('1');
+            $('.vis-component-select').val('1');
             $('.cbx-measurement').prop('checked', false);
         }
 
@@ -688,7 +698,7 @@
 
         function handlersSelect(select) {
             gSlider.updateHandles(parseInt(select.value), gLineSummary.dataZoomBoundary());
-            gSlider.bindNetwork(gNetwork);
+            gSlider.bindNetwork(gNetwork,gBarChart);
         }
 
 
@@ -697,7 +707,7 @@
         // var gDataParam = {};
         var gDataParam = {
             'entities':{
-                'columns':["id", "class", "sex"],
+                'columns':["id", "gang", "sex"],
                 'filename': "metadata_primaryschool_sub.txt",
                 'noneHeader': 1,
                 'path': "static/uploads",
@@ -720,6 +730,7 @@
         var gSlider;
         var gLineSummary;
         var gNetwork;
+        var gBarChart;
 
         /*-- end -- global variable*/
 
@@ -758,14 +769,13 @@
             zoomFrom.selectedIndex = 0;
             zoomTo.selectedIndex = dn.timeSeries.length - 1;
 
-            gLineSummary = new vis.LineSummary('timeline-grid')
-            gNetwork = new vis.Network('network')
-
-
+            gLineSummary = new vis.LineSummary("timeline-plot");
+            gNetwork = new vis.Network("network-plot");
+            gBarChart = new vis.BarChart("barchart-plot");
             gSlider = new vis.Slider('range-slider', gLineSummary.dataZoomBoundary(), 1)
 
             gLineSummary.triggerRangeSlider(gSlider, zoomFrom, zoomTo);
-            gSlider.bindNetwork(gNetwork);
+            gSlider.bindNetwork(gNetwork, gBarChart);
 
 
 
@@ -773,6 +783,7 @@
             window.onresize = function () {
                 gLineSummary.resize();
                 gNetwork.resize();
+                gBarChart.resize();
             }
         }
 

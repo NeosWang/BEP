@@ -27,7 +27,7 @@ def favicon():
 @app.route("/")
 def index():
     # links, nodes = data_processor.get_data()
-    return render_template("test.html")
+    return render_template("home.html")
 
 
 def allowed_file(filename):
