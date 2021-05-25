@@ -210,7 +210,7 @@
             var edgeBetweenness = {};
             Object.entries(this.edges).forEach(([u, value]) => {
                 edgeBetweenness[u] = {};
-                value.forEach(v => {
+                Object.keys(value).forEach(v => {
                     edgeBetweenness[u][v] = 0;
                 });
             });
@@ -297,15 +297,15 @@
                     if (this.isDirected || k < e) {
                         let w0 = 3;
                         let w1 = 5 ;
+                        let wBase = 0.1 //base width of edge, otherwise too thin
                         let pct = Math.round((w / this.discrete) * 100) / 100;
-                        let width = isWeighted ? w1 * pct : w0;
+                        let width = isWeighted ? w1 * pct + wBase : w0;
                         output.push({
                             source: k,
                             target: e,
                             lineStyle: {
                                 width: width,
-                                color: 'dimgrey'
-                            },
+                             },
                             label: {
                                 formatter: `${k}${this.isDirected ? '>' : '—'}${e}${isWeighted? ' : '+ pct : ''}`,
                                 padding: [3, 0]
@@ -380,7 +380,6 @@
 
         getListNrOfVertices: function () {
             let output = [];
-            console.log(this.nodes);
             Object.entries(this.relationships).forEach(([k, v]) => {
                 output.push(v.countVertices())
             });
@@ -450,7 +449,7 @@
             return output;
         },
 
-        serialize: function (g, all, cate, isWeighted=true) {
+        serialize: function (g, all, cate, measure, isWeighted) {
             let output = {};
             Object.entries(this.features).forEach(([k, v]) => {
                 output[k] = [];
@@ -470,20 +469,100 @@
                             obj.name += `\n${key}: ${value}`
                         }
                     })
-
                     // obj.symbol = 'pin';
-                    obj.itemStyle = {
-                        // color:'orange',
-                        // borderColor : '#00F',
-                        // borderWidth : 2,
-                    }
-
+                    obj.itemStyle = {}
                     output.nodes.push(obj);
                 }
             });
+            switch(measure){
+                case 2:
+                    this._coloringNodeBetweenness(g, output);
+                    break;
+                case 3:
+                    this._coloringEdgeBetweenness(g, output);
+                    break;
+                case 4:
+                    this._coloringMaximalCliques(g, output);
+                    break;
+            }
             return output;
         },
-
+        _coloringNodeBetweenness(g,series){
+            let b = g.nodeBetweenness();
+            let max = 0;
+            let arr = [];
+            Object.entries(b).forEach(([k,v]) => {
+                if(v){
+                    if(v > max){
+                        max = v;
+                        arr = [k]
+                    }else if( v == max){
+                        arr.push(k)
+                    }
+                }
+            });
+            if(arr.length){
+                series.nodes.forEach(n => {
+                    if (arr.includes(n.id)) {
+                        n.itemStyle.shadowBlur= 4;
+                        n.itemStyle.shadowColor= 'blue';
+                        n.itemStyle.shadowOffsetX=4;
+                    }
+                });
+            }
+        },
+        _coloringEdgeBetweenness(g,series){
+            let b = g.edgeBetweenness();
+            let max = 0;
+            let arr = [];
+            Object.entries(b).forEach(([u,obj])=>{
+                Object.entries(obj).forEach(([v,value])=>{
+                    if(u<v){
+                        if(value>max){
+                            max=value;
+                            arr=[[u,v]]
+                        }else if(value==max){
+                            arr.push([u,v])
+                        }
+                    }
+                })
+            });
+            if(arr.length){
+                series.edges.forEach(e=>{
+                    arr.forEach(a=>{
+                        if(a[0]==e.source && a[1]==e.target){
+                            e.lineStyle.shadowBlur= 4;
+                            e.lineStyle.shadowColor= 'blue';
+                            e.lineStyle.shadowOffsetX=4;
+                        }
+                    });
+                });
+            }
+        },
+        _coloringMaximalCliques(g,series){
+            let reporter = [];
+            g.maximalCliques(reporter);
+            reporter.sort(function (a, b) {return b.sort().length - a.sort().length;});
+            if(reporter[0].length > 2){ //only coloring maximal cliques more than 2
+                reporter.every(c=>{
+                    if(c.length < reporter[0].length)   return false;
+                    for(let i = 0; i < c.length-1; i++){
+                        for(let j=1; j < c.length; j++){
+                            series.edges.every(e=>{
+                                if(c[i] == e.source && c[j] == e.target){
+                                    e.lineStyle.shadowBlur= 4;
+                                    e.lineStyle.shadowColor= 'blue';
+                                    e.lineStyle.shadowOffsetX=4;
+                                    return false;
+                                }
+                                return true;
+                            })
+                        }
+                    }
+                    return true;
+                });
+            }            
+        },
         serializeStatistics: function (g, all, cateS) {
             let cateX = cateS[0];
             let cateY = cateS[1];
@@ -505,14 +584,12 @@
             }
         },
 
-        serializeColoring: function (series, diffGraph, color) {
+        serializeAdjacent: function (series, diffGraph, color) {
             series.nodes.forEach(n => {
                 let s = n.id
                 if (diffGraph.diffNodes.includes(s)) {
-                    n.itemStyle = {
-                        borderColor: color,
-                        borderWidth: 1.5,
-                    }
+                    n.itemStyle.borderColor= color;
+                    n.itemStyle.borderWidth= 2.5;
                 }
             });
             series.edges.forEach(e => {
@@ -521,6 +598,7 @@
                 if (diffGraph.edges[s]) {
                     if (diffGraph.edges[s][t]) {
                         e.lineStyle.color = color;
+                        e.lineStyle.type = 'dotted'
                     }
                 }
             })

@@ -159,7 +159,7 @@
                         gGraphAdj=undefined;
                     }                    
                 }
-                let series = gDn.serialize(gGraph, false, gCate);
+                let series = gDn.serialize(gGraph, false, gCate, gGraphMeasure, gIsWeighted);
                 
                 let color = {
                     '-3':'limegreen',
@@ -167,7 +167,7 @@
                 }
 
                 if(gGraphAdj){
-                    series = gDn.serializeColoring(series, gGraph.difference(gGraphAdj), color[gSlider.handles])
+                    series = gDn.serializeAdjacent(series, gGraph.difference(gGraphAdj), color[gSlider.handles])
                 }
                 network.update(series, gCate);
 
