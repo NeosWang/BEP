@@ -268,7 +268,7 @@
         },
         _disconnectedSubgraphs: function () {
             let output = []
-            Object.entries(this.edges).forEach((k, v) => {
+            Object.entries(this.edges).forEach(([k, v]) => {
                 let lst = Object.keys(v)
                 lst.push(String(k))
                 output.push(new Set(lst));
@@ -431,6 +431,7 @@
 
         getListNrOfdisconnected: function () {
             let output = [];
+            console.log('here')
             Object.entries(this.relationships).forEach(([k, v]) => output.push(v.disconnected()));
             return output
         },

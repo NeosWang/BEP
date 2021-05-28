@@ -42,7 +42,7 @@
                 <label for="select-categorized-feature">features: </label>
                 <select class="vis-component select-features select-categorized-feature"
                     name="select-categorized-feature"></select>
-                 X 
+                X
                 <select class="vis-component select-features select-categorized-feature mr-4"
                     name="select-categorized-feature"></select>
 
@@ -208,9 +208,9 @@
             </div>
 
             <div class="inner-grid-submit">
-                <div id="warning-main" class="float-left pl-5 py-2"></div>
-                <div id="btn-confirm" class="float-right pr-5 py-2">
-                    <button class="btn btn-outline-success btn-sm"> confirm</button>
+                <div id="warning-main" class="float-left pl-5 py-1"></div>
+                <div id="btn-confirm" class="float-right pr-3 ">
+                    <button class="btn btn-outline-success btn-sm my-1" > confirm</button>
                 </div>
             </div>
         </div>
@@ -270,18 +270,20 @@
         <!-- end -- datazoom range -->
 
         <!-- start -- summary statistics -->
-        <div id="timeline-measures-grid" class="timeline-measures-grid">
+        <div id="timeline-measures-grid" class="timeline-measures-grid pb-2">
             <legend>Measurements:</legend>
-            <input type="checkbox" class="cbx cbx-measurement" name="active nodes" value='0' /> active nodes <br />
-            <input type="checkbox" class="cbx cbx-measurement" name="active nodes (pct)" value='1' /> active nodes (pct)
-            <br />
-            <input type="checkbox" class="cbx cbx-measurement" name="active relations" value='2' /> active relations
-            <br />
-            <input type="checkbox" class="cbx cbx-measurement" name="active density" value='3' /> active density <br />
-            <input type="checkbox" class="cbx cbx-measurement" name="maximum clique" value='4' /> maximum clique <br />
-            <input type="checkbox" class="cbx cbx-measurement" name="disconnected groups" value='5' /> disconnected
-            groups
-            <br />
+            <input type="checkbox" class="cbx cbx-measurement" name="active nodes" value='0' />
+                <span>active nodes</span><br />
+            <input type="checkbox" class="cbx cbx-measurement" name="active nodes (pct)" value='1' />
+                <span>active nodes(pct)</span> <br />
+            <input type="checkbox" class="cbx cbx-measurement" name="active relations" value='2' />
+                <span>active relations</span> <br />
+            <input type="checkbox" class="cbx cbx-measurement" name="active density" value='3' />
+                <span>active density</span> <br />
+            <input type="checkbox" class="cbx cbx-measurement" name="maximum clique" value='4' />
+                <span>maximum clique</span> <br />
+            <input type="checkbox" class="cbx cbx-measurement" name="disconnected groups" value='5' />
+                <span>disconnected groups</span> <br />
         </div>
         <!-- end -- summary statistics -->
     </div>
@@ -342,7 +344,7 @@
             var formData = new FormData()
             formData.append("param", JSON.stringify(gDataParam))
 
-            showMsg(warningDiv, '<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>', false);
+            showMsg(warningDiv, '<i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>', false);
 
             $.ajax({
                 type: "Post",
@@ -355,7 +357,7 @@
                 success: function (res) {
                     yc.cleanedElement("#warning-main");
                     initializeComponents();
-                    showMsg(warningDiv, res['msg'], false);
+                    showMsg(warningDiv, 'success', false);
                     loadData(gDn, res['entities'], res['relationships']);
                     setTimeout(function () {
                         yc.cleanedElement("#warning-main");
@@ -587,16 +589,17 @@
 
         let toReturn = false
 
-        let fileObj = $(fileSelector).prop('files')[0]
+        let fileObj = $(fileSelector)[0].files[0]
+
         if (typeof (fileObj) == "undefined" || fileObj.size <= 0) {
             showMsg(warningDiv, 'file not selected');
             toReturn = true;
-        }
-
-        let limit = '10MB'
-        if (!yc.limitFileSize(fileObj, limit)) {
-            showMsg(warningDiv, `file cannot exceed ${limit}`);
-            toReturn = true;
+        }else{
+            let limit = '10MB'
+            if (!yc.limitFileSize(fileObj, limit)) {
+                showMsg(warningDiv, `file cannot exceed ${limit}`);
+                toReturn = true;
+            }
         }
 
         let sep = $(separatorSelector).val()
@@ -622,6 +625,7 @@
         var formData = new FormData();
         formData.append("file", fileObj);
         formData.append("param", param);
+        
         $.ajax({
             type: "Post",
             url: "/preview",
@@ -641,9 +645,9 @@
             error: function (result) {
                 showMsg(warningDiv, 'ERROR');
             },
-            // complete: function (data) {
-            //     $(fileSelector).val(''); // this will reset the form fields
-            // }
+            complete: function (data) {
+                $(fileSelector).val(''); // this will reset the form fields
+            }
         });
     }
 
@@ -725,6 +729,10 @@
         if (flag) {
             yc.replaceIcon(tabIcon, "fa-check-square-o", "fa-square-o")
         } else {
+            showMsg(warningDiv, 'uploaded', false);
+            setTimeout(function () {
+                yc.cleanedElement(warningDivSelector);
+            }, 2000);
             yc.replaceIcon(tabIcon, "fa-square-o", "fa-check-square-o")
             gDataParam[key].columns = colText
         }

@@ -2,12 +2,12 @@
     box-sizing: border-box;
     padding: 0;
     margin: 0;
-    font-size:  .8em ;
+    font-size:  0.95em  ;
 }
 legend{
     color:dimgrey;
     margin: .5em 0 .5em 0;
-    font-size: 1.2em;
+    font-size: 1.1em;
 }
 
 .grid-container {
