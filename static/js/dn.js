@@ -341,6 +341,18 @@
         this.relationships = {}
         this.features = {}
         this.timeSeries;
+        this._nodeShape=[
+            'circle',
+            'triangle', 
+            'rect', 
+            'sandClock', 
+            'diamond', 
+            'knot',
+            'tulip',
+            'roundRect', 
+            'invTriangle', 
+            'pin', 
+            'arrow']
     }
     DynamicNetwork.prototype = {
         _addNode: function (node) {
@@ -449,7 +461,15 @@
             return output;
         },
 
+        _shapingNode: function(v,cateColor,cateShape){
+            if(cateColor === cateShape) return this._nodeShape[0];
+            return this._nodeShape[this.features[cateShape].indexOf(v[cateShape]) % this._nodeShape.length]
+
+        },
+
         serialize: function (g, all, cate, measure, isWeighted) {
+            let cateColor = cate[0]
+            let cateShape = cate[1]
             let output = {};
             Object.entries(this.features).forEach(([k, v]) => {
                 output[k] = [];
@@ -462,14 +482,15 @@
                 } else {
                     let obj = {};
                     obj.id = k;
-                    obj.category = this.features[cate].indexOf(v[cate]);
+                    obj.category = this.features[cateColor].indexOf(v[cateColor]);
                     obj.name = `id: ${k}`;
                     Object.entries(v).forEach(([key, value]) => {
                         if (key != 'id') {
                             obj.name += `\n${key}: ${value}`
                         }
                     })
-                    // obj.symbol = 'pin';
+                    obj.symbol = this._shapingNode(v,cateColor,cateShape);
+
                     obj.itemStyle = {}
                     output.nodes.push(obj);
                 }

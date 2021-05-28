@@ -51,6 +51,7 @@ def ajax_process():
 
 @app.route('/preview', methods=[ 'GET','POST'])
 def ajax_preview():
+    print('here')
     if request.method == 'POST':  
         if 'file' not in request.files:
             return {
@@ -58,6 +59,8 @@ def ajax_preview():
                 'msg': 'no selected file'
             }           
         file = request.files['file']
+        print(file)        
+        
         
         if file.filename == '':
             return {
@@ -66,7 +69,7 @@ def ajax_preview():
             }  
         
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)            
+            filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         else:
             return {

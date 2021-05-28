@@ -481,14 +481,14 @@
         update: function (data, cate) {
             this.myChart.setOption({
                 legend: [{
-                    data: data[cate].map(function (a) {
+                    data: data[cate[0]].map(function (a) {
                         return a.name;
                     })
                 }],
                 series: [{
                     data: data.nodes,
                     links: data.edges,
-                    categories: data[cate]
+                    categories: data[cate[0]]
                 }]
             });
         },

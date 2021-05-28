@@ -17,7 +17,7 @@
     <script src="{{ url_for('static', filename='js/popper.min.js')}}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
 
-    <script src="{{ url_for('static', filename='js/echarts.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/echarts.js')}}"></script>
     <script src="{{ url_for('static', filename='js/nouislider.js')}}"></script>
 
     <script src="{{ url_for('static', filename='js/vis.js')}}"></script>
@@ -39,16 +39,19 @@
                     <option value='0'>intersection</option>
                 </select>
 
-                <label for="select-categorized-feature">category: </label>
-                <select id="select-categorized-feature" class="vis-component select-features mr-4"
+                <label for="select-categorized-feature">features: </label>
+                <select class="vis-component select-features select-categorized-feature"
+                    name="select-categorized-feature"></select>
+                 X 
+                <select class="vis-component select-features select-categorized-feature mr-4"
                     name="select-categorized-feature"></select>
 
                 <label for="select-network-measures">measures: </label>
                 <select id="select-network-measures" class="vis-component-select mr-4" name="select-network-measures">
-                    <option value='1'>------------none------------</option>
-                    <option value='2'>top intermediate entity</option>
-                    <option value='3'>top intermediate relationship</option>
-                    <option value='4'>maximum cliques</option>
+                    <option value='1'>---------none---------</option>
+                    <option value='2'>intermediate entity</option>
+                    <option value='3'>intermediate relationship</option>
+                    <option value='4'>maximum clique</option>
                 </select>
 
                 <input type="checkbox" id="cbx-is-weighted" class="cbx" name="cbx-weighted">
@@ -75,7 +78,7 @@
 
         <!-- start -- data upload & preview  -->
         <div id="data-preview-grid" class="data-preview-grid">
-            <div class="inner-grid-logo"></div>
+            <div class="inner-grid-logo img"></div>
 
             <div class="inner-grid-tables px-3">
                 <legend>Data Preview:</legend>
@@ -292,8 +295,9 @@
             gIsUnion = parseInt(this.value);
             gSlider.translation(0);
         });
-        $('#select-categorized-feature').change(function () {
-            gCate = this.value;
+        $('.select-categorized-feature').change(function () {
+            $('.select-categorized-feature').map((i, el) => { gCate[i] = el.value })
+            // gCate = this.value;
             gSlider.translation(0);
         });
         $('.select-statistical-feature').change(function () {
@@ -464,6 +468,7 @@
         if (gBarChart != undefined) gBarChart.destory(); gBarChart = undefined;
 
         gCate = undefined;
+        gCateS = undefined;
         gGraph = undefined;
         gGraphAdj = undefined;
         gIsUnion = 1;
@@ -617,7 +622,6 @@
         var formData = new FormData();
         formData.append("file", fileObj);
         formData.append("param", param);
-
         $.ajax({
             type: "Post",
             url: "/preview",
@@ -634,9 +638,12 @@
                     showMsg(warningDiv, res['msg']);
                 }
             },
-            error: function (request) {
+            error: function (result) {
                 showMsg(warningDiv, 'ERROR');
-            }
+            },
+            // complete: function (data) {
+            //     $(fileSelector).val(''); // this will reset the form fields
+            // }
         });
     }
 
@@ -744,27 +751,27 @@
 
 
     /*-- start -- global variable*/
-    // var gDataParam = {};
-    var gDataParam = {
-        'entities': {
-            'columns': ["id", "gang", "sex"],
-            'filename': "metadata_primaryschool_sub.txt",
-            'noneHeader': 1,
-            'path': "static/uploads",
-            'sep': "\\t"
-        },
-        'relationships': {
-            'columns': ["time", "i", "j", "3", "4"],
-            'filename': "primaryschool_sub.csv",
-            'noneHeader': 1,
-            'path': "static/uploads",
-            'sep': "\\t"
-        }
-    };
+    var gDataParam = {};
+    // var gDataParam = {
+    //     'entities': {
+    //         'columns': ["id", "class", "gender"],
+    //         'filename': "metadata_primaryschool_sub.txt",
+    //         'noneHeader': 1,
+    //         'path': "static/uploads",
+    //         'sep': "\\t"
+    //     },
+    //     'relationships': {
+    //         'columns': ["time", "i", "j", "3", "4"],
+    //         'filename': "primaryschool_sub.csv",
+    //         'noneHeader': 1,
+    //         'path': "static/uploads",
+    //         'sep': "\\t"
+    //     }
+    // };
     var gIsWeighted = 0;
     var gIsUnion = 1;
     var gGraphMeasure = 1;
-    var gCate; // str:feature
+    var gCate; // [str:feature1, str:feature2]
     var gCateS; //[str:feature1, str:feature2, int:isHorizontalBar]
 
     var gGraph;
@@ -787,7 +794,7 @@
         var select = $('.select-features');
         Object.keys(dn.features).forEach((f, i) => {
             if (i == 0) {
-                gCate = f
+                gCate = [f, f]
                 gCateS = [f, f, 0]
             }
             select.each(function () {
