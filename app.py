@@ -1,7 +1,7 @@
 import os 
-from flask import Flask, request, render_template, jsonify, send_from_directory 
+from flask import Flask, request, render_template,  send_from_directory 
 import requests,json
-from backend import data_processor, data_preview
+from backend import data_preview
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -20,10 +20,6 @@ def favicon():
                                'jads.png', 
                                mimetype='image/vnd.microsoft.icon')
 
-# @app.route("/")
-# def index():
-#     links, nodes = data_processor.get_data()
-#     return render_template("test.html", links=links, nodes=nodes)
 @app.route("/")
 def index():
     return render_template("home.html")

@@ -342,7 +342,7 @@
                         markLine: {
                             symbol: 'none',
                             data: [
-                                { type: 'average', name: 'average' }
+                                { type: 'max', name: 'max' }
                             ],
                         },
                     };

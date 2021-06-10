@@ -207,8 +207,8 @@
                 <!-- end -- tab panels -->
             </div>
 
-            <div class="inner-grid-submit">
-                <div id="warning-main" class="float-left pl-5 py-1"></div>
+            <div class="inner-grid-submit py-1">
+                <div id="warning-main" class="float-left pl-5 "></div>
                 <div id="btn-confirm" class="float-right pr-3 ">
                     <button class="btn btn-outline-success btn-sm my-1" > confirm</button>
                 </div>
@@ -216,80 +216,94 @@
         </div>
         <!-- end -- data upload & preview  -->
 
-        <!-- start -- range slider  -->
-        <div id="range-slider-grid" class="range-slider-grid">
-            <div id="range-slider" class="range-slider"></div>
-            <!-- start -- button for slider -->
-            <span class="bottomright">
-                <button class='btn-slider-step  btn-xs' value='-1'>
-                    <i class="fa fa-step-backward" aria-hidden="true"></i>
-                </button>
-                <button id="btn-play-pause" class='btn-xs' value='0'>
-                    <i id="icon-play-pause" class="fa fa-play" aria-hidden="true"></i>
-                </button>
-                <button class='btn-slider-step btn-xs' value='1'>
-                    <i class="fa fa-step-forward" aria-hidden="true"></i>
-                </button>
-            </span>
-            <!-- end -- button for slider -->
-        </div>
-        <!-- end -- range slider  -->
 
-        <div id="range-slider-side" class="range-slider-side">
-            <div style="height: 50%;">
-                <select id="handles" class="vis-component-select">
-                    <option value="1" selected>discrete</option>
-                    <option value="2">continuous</option>
-                    <option value="-3">continuous(arise)</option>
-                    <option value="3"> continuous(die out) </option>
-                </select>
+        <div class="range-slider-grid py-2">
+            <!-- start -- range slider  -->
+            <div id="range-slider-control" class="range-slider-control">
+                <div id="range-slider" class="range-slider"></div>
+                <!-- start -- button for slider -->
+                <span class="bottomright">
+                    <button class='btn-slider-step  btn-xs' value='-1'>
+                        <i class="fa fa-step-backward" aria-hidden="true"></i>
+                    </button>
+                    <button id="btn-play-pause" class='btn-xs' value='0'>
+                        <i id="icon-play-pause" class="fa fa-play" aria-hidden="true"></i>
+                    </button>
+                    <button class='btn-slider-step btn-xs' value='1'>
+                        <i class="fa fa-step-forward" aria-hidden="true"></i>
+                    </button>
+                </span>
+                <!-- end -- button for slider -->
             </div>
-            <div style="height: 50%;">
-                line img
-            </div>
-        </div>
+            <!-- end -- range slider  -->
 
-        <!-- start -- timeline -->
-        <div class="timeline-grid">
-            <div id="timeline-plot" class="vis-component w-100 h-100"></div>
-        </div>
-        <!-- end  -- timeline -->
-
-        <!-- start -- datazoom range -->
-        <div id="timeline-zoom-range-grid" class="timeline-zoom-range-grid">
-            <legend>Zoom Range:</legend>
-            <div class="block">
-                <label for="select-zoom">from</label>
-                <select id="zoom-from" class="vis-component" name="select-zoom"></select>
-            </div>
-            <div class="block">
-                <label for="select-zoom">to</label>
-                <select id="zoom-to" class="vis-component" name="select-zoom"></select>
+            <div id="range-slider-side" class="range-slider-side container">
+                <div class="row">
+                    <div class="col-5" align="right">
+                        <select id="handles" class="vis-component-select" >
+                            <option value="1" selected>discrete</option>
+                            <option value="2">continuous</option>
+                            <option value="-3">continuous(arise) </option>
+                            <option value="3"> continuous(die out) </option>
+                        </select>
+                    </div>
+                    <div id="line-img" class="col-7 mt-2">         
+                        
+                    </div>
+                </div>
             </div>
         </div>
-        <!-- end -- datazoom range -->
 
-        <!-- start -- summary statistics -->
-        <div id="timeline-measures-grid" class="timeline-measures-grid pb-2">
-            <legend>Measurements:</legend>
-            <input type="checkbox" class="cbx cbx-measurement" name="active nodes" value='0' />
-                <span>active nodes</span><br />
-            <input type="checkbox" class="cbx cbx-measurement" name="active nodes (pct)" value='1' />
-                <span>active nodes(pct)</span> <br />
-            <input type="checkbox" class="cbx cbx-measurement" name="active relations" value='2' />
-                <span>active relations</span> <br />
-            <input type="checkbox" class="cbx cbx-measurement" name="active density" value='3' />
-                <span>active density</span> <br />
-            <input type="checkbox" class="cbx cbx-measurement" name="maximum clique" value='4' />
-                <span>maximum clique</span> <br />
-            <input type="checkbox" class="cbx cbx-measurement" name="disconnected groups" value='5' />
-                <span>disconnected groups</span> <br />
+
+
+        <div  class="timeline-grid">
+            <!-- start -- timeline -->
+            <div class="timeline-chart">
+                <div id="timeline-plot" class="vis-component w-100 h-100"></div>
+            </div>
+            <!-- end  -- timeline -->
+
+            <!-- start -- datazoom range -->
+            <div id="timeline-zoom-range-grid" class="timeline-zoom-range-grid">
+                <legend>Zoom Range:</legend>
+                <div class="block">
+                    <label for="select-zoom">from</label>
+                    <select id="zoom-from" class="vis-component" name="select-zoom"></select>
+                </div>
+                <div class="block">
+                    <label for="select-zoom">to</label>
+                    <select id="zoom-to" class="vis-component" name="select-zoom"></select>
+                </div>
+            </div>
+            <!-- end -- datazoom range -->
+
+            <!-- start -- summary statistics -->
+            <div id="timeline-measures-grid" class="timeline-measures-grid pb-2">
+                <legend>Measurements:</legend>
+                <input type="checkbox" class="cbx cbx-measurement" name="active nodes" value='0' />
+                    <span>active nodes</span><br />
+                <input type="checkbox" class="cbx cbx-measurement" name="active nodes (pct)" value='1' />
+                    <span>active nodes(pct)</span> <br />
+                <input type="checkbox" class="cbx cbx-measurement" name="active relations" value='2' />
+                    <span>active relations</span> <br />
+                <input type="checkbox" class="cbx cbx-measurement" name="active density" value='3' />
+                    <span>active density</span> <br />
+                <input type="checkbox" class="cbx cbx-measurement" name="maximum clique" value='4' />
+                    <span>maximum clique</span> <br />
+                <input type="checkbox" class="cbx cbx-measurement" name="disconnected groups" value='5' />
+                    <span>disconnected groups</span> <br />
+            </div>
+            <!-- end -- summary statistics -->
         </div>
-        <!-- end -- summary statistics -->
+
     </div>
 
 </body>
 <script>
+    function changeHandleBackground(value){
+        $('#line-img').css("background-image","url(/static/img/handle_background_" + value + ".png)");
+    }
+
     /*-- start -- initializing function on controls*/
     $(document).ready(function () {
         // network-grid
@@ -389,6 +403,10 @@
             }
         });
         $('#handles').change(function () {
+            changeHandleBackground(this.value)
+
+
+
             gSlider.updateHandles(parseInt(this.value), gLineSummary.dataZoomBoundary());
             gSlider.bindNetwork(gNetwork, gBarChart);
         });
@@ -481,6 +499,7 @@
         gDn = new dn.DynamicNetwork();
         yc.cleanedElement('.vis-component');
         $('.vis-component-select').val('1');
+        changeHandleBackground('1')
         $('.cbx').prop('checked', false);
     }
 
@@ -752,30 +771,24 @@
     /*-- end -- supporting functions for data preview and data submit */
 
 
-
-
-
-
-
-
     /*-- start -- global variable*/
     var gDataParam = {};
-    var gDataParam = {
-        'entities': {
-            'columns': ["id", "class", "gender"],
-            'filename': "metadata_primaryschool.txt",
-            'noneHeader': 1,
-            'path': "static/uploads",
-            'sep': "\\t"
-        },
-        'relationships': {
-            'columns': ["time", "i", "j", "3", "4"],
-            'filename': "primaryschool.csv",
-            'noneHeader': 1,
-            'path': "static/uploads",
-            'sep': "\\t"
-        }
-    };
+    // var gDataParam = {
+    //     'entities': {
+    //         'columns': ["id", "class", "gender"],
+    //         'filename': "metadata_primaryschool.txt",
+    //         'noneHeader': 1,
+    //         'path': "static/uploads",
+    //         'sep': "\\t"
+    //     },
+    //     'relationships': {
+    //         'columns': ["time", "i", "j", "3", "4"],
+    //         'filename': "primaryschool.csv",
+    //         'noneHeader': 1,
+    //         'path': "static/uploads",
+    //         'sep': "\\t"
+    //     }
+    // };
     var gIsWeighted = 0;
     var gIsUnion = 1;
     var gGraphMeasure = 1;
@@ -816,8 +829,6 @@
             })
         });
 
-
-        // timeData = dn.getTimeline();
 
         var zoomFrom = document.getElementById("zoom-from")
         var zoomTo = document.getElementById("zoom-to")
