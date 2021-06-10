@@ -40,6 +40,5 @@ df_links
 117240 - 3600*24
 
 
-df_nodes[df_nodes['class']=='Teachers']
 
-len(df_links['t'].unique())
+len(df_nodes)

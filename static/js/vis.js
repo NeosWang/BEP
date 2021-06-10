@@ -226,7 +226,7 @@
                     restore: {},
                     saveAsImage: {}
                 },
-                // right: 2
+                right: '10px'
             },
             axisPointer: {
                 link: { xAxisIndex: 'all' }
@@ -342,7 +342,7 @@
                         markLine: {
                             symbol: 'none',
                             data: [
-                                { type: 'max', name: 'max' }
+                                { type: 'average', name: 'average' }
                             ],
                         },
                     };
@@ -386,6 +386,12 @@
                     axisPointer: {            // Use axis to trigger tooltip
                         type: 'shadow'        // 'shadow' as default; can also be 'line' or 'shadow'
                     },               
+                },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {}
+                    },
+                    right:'10px',
                 },
                 legend:{
                     data:data.y
@@ -438,6 +444,12 @@
     function Network(id) {
         this.myChart = echarts.init(document.getElementById(id));
         let option = {
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                },
+                right:'10px',
+            },
             series: [{
                 type: 'graph',
                 animation: true,

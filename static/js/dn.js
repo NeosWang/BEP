@@ -113,6 +113,13 @@
             union.discrete += this.discrete;
             return union;
         },
+        unionSet: function(us){
+
+        },
+
+
+
+
         difference: function (graph) {
             let diffNodes = this.nodes().filter(e => { return !graph.nodes().includes(e); })
             let diffEdges = JSON.parse(JSON.stringify(this.edges));
