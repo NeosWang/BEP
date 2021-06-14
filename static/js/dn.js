@@ -60,6 +60,7 @@
             }
             let pivot = this._pick_random(candidates) || this._pick_random(excluded);
             (candidates.filter(x => !this.edges[pivot].hasOwnProperty(x))).forEach(v => {  // the nodes which adjoins pivot will not be considered into iteration
+            // candidates.forEach(v => {    
                 let newCandidates = candidates.filter(x => this.edges[v].hasOwnProperty(x));
                 let newExcluded = excluded.filter(x => this.edges[v].hasOwnProperty(x));
                 let newClique = [...clique, v];

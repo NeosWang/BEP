@@ -286,8 +286,8 @@
                     <span>active nodes(pct)</span> <br />
                 <input type="checkbox" class="cbx cbx-measurement" name="active relations" value='2' />
                     <span>active relations</span> <br />
-                <input type="checkbox" class="cbx cbx-measurement" name="active density" value='3' />
-                    <span>active density</span> <br />
+                <input type="checkbox" class="cbx cbx-measurement" name="actual density" value='3' />
+                    <span>actual density</span> <br />
                 <input type="checkbox" class="cbx cbx-measurement" name="maximum clique" value='4' />
                     <span>maximum clique</span> <br />
                 <input type="checkbox" class="cbx cbx-measurement" name="disconnected groups" value='5' />
@@ -863,6 +863,47 @@
             gBarChart.resize();
         }
     }
+
+    function benchMark(times){
+        let data = []
+        let from = '31220';
+        let to = '31800'
+        for(let i = 0; i < times; i++){
+            var t0 = performance.now();
+            gDn.unionGraph(from,to);
+            var t1 = performance.now();
+
+            var t2 = performance.now();
+            gDn.intersectionGraph(from,to);
+            var t3 = performance.now();
+            data.push([t1-t0 , t3-t2]);
+        }
+
+
+        let csvContent = "data:text/csv;charset=utf-8," 
+        + data.map(e => e.join(",")).join("\n");
+        var encodedUri = encodeURI(csvContent);
+        window.open(encodedUri);
+    }
+
+    function benchMark2(times){
+        let data = []
+
+        for(let i = 0; i < times; i++){
+            var t0 = performance.now();
+            let x = gDn.getListMaximumClique();
+            var t1 = performance.now();
+
+            data.push(t1-t0);
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8," 
+        + data.join("\n");
+        var encodedUri = encodeURI(csvContent);
+        window.open(encodedUri);
+    }
+
+
 
 </script>
 

@@ -364,8 +364,7 @@
 
     function BarChart(id){
         this.myChart = echarts.init(document.getElementById(id));
-        let option = {     
-        };
+        let option = {};
         option && this.myChart.setOption(option);
     }
     BarChart.prototype = {
@@ -381,6 +380,7 @@
                     bottom: '50px',
                     containLabel: true
                 },
+                color: ["#5470C6", "#91CC75", "#FADC58","#EE6666","#73C0DE","#3BA272","#FC8452","#9A60B4","#EA7CCC","#AF601A","#33FFB5"],
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: {            // Use axis to trigger tooltip
@@ -450,6 +450,7 @@
                 },
                 right:'10px',
             },
+            color: ["#5470C6", "#91CC75", "#FADC58","#EE6666","#73C0DE","#3BA272","#FC8452","#9A60B4","#EA7CCC","#AF601A","#33FFB5"],
             series: [{
                 type: 'graph',
                 animation: true,
