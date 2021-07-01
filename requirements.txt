@@ -1,7 +1,7 @@
 AppInst==2.1.5
 Flask==0.12.2
 Jinja2==2.9.6
-MarkupSafe==1.0
+MarkupSafe==1.1.1
 Pillow==4.0.0
 PyYAML==3.11
 Pygments==2.1.3
