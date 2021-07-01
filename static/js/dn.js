@@ -52,7 +52,7 @@
             Object.entries(this.edges).forEach(([k, v]) => output += Object.keys(v).length / (2 - this.isDirected));
             return output
         },
-        // cliques ====== start
+        // cliques ====== start (Bron-Kerbosch with pivot)
         maximalCliques: function (reporter, clique = [], candidates = this.nodes(), excluded = []) {
             if (!candidates.length && !excluded.length) {
                 reporter.push(clique);
@@ -274,6 +274,7 @@
             let N = this.countVertices();
             return (2 * R / (N * (N - 1))).toFixed(5);
         },
+        // disconnected subgraphs ====== start ( trim with dfs)
         _disconnectedSubgraphs: function () {
             let output = []
             Object.entries(this.edges).forEach(([k, v]) => {

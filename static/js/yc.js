@@ -1,4 +1,4 @@
-(function(factory) {
+(function (factory) {
     if (typeof define === "function" && define.amd) {
         // AMD. Register as an anonymous module.
         define([], factory);
@@ -9,47 +9,47 @@
         // Browser globals
         window.yc = factory();
     }
-})(function(){
+})(function () {
     "use strict";
 
     var VERSION = "ver 0.0.1"
 
     var AUTHOR = "Yichen Wang"
 
-    function sortKeyValuePair(obj,reverse=false){
-        let output={}
+    function sortKeyValuePair(obj, reverse = false) {
+        let output = {}
         let keys = Object.keys(obj).sort()
-        if(reverse){ keys.reverse()}
-        keys.forEach((key)=>output[key]=obj[key])
+        if (reverse) { keys.reverse() }
+        keys.forEach((key) => output[key] = obj[key])
         return output
     }
 
     function sortByKey(array, key) {
-        return array.sort(function(a, b) {
+        return array.sort(function (a, b) {
             var x = a[key]; var y = b[key];
             return ((x < y) ? -1 : ((x > y) ? 1 : 0));
         });
     }
 
-    
-    function max(array){
-        return Math.max.apply(Math,array)
+
+    function max(array) {
+        return Math.max.apply(Math, array)
     }
 
-    function quantile(array,v){
-        v = _convertToType(array[0],v)        
-        return array.indexOf(v) * 100 / (array.length-1)
+    function quantile(array, v) {
+        v = _convertToType(array[0], v)
+        return array.indexOf(v) * 100 / (array.length - 1)
     }
 
-    function _convertToType (t, e) {
-        return (t.constructor) (e);
+    function _convertToType(t, e) {
+        return (t.constructor)(e);
     }
 
-    function formatter(array, floatIndex){
+    function formatter(array, floatIndex) {
         return array[Math.round(floatIndex)]
     }
 
-    function cleanedElement(str){
+    function cleanedElement(str) {
         return $(str).empty()
     }
 
@@ -60,19 +60,19 @@
             window.clearInterval(setIntervalId);
         };
 
-        this.play= function () {
+        this.play = function () {
             start = new Date();
             window.clearInterval(setIntervalId);
-            setIntervalId= window.setInterval(callback, remaining);
+            setIntervalId = window.setInterval(callback, remaining);
         };
     }
 
-    function uniqueSubArray (master, sub){
-        return sub.every(e=> master.filter(v => v == e).length == 1);
+    function uniqueSubArray(master, sub) {
+        return sub.every(e => master.filter(v => v == e).length == 1);
     }
 
 
-    function replaceIcon(i,before, after){
+    function replaceIcon(i, before, after) {
         i.removeClass(before);
         i.addClass(after);
     }
@@ -81,7 +81,7 @@
         return (new Set(array)).size === array.length;
     }
 
-    function limitFileSize (file, limitSize) {
+    function limitFileSize(file, limitSize) {
         var arr = ["KB", "MB", "GB"]
         var limit = limitSize.toUpperCase();
         var limitNum = 0;
@@ -92,32 +92,33 @@
                 break
             }
         }
-        if (file.size > limitNum) {
-            return false
-        }
-        return true
+        return file.size <= limitNum
+        // if (file.size > limitNum) {
+        //     return false
+        // }
+        // return true
     }
 
-    function transpose(m){
-        return m[0].map(function (_, c) { 
-            return m.map(function (r) { return r[c]; }); 
+    function transpose(m) {
+        return m[0].map(function (_, c) {
+            return m.map(function (r) { return r[c]; });
         });
     }
 
     return {
         version: VERSION,
         author: AUTHOR,
-        MySetInterval:MySetInterval,
+        MySetInterval: MySetInterval,
         sortKeyValuePair: sortKeyValuePair,
-        sortByKey:sortByKey,
-        max:max,
+        sortByKey: sortByKey,
+        max: max,
         quantile: quantile,
-        formatter:formatter,
-        cleanedElement:cleanedElement,
-        uniqueSubArray:uniqueSubArray,
-        replaceIcon:replaceIcon,
-        limitFileSize:limitFileSize,
-        uniqueElements:uniqueElements,
-        transpose:transpose
+        formatter: formatter,
+        cleanedElement: cleanedElement,
+        uniqueSubArray: uniqueSubArray,
+        replaceIcon: replaceIcon,
+        limitFileSize: limitFileSize,
+        uniqueElements: uniqueElements,
+        transpose: transpose
     };
 });
