@@ -1,6 +1,6 @@
 import os 
 from flask import Flask, request, render_template,  send_from_directory 
-import requests,json
+import json
 from backend import data_preview
 from werkzeug.utils import secure_filename
 
