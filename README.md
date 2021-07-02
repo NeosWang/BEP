@@ -26,4 +26,4 @@ $python app.py
 ```
 
 ## APP
-[Deplopyment on Heroku](.https://dynamic-network-visualization.herokuapp.com/)
+[Deplopyment on Heroku](https://dynamic-network-visualization.herokuapp.com/)
