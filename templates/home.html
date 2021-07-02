@@ -377,9 +377,11 @@
                         yc.cleanedElement("#warning-main");
                     }, 3000);
                 },
-                error: function () {
+                error: function (xhr, status, error) {
                     yc.cleanedElement("#warning-main");
                     showMsg(warningDiv, 'ERROR');
+                    var errorMessage = xhr.status + ': ' + xhr.statusText
+                    alert(`Error - ${errorMessage} - ${status} - ${error}`);
                 }
             });
         });
@@ -661,8 +663,10 @@
                     showMsg(warningDiv, res['msg']);
                 }
             },
-            error: function (result) {
+            error: function (xhr, status, error) {
                 showMsg(warningDiv, 'ERROR');
+                var errorMessage = xhr.status + ': ' + xhr.statusText
+                alert(`Error - ${errorMessage} - ${status} - ${error}`);
             },
             complete: function (data) {
                 $(fileSelector).val(''); // this will reset the form fields
