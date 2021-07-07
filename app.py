@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-app.config.from_object("settings.DevelopmentConfig")
+# app.config.from_object("settings.DevelopmentConfig")
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = set(['txt','csv','tsv'])
