@@ -381,7 +381,7 @@
                     yc.cleanedElement("#warning-main");
                     showMsg(warningDiv, 'ERROR');
                     var errorMessage = xhr.status + ': ' + xhr.statusText
-                    alert(`Error - ${errorMessage} - ${status} - ${error}`);
+                    alert(`Error - ${errorMessage}`);
                 }
             });
         });
@@ -666,7 +666,7 @@
             error: function (xhr, status, error) {
                 showMsg(warningDiv, 'ERROR');
                 var errorMessage = xhr.status + ': ' + xhr.statusText
-                alert(`Error - ${errorMessage} - ${status} - ${error}`);
+                alert(`Error - ${errorMessage}`);
             },
             complete: function (data) {
                 $(fileSelector).val(''); // this will reset the form fields
@@ -777,6 +777,8 @@
 
     /*-- start -- global variable*/
     var gDataParam = {};
+
+
     // var gDataParam = {
     //     'entities': {
     //         'columns': ["id", "class", "gender"],
@@ -793,6 +795,8 @@
     //         'sep': "\\t"
     //     }
     // };
+
+
     var gIsWeighted = 0;
     var gIsUnion = 1;
     var gGraphMeasure = 1;
