@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# app.config.from_object("settings.DevelopmentConfig")
+app.config.from_object("settings.DevelopmentConfig")
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = set(['txt','csv','tsv'])
@@ -47,34 +47,39 @@ def ajax_process():
 
 @app.route('/preview', methods=[ 'GET','POST'])
 def ajax_preview():
-    print('here')
     if request.method == 'POST':  
-        if 'file' not in request.files:
-            return {
-                'status': 206,
-                'msg': 'no selected file'
-            }           
-        file = request.files['file']
-        print(file)        
         
-        
-        if file.filename == '':
-            return {
-                'status': 206,
-                'msg': 'no selected file'
-            }  
-        
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        else:
-            return {
-                'status': 415,
-                'msg': 'only allow txt, csv, tsv'
-            }
+        param = json.loads(request.form.get('param'))
+        if param['demo']:
+            filename = 'primaryschool.csv' if param['isRelationships'] else 'metadata_primaryschool.txt'
+            
+        else:           
+            if 'file' not in request.files:
+                return {
+                    'status': 206,
+                    'msg': 'no selected file'
+                }           
+            file = request.files['file']
+            
+            print(file)
+            
+            if file.filename == '':
+                return {
+                    'status': 206,
+                    'msg': 'no selected file'
+                }  
+            
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            else:
+                return {
+                    'status': 415,
+                    'msg': 'only allow txt, csv, tsv'
+                }
         
 
-        param = json.loads(request.form.get('param'))
+        # param = json.loads(request.form.get('param'))
 
         dct = {
             'filename':filename,
@@ -89,7 +94,7 @@ def ajax_preview():
         
         return  {
             'status':200,
-            'table': data_preview.process(dct, is_relationships, True),
+            'table': data_preview.process(dct, is_relationships, True, param['demo']),
             'title': title,
             'param': dct,
             'msg': 'success'

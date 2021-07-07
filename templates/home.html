@@ -81,7 +81,9 @@
             <div class="inner-grid-logo img"></div>
 
             <div class="inner-grid-tables px-3">
-                <legend>Data Preview:</legend>
+                <legend>Data Preview:   
+                    <button id="btn-demo-data" type="button" class="float-right btn btn-outline-warning btn-sm ml-5" >demo data</button>
+                </legend>
                 <!-- start tabs -->
                 <ul class="nav nav-tabs" role="tablist">
                     <li class="nav-item">
@@ -137,7 +139,8 @@
                             <div id="warning-entities" class="col-8"></div>
                             <div class="col-4">
                                 <div class="float-right">
-                                    <button class="btn-refresh-preview-panel btn btn-primary-outline btn-xs mr-2 " value='0'>
+                                    <button class="btn-refresh-preview-panel btn btn-primary-outline btn-xs mr-2 "
+                                        value='0'>
                                         <i class="fa fa-refresh"></i>
                                     </button>
                                     <button class="btn-preview btn btn-primary-outline btn-xs " value='0'>
@@ -189,7 +192,8 @@
                             <div id="warning-relationships" class="col-8"></div>
                             <div class="col-4">
                                 <div class="float-right">
-                                    <button class="btn-refresh-preview-panel btn btn-primary-outline btn-xs mr-2 " value='1'>
+                                    <button class="btn-refresh-preview-panel btn btn-primary-outline btn-xs mr-2 "
+                                        value='1'>
                                         <i class="fa fa-refresh"></i>
                                     </button>
                                     <button class="btn-preview btn btn-primary-outline btn-xs" value='1'>
@@ -210,7 +214,7 @@
             <div class="inner-grid-submit py-1">
                 <div id="warning-main" class="float-left pl-5 "></div>
                 <div id="btn-confirm" class="float-right pr-3 ">
-                    <button class="btn btn-outline-success btn-sm my-1" > confirm</button>
+                    <button class="btn btn-outline-success btn-sm my-1"> confirm</button>
                 </div>
             </div>
         </div>
@@ -240,15 +244,15 @@
             <div id="range-slider-side" class="range-slider-side container">
                 <div class="row">
                     <div class="col-5" align="right">
-                        <select id="handles" class="vis-component-select" >
+                        <select id="handles" class="vis-component-select">
                             <option value="1" selected>discrete</option>
                             <option value="2">continuous</option>
                             <option value="-3">continuous(arise) </option>
                             <option value="3"> continuous(die out) </option>
                         </select>
                     </div>
-                    <div id="line-img" class="col-7 mt-2">         
-                        
+                    <div id="line-img" class="col-7 mt-2">
+
                     </div>
                 </div>
             </div>
@@ -256,7 +260,7 @@
 
 
 
-        <div  class="timeline-grid">
+        <div class="timeline-grid">
             <!-- start -- timeline -->
             <div class="timeline-chart">
                 <div id="timeline-plot" class="vis-component w-100 h-100"></div>
@@ -281,17 +285,17 @@
             <div id="timeline-measures-grid" class="timeline-measures-grid pb-2">
                 <legend>Measurements:</legend>
                 <input type="checkbox" class="cbx cbx-measurement" name="active nodes" value='0' />
-                    <span>active nodes</span><br />
+                <span>active nodes</span><br />
                 <input type="checkbox" class="cbx cbx-measurement" name="active nodes (pct)" value='1' />
-                    <span>active nodes(pct)</span> <br />
+                <span>active nodes(pct)</span> <br />
                 <input type="checkbox" class="cbx cbx-measurement" name="active relations" value='2' />
-                    <span>active relations</span> <br />
+                <span>active relations</span> <br />
                 <input type="checkbox" class="cbx cbx-measurement" name="actual density" value='3' />
-                    <span>actual density</span> <br />
+                <span>actual density</span> <br />
                 <input type="checkbox" class="cbx cbx-measurement" name="maximum clique" value='4' />
-                    <span>maximum clique</span> <br />
+                <span>maximum clique</span> <br />
                 <input type="checkbox" class="cbx cbx-measurement" name="disconnected groups" value='5' />
-                    <span>disconnected groups</span> <br />
+                <span>disconnected groups</span> <br />
             </div>
             <!-- end -- summary statistics -->
         </div>
@@ -300,8 +304,8 @@
 
 </body>
 <script>
-    function changeHandleBackground(value){
-        $('#line-img').css("background-image","url(/static/img/handle_background_" + value + ".png)");
+    function changeHandleBackground(value) {
+        $('#line-img').css("background-image", "url(/static/img/handle_background_" + value + ".png)");
     }
 
     /*-- start -- initializing function on controls*/
@@ -339,6 +343,11 @@
         });
         $('.btn-refresh-preview-panel').click(function () {
             refreshPreviewData(this);
+        });
+        $("#btn-demo-data").click(function(){
+            $('.btn-preview').each(function(){
+                previewData(this,true);
+            })
         });
         $('#btn-confirm').click(function () {
             let flag = false
@@ -525,9 +534,9 @@
                     <th>
                         <select name='select-link-feature' onchange='checkLinkFeature(this)'>
                             <option value='0'>${i}</option>
-                            <option value='1'>time</option>
-                            <option value='2'>i</option>
-                            <option value='3'>j</option>
+                            <option value='1' ${col=='time'?'selected':''}>time</option>
+                            <option value='2' ${col=='i'?'selected':''}>i</option>
+                            <option value='3' ${col=='j'?'selected':''}>j</option>
                         </select>                                
                     </th>
                     `;
@@ -558,7 +567,7 @@
         let tf = "";
         res.columns.forEach((col, i) => {
             if (i == res.columns.length - 1) {
-                tf += `<td><button class="btn btn-primary-outline btn-xs float-right" value="${isRelationships}" onclick="submitData(this)" ><i class="fa fa-upload"></i></button></td>`
+                tf += `<td><button id="btn-submit-data-${isRelationships}" class="btn btn-primary-outline btn-xs float-right" value="${isRelationships}" onclick="submitData(this)" ><i class="fa fa-upload"></i></button></td>`
             } else {
                 tf += `<td></td>`
             }
@@ -590,7 +599,7 @@
         button: <button> entity,
     }
     */
-    function previewData(button) {
+    function previewData(button, demo=false) {
         let isRelationships = parseInt(button.value);
         let str = isRelationships ? "relationships" : "entities";
 
@@ -610,18 +619,26 @@
 
         let toReturn = false
 
-        let fileObj = $(fileSelector)[0].files[0]
+        // get selected file and valid --- start
+        let fileObj
+        if(demo){
+            $(separatorSelector).val('\\t')
+            $(headerSelecotr).val('1')
+        }else{            
+            fileObj = $(fileSelector)[0].files[0]
 
-        if (typeof (fileObj) == "undefined" || fileObj.size <= 0) {
-            showMsg(warningDiv, 'file not selected');
-            toReturn = true;
-        }else{
-            let limit = '10MB'
-            if (!yc.limitFileSize(fileObj, limit)) {
-                showMsg(warningDiv, `file cannot exceed ${limit}`);
+            if (typeof (fileObj) == "undefined" || fileObj.size <= 0) {
+                showMsg(warningDiv, 'file not selected');
                 toReturn = true;
+            } else {
+                let limit = '10MB'
+                if (!yc.limitFileSize(fileObj, limit)) {
+                    showMsg(warningDiv, `file cannot exceed ${limit}`);
+                    toReturn = true;
+                }
             }
         }
+
 
         let sep = $(separatorSelector).val()
         if (sep === '') {
@@ -640,13 +657,14 @@
         var param = JSON.stringify({
             'sep': sep,
             'noneHeader': parseInt(noneHeader),
-            'isRelationships': isRelationships
+            'isRelationships': isRelationships,
+            'demo':demo
         });
 
         var formData = new FormData();
         formData.append("file", fileObj);
         formData.append("param", param);
-        
+
         $.ajax({
             type: "Post",
             url: "/preview",
@@ -659,6 +677,10 @@
                 if (res['status'] == 200) {
                     gDataParam[res.title] = res.param
                     tableShowPreview(table, res.table, isRelationships);
+                    if(demo){
+                        $(`#btn-submit-data-${isRelationships}`).click()
+                    }
+
                 } else {
                     showMsg(warningDiv, res['msg']);
                 }
@@ -872,41 +894,41 @@
         }
     }
 
-    function benchMark(times){
+    function benchMark(times) {
         let data = []
         let from = '31220';
         let to = '31800'
-        for(let i = 0; i < times; i++){
+        for (let i = 0; i < times; i++) {
             var t0 = performance.now();
-            gDn.unionGraph(from,to);
+            gDn.unionGraph(from, to);
             var t1 = performance.now();
 
             var t2 = performance.now();
-            gDn.intersectionGraph(from,to);
+            gDn.intersectionGraph(from, to);
             var t3 = performance.now();
-            data.push([t1-t0 , t3-t2]);
+            data.push([t1 - t0, t3 - t2]);
         }
 
 
-        let csvContent = "data:text/csv;charset=utf-8," 
-        + data.map(e => e.join(",")).join("\n");
+        let csvContent = "data:text/csv;charset=utf-8,"
+            + data.map(e => e.join(",")).join("\n");
         var encodedUri = encodeURI(csvContent);
         window.open(encodedUri);
     }
 
-    function benchMark2(times){
+    function benchMark2(times) {
         let data = []
 
-        for(let i = 0; i < times; i++){
+        for (let i = 0; i < times; i++) {
             var t0 = performance.now();
             let x = gDn.getListMaximumClique();
             var t1 = performance.now();
 
-            data.push(t1-t0);
+            data.push(t1 - t0);
         }
 
-        let csvContent = "data:text/csv;charset=utf-8," 
-        + data.join("\n");
+        let csvContent = "data:text/csv;charset=utf-8,"
+            + data.join("\n");
         var encodedUri = encodeURI(csvContent);
         window.open(encodedUri);
     }
