@@ -19,6 +19,7 @@ library including:
 in the root of project directory
 * metadata_primaryschool.txt  (entities)
 * primaryschool.csv  (relations)
+(new function added for loading demo data: click "demo data" then click "confirm")
 
 ## runing
 ```
