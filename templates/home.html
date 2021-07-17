@@ -23,6 +23,15 @@
     <script src="{{ url_for('static', filename='js/vis.js')}}"></script>
     <script src="{{ url_for('static', filename='js/yc.js')}}"></script>
     <script src="{{ url_for('static', filename='js/dn.js')}}"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-89K4DR06DE"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { window.dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-89K4DR06DE');
+    </script>
     <!-- /SCRIPTS -->
 
 </head>
@@ -81,8 +90,9 @@
             <div class="inner-grid-logo img"></div>
 
             <div class="inner-grid-tables px-3">
-                <legend>Data Preview:   
-                    <button id="btn-demo-data" type="button" class="float-right btn btn-outline-warning btn-sm ml-5" >demo data</button>
+                <legend>Data Preview:
+                    <button id="btn-demo-data" type="button"
+                        class="float-right btn btn-outline-warning btn-sm ml-5">demo data</button>
                 </legend>
                 <!-- start tabs -->
                 <ul class="nav nav-tabs" role="tablist">
@@ -344,9 +354,9 @@
         $('.btn-refresh-preview-panel').click(function () {
             refreshPreviewData(this);
         });
-        $("#btn-demo-data").click(function(){
-            $('.btn-preview').each(function(){
-                previewData(this,true);
+        $("#btn-demo-data").click(function () {
+            $('.btn-preview').each(function () {
+                previewData(this, true);
             })
         });
         $('#btn-confirm').click(function () {
@@ -534,9 +544,9 @@
                     <th>
                         <select name='select-link-feature' onchange='checkLinkFeature(this)'>
                             <option value='0'>${i}</option>
-                            <option value='1' ${col=='time'?'selected':''}>time</option>
-                            <option value='2' ${col=='i'?'selected':''}>i</option>
-                            <option value='3' ${col=='j'?'selected':''}>j</option>
+                            <option value='1' ${col == 'time' ? 'selected' : ''}>time</option>
+                            <option value='2' ${col == 'i' ? 'selected' : ''}>i</option>
+                            <option value='3' ${col == 'j' ? 'selected' : ''}>j</option>
                         </select>                                
                     </th>
                     `;
@@ -599,7 +609,7 @@
         button: <button> entity,
     }
     */
-    function previewData(button, demo=false) {
+    function previewData(button, demo = false) {
         let isRelationships = parseInt(button.value);
         let str = isRelationships ? "relationships" : "entities";
 
@@ -621,10 +631,10 @@
 
         // get selected file and valid --- start
         let fileObj
-        if(demo){
+        if (demo) {
             $(separatorSelector).val('\\t')
             $(headerSelecotr).val('1')
-        }else{            
+        } else {
             fileObj = $(fileSelector)[0].files[0]
 
             if (typeof (fileObj) == "undefined" || fileObj.size <= 0) {
@@ -658,7 +668,7 @@
             'sep': sep,
             'noneHeader': parseInt(noneHeader),
             'isRelationships': isRelationships,
-            'demo':demo
+            'demo': demo
         });
 
         var formData = new FormData();
@@ -677,7 +687,7 @@
                 if (res['status'] == 200) {
                     gDataParam[res.title] = res.param
                     tableShowPreview(table, res.table, isRelationships);
-                    if(demo){
+                    if (demo) {
                         $(`#btn-submit-data-${isRelationships}`).click()
                     }
 
