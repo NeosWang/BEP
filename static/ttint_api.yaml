@@ -82,25 +82,13 @@ tags:
   - name: Label and closeout
   - name: Tracking
   - name: Special purpose
-  # - name: pet
-  #   description: Everything about your Pets
-  #   externalDocs:
-  #     description: Find out more
-  #     url: http://swagger.io
-  # - name: store
-  #   description: Access to Petstore orders
-  # - name: user
-  #   description: Operations about user
-  #   externalDocs:
-  #     description: Find out more about our store
-  #     url: http://swagger.io
 
 paths:
   "/contentlabel/generate":
     post:
+      summary: Generate packet labels
       tags:
         - Label and closeout
-      summary: Generate packet labels
       description: ''
       operationId: generateContentLabel
       consumes:
@@ -115,12 +103,24 @@ paths:
         schema:
           "$ref": "#/definitions/ContentLabel"
       responses:
-        '405':
-          description: Invalid input
-      security:
-      - petstore_auth:
-        - write:pets
-        - read:pets
+        200:
+          description: success
+          schema:
+            type: "object"
+            required: [status, data, message]
+          examples:
+            application/json:
+              status: "success"
+              data:
+                item: "LX214797347NL"
+                rfid: null
+                url: "<link-to-label>"
+                base64string: "<base64string>"
+              message:
+                code: "TTI_API_0035"
+                payload: "Label generated"
+
+
 
 
 
@@ -624,36 +624,75 @@ paths:
   #         description: successful operation
 
 
-
-
-# securityDefinitions:
-#   api_key:
-#     type: apiKey
-#     name: api_key
-#     in: header
-#   petstore_auth:
-#     type: oauth2
-#     authorizationUrl: https://petstore.swagger.io/oauth/authorize
-#     flow: implicit
-#     scopes:
-#       read:pets: read your pets
-#       write:pets: modify pets in your account
 definitions:
   ContentLabel:
     type: object
     required:
       - product_code
-      - label_type
+      - label_type      
+      - item_barcode
+      - gross_weight_grams
+      - declaration_type
+      - return
+      - dangerous_goods
+      - currency
       - sender_details
+      - addressee_details
     properties:
       product_code:
         type: string
-        format: '3'
-        example: 'TRD'
+        format: 3
+        example: TRD
       label_type:
         "$ref": "#/definitions/LabelType"
+      item_barcode:
+        type: string
+        format: 13
+        description: Do not use unless instructed
+        example: ''
+      alternate_barcode:
+        type: string
+        description: Additional barcode for tracking, only use when instructed
+        example: ''
+      customer_reference_number:
+        type: string
+        format: 20
+        description: Sender ID (own reference)
+        example: ''
+      customer_item_id:
+        type: string
+        format: 40
+        description: Sender ID (own reference)
+        example: ''
+      gross_weight_grams:
+        type: integer
+        format: int32
+        description: Weight of total parcel in gram, including packaging
+        example: 500
+      declaration_type:
+        "$ref": "#/definitions/DeclarationType"
+      return:
+        type: boolean
+        description: 'Should undeliverable item be returned: true or false'
+        default: false
+      dangerous_good:
+        type: boolean        
+        description: 'Shipping via Dangerous Goods lane: true or false'
+        default: false
+      currency:
+        "$ref": "#/definitions/Currency"
+      transport_value:
+        type: number
+        description: 'Transport cost from shipper to recipient. Mandatory if available.'
+        example: 0
+      insurance_value: 
+        type: number
+        description: 'Insurance cost of the parcel. Mandatory if available.'
+        example: 0
       sender_details:
         "$ref": "#/definitions/SenderDetails"
+      addressee_details:
+        "$ref": "#/definitions/AddresseeDetails"
       
   LabelType: 
     type: string
@@ -662,9 +701,25 @@ definitions:
     enum:
       - ZPL
       - PDF
-      
-        
 
+  DeclarationType:
+    type: string
+    enum:
+      - SaleOfGoods
+      - Documents
+      - Gift
+      - ReturnedGoods
+      - CommercialSample
+
+  Currency:
+    type: string
+    format: '3'
+    description: Currency of sales
+    enum:
+      - EUR
+      - USD
+      - GBP
+        
   SenderDetails:
     type: object
     description: Seller (sender) information
@@ -678,51 +733,138 @@ definitions:
     properties:
       name:
         type: string
-        format: '250'
+        format: 250
         description: Seller contact person
-        example: 'Hedley Parrish'
+        example: John Doe
       company:
         type: string
-        format: '100'
+        format: 100
         description: Seller company
-        example: "Webshop ABC"
+        example: Webshop ABC
       address:
         type: string
-        format: '250'
-        example: "Via Manzoni 19"
+        format: 250
+        description: Seller address
+        example: Via Manzoni 19
       postal_code:
         type: string
         format: '20'
-        example: '22070'
+        description: Seller zip code
+        example: 22070
       city:
         type: string
-        format: '150'
+        format: 150
+        description: Seller city
         example: 'Montano Lucino'
       state:
         type: string
-        format: '150'
+        format: 150
+        description: Seller State
         example: ''
       country:
         type: string
-        format: '100'
-        example: 'Italy'
+        format: 100
+        description: Seller Country Name
+        example: Italy
       country_code:
         type: string
-        format: '2'
-        example: 'IT'
+        format: 2
+        description: Seller Country - 2 ISO Country Code
+        example: IT
       email:
         type: string
-        format: '150'
-        example: 'johndoe@example.com'
+        format: 150
+        description: 'Seller Email address. Sender email and/or phone is required.'
+        example: johndoe@example.com
       phone:
         type: string
-        format: '20'
+        format: 20
+        description: 'Seller Email address. Sender email and/or phone is required.'
         example: ''
       id_ref:
         type: string
-        format: '100'
+        format: 100
+        description: 'Seller EORI, IOSS, VAT, VOEC number. VOEC for destination Norway. Mandatory for IOSS or requested by destination customs'
         example: ''
 
+  AddresseeDetails:
+    type: object
+    description: Receiver information
+    required:
+      - name
+      - city
+      - country
+      - country_code
+    properties:
+      name:
+        type: string
+        format: 250
+        description: Receiver contact person
+      company:
+        type: string
+        format: 100
+        description: Receiver company
+      address:
+        type: string
+        format: 250
+        description: 'Receiver address. Either use address or street_name + building number. Do not use address + street_name + building number.'
+      street_name:
+        type: string
+        format: 250
+        description: 'Receiver street name'
+      buliding_number:
+        type: string
+        description: Receiver building number
+      building_number_extension:
+        type: string
+        description: Receiver building number extension
+      building_name:
+        type: string
+        description: Receiver building name
+      floor:
+        type: string
+        description: Receiver building floor number
+      postal_code:
+        type: string
+        format: 20
+        description: Receiver zip code
+      city:
+        type: string
+        format: 150
+        description: Receiver City
+      state:
+        type: string
+        format: 150
+        description: Receiver State. Mandatory for destination US. Use ISO 3-letter code.
+      country:
+        type: string
+        format: 100
+        description: Receiver Country Name
+      country_code:
+        type: string
+        format: 2
+        description: Receiver Country – ISO 2-letter Country Code
+      email:
+        type: string
+        format: 150
+        description: Receiver Email address. Receiver email and/or phone is required.
+      phone:
+        type: string
+        format: 20
+        description: Receiver phone number. Receiver email and/or phone is required.
+      id_ref:
+        type: string
+        format: 100
+    example:
+      name: Hedley Parrish
+      address: 'Ap #859-1777 Urna. Street'
+      postal_code: 0639 NX
+      city: Alphen aan den Rijn
+      state: 0639 NX
+      country: Netherlands
+      country_code: NL
+      phone: '+1234567890'
+      id_ref: 'Receiver TAX, CIF, VAT ID number. Mandatory if requested by destination customs: I.e.: destination Brazil (BR)'
 
 
 
