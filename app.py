@@ -44,6 +44,9 @@ def ajax_process():
     return result
         
 
+@app.route('/ttint_api',methods=['GET','POST'])
+def ttint_api():
+    return render_template("ttint.html")
 
 @app.route('/preview', methods=[ 'GET','POST'])
 def ajax_preview():
