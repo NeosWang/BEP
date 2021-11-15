@@ -1,0 +1,299 @@
+ContentLabel:
+  type: object
+  required:
+    - product_code
+    - label_type      
+    - item_barcode
+    - gross_weight_grams
+    - declaration_type
+    - return
+    - dangerous_goods
+    - currency
+    - sender_details
+    - addressee_details
+  properties:
+    product_code:
+      type: string
+      format: 3
+      example: TRD
+    label_type:
+      $ref: "#/LabelType"
+    item_barcode:
+      type: string
+      format: 13
+      description: Do not use unless instructed
+      example: ''
+    alternate_barcode:
+      type: string
+      description: Additional barcode for tracking, only use when instructed
+      example: ''
+    customer_reference_number:
+      type: string
+      format: 20
+      description: Sender ID (own reference)
+      example: ''
+    customer_item_id:
+      type: string
+      format: 40
+      description: Sender ID (own reference)
+      example: ''
+    gross_weight_grams:
+      type: integer
+      format: int32
+      description: Weight of total parcel in gram, including packaging
+      example: 500
+    declaration_type:
+      $ref: "#/DeclarationType"
+    return:
+      type: boolean
+      description: 'Should undeliverable item be returned: true or false'
+      example: false
+    dangerous_good:
+      type: boolean        
+      description: 'Shipping via Dangerous Goods lane: true or false'
+      example: false
+    currency:
+      $ref: "#/Currency"
+    transport_value:
+      type: number
+      description: 'Transport cost from shipper to recipient. Mandatory if available.'
+      example: 0
+    insurance_value: 
+      type: number
+      description: 'Insurance cost of the parcel. Mandatory if available.'
+      example: 0
+    sender_details:
+      $ref: "#/SenderDetails"
+    addressee_details:
+      $ref: "#/AddresseeDetails"
+    content_pieces:
+      type: array
+      items:
+        $ref: "#/ContentPieces"
+
+
+ContentPieces:
+  type: object
+  description: Object for products inside item
+  required:
+    - goods_description
+    - quantity
+    - total_weight_grams
+    - total_goods_value
+    - tariff
+    - manufacture_country_code
+  properties:
+    goods_description: 
+      type: string
+      format: 50
+      description: Description of the product for this item
+    quantity: 
+      type: integer
+      description: Quantity of content piece 
+    total_weight_grams:
+      type: integer
+      description: "Total weight of content piece in grams. total_weight_grams = quantity * single item weight"
+    total_goods_value:
+      type: number
+      description: 'Total value of content piece in specified currency. total_goods_value = quantity * single item value'
+    total_goods_value_eur:
+      type: number
+      description: 'Mandatory for IOSS clearance. Also when sales was in EUR. Use CEB fx rate'
+    tariff:
+      type: string
+      format: 12
+      description: "Harmonized Commodity Description and Coding System / Harmonized System / HS Code"
+    manufacture_country_code:
+      type: string
+      format: 2
+      description: "ISO 2 letter country code for Country Of Manufacture"
+    item_url:
+      type: string
+      format: 250
+      description: "Content piece URL in webshop"
+  example:
+    goods_description: Mens swimwear
+    quantity: 1
+    total_weight_grams": 500
+    total_goods_value": 10
+    total_goods_value_eur": 10
+    tariff: 620463
+    manufacture_country_code: IT
+
+Currency:
+  type: string
+  format: '3'
+  description: Currency of sales
+  enum:
+    - EUR
+    - USD
+    - GBP
+  example: EUR
+
+DeclarationType:
+  type: string
+  enum:
+    - SaleOfGoods
+    - Documents
+    - Gift
+    - ReturnedGoods
+    - CommercialSample
+  examples: SaleOfGoods
+
+LabelType: 
+  type: string
+  format: '3'
+  description: format of label
+  enum:
+    - PDF
+    - ZPL
+  example: PDF
+
+SenderDetails:
+  type: object
+  description: Seller (sender) information
+  required:
+    - name
+    - company
+    - address
+    - city
+    - country
+    - country_code
+  properties:
+    name:
+      type: string
+      format: 250
+      description: Seller contact person
+      example: John Doe
+    company:
+      type: string
+      format: 100
+      description: Seller company
+      example: Webshop ABC
+    address:
+      type: string
+      format: 250
+      description: Seller address
+      example: Via Manzoni 19
+    postal_code:
+      type: string
+      format: '20'
+      description: Seller zip code
+      example: 22070
+    city:
+      type: string
+      format: 150
+      description: Seller city
+      example: 'Montano Lucino'
+    state:
+      type: string
+      format: 150
+      description: Seller State
+      example: ''
+    country:
+      type: string
+      format: 100
+      description: Seller Country Name
+      example: Italy
+    country_code:
+      type: string
+      format: 2
+      description: Seller Country - 2 ISO Country Code
+      example: IT
+    email:
+      type: string
+      format: 150
+      description: 'Seller Email address. Sender email and/or phone is required.'
+      example: johndoe@example.com
+    phone:
+      type: string
+      format: 20
+      description: 'Seller Email address. Sender email and/or phone is required.'
+      example: ''
+    id_ref:
+      type: string
+      format: 100
+      description: 'Seller EORI, IOSS, VAT, VOEC number. VOEC for destination Norway. Mandatory for IOSS or requested by destination customs'
+      example: ''
+
+AddresseeDetails:
+  type: object
+  description: Receiver information
+  required:
+    - name
+    - city
+    - country
+    - country_code
+  x-dependencies:
+    -Or(phone, email);
+  properties:
+    name:
+      type: string
+      format: 250
+      description: Receiver contact person
+    company:
+      type: string
+      format: 100
+      description: Receiver company
+    address:
+      type: string
+      format: 250
+      description: 'Receiver address. Either use address or street_name + building number. Do not use address + street_name + building number.'
+    street_name:
+      type: string
+      format: 250
+      description: 'Receiver street name'
+    buliding_number:
+      type: string
+      description: Receiver building number
+    building_number_extension:
+      type: string
+      description: Receiver building number extension
+    building_name:
+      type: string
+      description: Receiver building name
+    floor:
+      type: string
+      description: Receiver building floor number
+    postal_code:
+      type: string
+      format: 20
+      description: Receiver zip code
+    city:
+      type: string
+      format: 150
+      description: Receiver City
+    state:
+      type: string
+      format: 150
+      description: Receiver State. Mandatory for destination US. Use ISO 3-letter code.
+    country:
+      type: string
+      format: 100
+      description: Receiver Country Name
+    country_code:
+      type: string
+      format: 2
+      description: Receiver Country – ISO 2-letter Country Code
+    email:
+      type: string
+      format: 150
+      description: Receiver Email address. Receiver email and/or phone is required.
+    phone:
+      type: string
+      format: 20
+      description: Receiver phone number. Receiver email and/or phone is required.
+    id_ref:
+      type: string
+      format: 100
+  example:
+    name: Hedley Parrish
+    address: 'Ap #859-1777 Urna. Street'
+    postal_code: 0639 NX
+    city: Alphen aan den Rijn
+    state: 0639 NX
+    country: Netherlands
+    country_code: NL
+    phone: '+1234567890'
+    id_ref: 'Receiver TAX, CIF, VAT ID number. Mandatory if requested by destination customs: I.e.: destination Brazil (BR)'
+
