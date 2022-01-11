@@ -24,6 +24,9 @@ def favicon():
 def index():
     return render_template("home.html")
 
+@app.route("/bep")
+def bep():
+    return render_template("bep.html")
 
 def allowed_file(filename):
     return '.' in filename and \
