@@ -148,6 +148,7 @@ def showAPI():
     if request.method == "POST":
         data = request.data
         headers = request.headers
+        
 
         message = Message(
         subject="Receive API call",
@@ -156,7 +157,9 @@ def showAPI():
         body = f"""-------data-------
         {data}
         --------headers---------
-        {headers}""",
+        {headers}t
+        --------form------------
+        {request.form.keys()}""",
         )
         mail.send(message)
 
