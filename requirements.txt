@@ -5,3 +5,5 @@ Jinja2
 MarkupSafe
 Werkzeug
 pandas
+flask_mail
+Flask-Mail

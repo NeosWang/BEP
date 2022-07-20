@@ -1,10 +1,24 @@
 import os 
-from flask import Flask, request, render_template,  send_from_directory 
+from flask import Flask, request, render_template,  send_from_directory, redirect, url_for,jsonify
 import json
 from backend import data_preview
 from werkzeug.utils import secure_filename
+from datetime import datetime
+from flask_mail import Mail, Message
+
 
 app = Flask(__name__)
+
+mail_settings={
+    "MAIL_SERVER": 'smtp.qq.com',
+    "MAIL_PORT": 465,
+    "MAIL_USE_SSL": True,
+    "MAIL_USERNAME":"180762556@qq.com",
+    "MAIL_PASSWORD": "vdqzlvhldwxkcaah"
+}
+
+app.config.update(mail_settings)
+mail = Mail(app)
 
 # app.config.from_object("settings.DevelopmentConfig")
 
@@ -107,6 +121,50 @@ def ajax_preview():
         } 
 
 
+@app.route('/foo', methods=['POST']) 
+def foo():
+
+    if request.method == "POST":
+        print(request.form)
+        data = request.json
+        return jsonify(data)
+    # print(data)
+
+    # message = Message(
+    #     subject="Receive API call",
+    #     sender=app.config.get("MAIL_USERNAME"),
+    #     recipients=["yichen.wang@postnl.nl"],
+    #     body = json.dumps(data),
+    #     )
+
+    # mail.send(message)
+
+
+    return jsonify(1)
+
+
+@app.route('/api',methods=['GET','POST'])
+def showAPI():
+    if request.method == "POST":
+        data = request.data
+        headers = request.headers
+
+        message = Message(
+        subject="Receive API call",
+        sender=app.config.get("MAIL_USERNAME"),
+        recipients=["yichen.wang@postnl.nl"],
+        body = f"""-------data-------
+        {data}
+        --------headers---------
+        {headers}""",
+        )
+        mail.send(message)
+
+
+  
+        return jsonify(1)
+
+    return jsonify(1)
 
 
 if __name__ == '__main__':
