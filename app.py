@@ -156,10 +156,10 @@ def showAPI():
         recipients=["yichen.wang@postnl.nl"],
         body = f"""-------data-------
         {data}
-        --------headers---------
-        {headers}t
-        --------form------------
-        {request.form.keys()}""",
+--------headers---------
+{headers}
+--------form------------
+{[(key, request.form[key]) for key in request.form.keys() if request.form]}""",
         )
         mail.send(message)
 
