@@ -128,16 +128,7 @@ def foo():
         print(request.form)
         data = request.json
         return jsonify(data)
-    # print(data)
 
-    # message = Message(
-    #     subject="Receive API call",
-    #     sender=app.config.get("MAIL_USERNAME"),
-    #     recipients=["yichen.wang@postnl.nl"],
-    #     body = json.dumps(data),
-    #     )
-
-    # mail.send(message)
 
 
     return jsonify(1)
@@ -146,28 +137,32 @@ def foo():
 @app.route('/api',methods=['GET','POST'])
 def showAPI():
     if request.method == "POST":
-        data = request.data
+        data = request.data   # json data in bytes
         headers = request.headers
-        
 
         message = Message(
         subject="Receive API call",
         sender=app.config.get("MAIL_USERNAME"),
         recipients=["yichen.wang@postnl.nl"],
         body = f"""-------data-------
-        {data}
+{data}
 --------headers---------
 {headers}
---------form------------
-{[(key, request.form[key]) for key in request.form.keys() if request.form]}""",
+--------form------------  
+{[(key, request.form[key]) for key in request.form.keys() if request.form]}""",    # if any shit in www-form-urlencoded
         )
         mail.send(message)
 
-
+        output = {"success":"true","errorCode":None,"errorMsg":None,"cbCode":None,"wayBillNo":None}
   
-        return jsonify(1)
+        return jsonify(output)
 
-    return jsonify(1)
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
