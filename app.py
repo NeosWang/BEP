@@ -154,7 +154,12 @@ def showAPI():
         mail.send(message)
 
         output = {"success":"true","errorCode":None,"errorMsg":None,"cbCode":None,"wayBillNo":None}
-  
+        output = {
+            "success":"true",
+            "errorCode":None,
+            "errorMsg":None
+        }
+        
         return jsonify(output)
 
 
