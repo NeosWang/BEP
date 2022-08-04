@@ -31,7 +31,8 @@ def form_content(form):
     kv = [(key, form[key]) for key in form.keys() if form]
     output = ""
     for k,v in  kv:
-        output +=f"""{k} ==> {v}
+        output +=f"""key    ===>    {k}
+value    ===>    {v}
         
 """
     return output
