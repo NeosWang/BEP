@@ -27,6 +27,15 @@ ALLOWED_EXTENSIONS = set(['txt','csv','tsv'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
+def form_content(form):
+    kv = [(key, form[key]) for key in form.keys() if form]
+    output = ""
+    for k,v in  kv:
+        output +=f"""{k} ==> {v}
+        
+"""
+    return output
+
 
 @app.route('/favicon.ico') 
 def favicon(): 
@@ -149,7 +158,7 @@ def showAPI():
 --------headers---------
 {headers}
 --------form------------  
-{[(key, request.form[key]) for key in request.form.keys() if request.form]}""",    # if any shit in www-form-urlencoded
+{form_content(request.form)}""",    # if any shit in www-form-urlencoded
         )
         mail.send(message)
 
