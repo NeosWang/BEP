@@ -169,6 +169,7 @@ def showAPI():
             "errorCode":None,
             "errorMsg":None
         }
+        output ="{\"success\":\"true\"}"
         
         return jsonify(output)
 
