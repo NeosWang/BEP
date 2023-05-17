@@ -169,14 +169,9 @@ def showAPI():
             "errorCode":None,
             "errorMsg":None
         }
-        output ="{\"success\":\"YC says true\"}"
+        output ="{\"success\":\"true\"}"
         
         return jsonify(output)
-
-
-
-
-
 
 
 
