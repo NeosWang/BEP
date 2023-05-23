@@ -57,6 +57,14 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+
+
+
+@app.route("/mawb")
+def mawb():
+    return render_template('mawb.html')
+
+
 @app.route('/process', methods=['GET', 'POST'])
 def ajax_process():
     if request.method=='POST':
