@@ -5,7 +5,7 @@ Jinja2
 MarkupSafe
 Werkzeug
 pandas
-urllib3==2.0.4
+urllib3
 requests==2.31.0
 flask_mail
 Flask-Mail
