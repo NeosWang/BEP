@@ -4,6 +4,7 @@ import json
 from backend import data_preview
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
+
 import requests
 from random import randint
 import hashlib
@@ -143,11 +144,11 @@ def ajax_preview():
 
 
 
-@app.route('/api/test/SNT/item', methods=['POST'])
-def SNT_item():
-    req_data_obj = json.loads(request.data)
-    res = SNT.declare_item(req_data_obj)
-    return jsonify(res)
+# @app.route('/api/test/SNT/item', methods=['POST'])
+# def SNT_item():
+#     req_data_obj = json.loads(request.data)
+#     res = SNT.declare_item(req_data_obj)
+#     return jsonify(res)
 
 
 @app.route('/api/test/SNT/manifest', methods=['POST'])
