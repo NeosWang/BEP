@@ -6,30 +6,26 @@ import base64
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def __random_LP():
-    return f"LP{__random_n_digits(14)}"
+# def __random_LP():
+#     return f"LP{__random_n_digits(14)}"
 
-def __random_CB():
-    return f"CB{__random_n_digits(14)}"
+# def __random_CB():
+#     return f"CB{__random_n_digits(14)}"
 
-def __get_data_digest(app_json, secretKey="postnl13798642"):
-    app_bytes = (app_json + secretKey).encode(encoding='UTF-8')
-    md5 = hashlib.md5(app_bytes)
-    return base64.b64encode(md5.digest()).decode("UTF-8")
+# def __get_data_digest(app_json, secretKey="postnl13798642"):
+#     app_bytes = (app_json + secretKey).encode(encoding='UTF-8')
+#     md5 = hashlib.md5(app_bytes)
+#     return base64.b64encode(md5.digest()).decode("UTF-8")
 
-def __random_mawb():
-    airline = __random_n_digits(3)
-    seq = __random_n_digits(7)
-    return f"{airline}-{seq}{seq%7}"
-def random_mawb():
-    airline = __random_n_digits(3)
-    seq = __random_n_digits(7)
-    return f"{airline}-{seq}{seq%7}"
+# def __random_mawb():
+#     airline = __random_n_digits(3)
+#     seq = __random_n_digits(7)
+#     return f"{airline}-{seq}{seq%7}"
 
-def __random_n_digits(n):
-    range_start = 10**(n-1)
-    range_end = (10**n)-1
-    return randint(range_start, range_end)
+# def __random_n_digits(n):
+#     range_start = 10**(n-1)
+#     range_end = (10**n)-1
+#     return randint(range_start, range_end)
 
 
 

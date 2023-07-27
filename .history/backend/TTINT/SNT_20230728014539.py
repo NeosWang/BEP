@@ -21,10 +21,6 @@ def __random_mawb():
     airline = __random_n_digits(3)
     seq = __random_n_digits(7)
     return f"{airline}-{seq}{seq%7}"
-def random_mawb():
-    airline = __random_n_digits(3)
-    seq = __random_n_digits(7)
-    return f"{airline}-{seq}{seq%7}"
 
 def __random_n_digits(n):
     range_start = 10**(n-1)

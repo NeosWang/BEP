@@ -21,10 +21,6 @@ def __random_mawb():
     airline = __random_n_digits(3)
     seq = __random_n_digits(7)
     return f"{airline}-{seq}{seq%7}"
-def random_mawb():
-    airline = __random_n_digits(3)
-    seq = __random_n_digits(7)
-    return f"{airline}-{seq}{seq%7}"
 
 def __random_n_digits(n):
     range_start = 10**(n-1)
@@ -373,71 +369,71 @@ def __random_n_digits(n):
 #     )
 # # endregion
 
-# # region [declare_manifest]
-# def declare_manifest(req):
+# region [declare_manifest]
+def declare_manifest(req):
 
-#     url = "https://clients-test.postnl.a02.cldsvc.net/v7/api/declare/item"
+    url = "https://clients-test.postnl.a02.cldsvc.net/v7/api/declare/item"
 
-#     cbcode = __random_CB()
-#     mawb = __random_mawb()
+    cbcode = __random_CB()
+    mawb = __random_mawb()
 
-#     parcelList = [{
-#         "gnum": 1,
-#         "wayBillNo": item,
-#         "bagId": __assistlabel_generate(),
-#         "copNo": cbcode,
-#     } for item in req['items']]
+    parcelList = [{
+        "gnum": 1,
+        "wayBillNo": item,
+        "bagId": __assistlabel_generate(),
+        "copNo": cbcode,
+    } for item in req['items']]
 
-#     obj_content = {
-#         "guid": "eb3c71a8-43a4-4fd8-834f-df2046247fa5",
-#         "appType": "1",
-#         "appTime": "20221118000000+0800",
-#         "declareCountry": "CN",
-#         "clearanceMode": "CFS",
-#         "arrivePort": "LGG",
-#         "copNo": cbcode,
-#         "trafMode": "5",
-#         "trafName": "FLIHGT",
-#         "voyageNo": "FT12345",
-#         "masterWayBill": mawb,
-#         "grossWeight": "100.000",
-#         "netWeight": "100.000",
-#         "bigBagCount": f"{len(set([i['bagId'] for i in  parcelList]))}",
-#         "eta": "20221114000000+0800",
-#         "etd": "20221115000000+0800",
-#         "parcelCount": f"{len(parcelList)}",
-#         "portCode": "SZX",
-#         "feature": "",
-#         "parcelList": parcelList
-#     }
+    obj_content = {
+        "guid": "eb3c71a8-43a4-4fd8-834f-df2046247fa5",
+        "appType": "1",
+        "appTime": "20221118000000+0800",
+        "declareCountry": "CN",
+        "clearanceMode": "CFS",
+        "arrivePort": "LGG",
+        "copNo": cbcode,
+        "trafMode": "5",
+        "trafName": "FLIHGT",
+        "voyageNo": "FT12345",
+        "masterWayBill": mawb,
+        "grossWeight": "100.000",
+        "netWeight": "100.000",
+        "bigBagCount": f"{len(set([i['bagId'] for i in  parcelList]))}",
+        "eta": "20221114000000+0800",
+        "etd": "20221115000000+0800",
+        "parcelCount": f"{len(parcelList)}",
+        "portCode": "SZX",
+        "feature": "",
+        "parcelList": parcelList
+    }
 
-#     str_content = base64.b64encode(json.dumps(
-#         obj_content).encode(encoding='ascii')).decode("UTF-8")
+    str_content = base64.b64encode(json.dumps(
+        obj_content).encode(encoding='ascii')).decode("UTF-8")
 
-#     obj_logistics_interface = {
-#         "bizType": "CUSTOMS_MANIFEST_NOTIFY",
-#         "bizKey": cbcode,
-#         "formatType": "1",
-#         "content": str_content
-#     }
+    obj_logistics_interface = {
+        "bizType": "CUSTOMS_MANIFEST_NOTIFY",
+        "bizKey": cbcode,
+        "formatType": "1",
+        "content": str_content
+    }
 
-#     str_logistics_interface = json.dumps(obj_logistics_interface)
+    str_logistics_interface = json.dumps(obj_logistics_interface)
 
-#     payload = {
-#         "data_digest": __get_data_digest(str_logistics_interface),
-#         "partner_code": "",
-#         "from_code": "gccs-overseas",
-#         "msg_type": "GLOBAL_CUSTOMS_DECLARE_NOTIFY",
-#         "msg_id": cbcode,
-#         "logistics_interface": str_logistics_interface,
-#     }
-#     headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    payload = {
+        "data_digest": __get_data_digest(str_logistics_interface),
+        "partner_code": "",
+        "from_code": "gccs-overseas",
+        "msg_type": "GLOBAL_CUSTOMS_DECLARE_NOTIFY",
+        "msg_id": cbcode,
+        "logistics_interface": str_logistics_interface,
+    }
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
-#     requests.post(
-#         url=url,
-#         headers=headers,
-#         data=payload,
-#         verify=False,
-#     )
-#     return {"mawb": mawb}
-# # endregion
+    requests.post(
+        url=url,
+        headers=headers,
+        data=payload,
+        verify=False,
+    )
+    return {"mawb": mawb}
+# endregion

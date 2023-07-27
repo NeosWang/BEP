@@ -151,12 +151,11 @@ def ajax_preview():
 #     return jsonify(res)
 
 
-@app.route('/api/test/SNT/manifest', methods=['POST'])
-def SNT_manifest():
-    req_data_obj = json.loads(request.data)
-    # res = SNT.declare_manifest(req_data_obj)
-    res = SNT.random_mawb()
-    return jsonify(res)
+# @app.route('/api/test/SNT/manifest', methods=['POST'])
+# def SNT_manifest():
+#     req_data_obj = json.loads(request.data)
+#     res = SNT.declare_manifest(req_data_obj)
+#     return jsonify(res)
 
 
 
