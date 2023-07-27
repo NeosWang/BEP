@@ -152,6 +152,17 @@ def foo():
     return jsonify(1)
 
 
+
+@app.route('/api/test/SNT/item', methods=['POST'])
+def test_foo():
+    
+    print(request.data)
+    
+    output={"a":1,
+            "b":"c"}
+    
+    return jsonify(output)
+
 @app.route('/api',methods=['GET','POST'])
 def showAPI():
     if request.method == "POST":
@@ -182,7 +193,7 @@ def showAPI():
         return jsonify(output)
 
 @app.route('/storeauth/customertoken',methods=['GET','POST'])
-def showAPI():
+def mockToken():
     if request.method == "POST":
         # data = request.data   # json data in bytes
         # headers = request.headers
@@ -209,7 +220,7 @@ def showAPI():
                 "token_type": "bearer",
                 "scope": "api@uniexpress.ca",
                 "expires_in": 1686818788
-            }
+            }
         }
         # output = {
         #     "success":"true",
@@ -224,5 +235,5 @@ def showAPI():
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    app.run()
+    app.run(debug=True)
+    # app.run()

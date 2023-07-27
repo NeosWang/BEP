@@ -152,6 +152,16 @@ def foo():
     return jsonify(1)
 
 
+
+@app.route('/api/test/SNT/item', methods=['POST'])
+def test_foo():
+    
+    print(request.data)
+    output={"a":1,
+            "b":"c"}
+    
+    return jsonify(output)
+
 @app.route('/api',methods=['GET','POST'])
 def showAPI():
     if request.method == "POST":
@@ -182,34 +192,34 @@ def showAPI():
         return jsonify(output)
 
 @app.route('/storeauth/customertoken',methods=['GET','POST'])
-def showAPI():
+def mockToken():
     if request.method == "POST":
-        data = request.data   # json data in bytes
-        headers = request.headers
+        # data = request.data   # json data in bytes
+        # headers = request.headers
 
-        message = Message(
-        subject="Receive API call",
-        sender=app.config.get("MAIL_USERNAME"),
-        recipients=["yichen.wang@postnl.nl"],
-        body = f"""-------data-------
-{data}
---------headers---------
-{headers}
---------form------------  
-{form_content(request.form)}""",    # if any shit in www-form-urlencoded
-        )
-        mail.send(message)
+#         message = Message(
+#         subject="Receive API call",
+#         sender=app.config.get("MAIL_USERNAME"),
+#         recipients=["yichen.wang@postnl.nl"],
+#         body = f"""-------data-------
+# {data}
+# --------headers---------
+# {headers}
+# --------form------------  
+# {form_content(request.form)}""",    # if any shit in www-form-urlencoded
+#         )
+#         mail.send(message)
 
         output = {
             "status": "SUCCESS",
             "ret_msg": "",
             "err_code": 0,
             "data": {
-                "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vc2pxYS51bmlleHByZXNzLm9yZy9zdG9yZWF1dGgvY3VzdG9tZXJ0b2tlbiIsImlhdCI6MTY4NjczMjM4OCwibmJmIjoxNjg2NzMyMzg4LCJleHAiOjE2ODY4MTg3ODgsImNvdW50cnkiOiJDQSIsInBhcnRuZXJfaWQiOjc0NCwibmFtZSI6IlNwcmluZyBHTlMgVVMifQ.fnWhCVKFcPX-4TynzSHQfPc8w3QNZw2UFI15R4E5PZw",
+                "access_token": "mockToken",
                 "token_type": "bearer",
                 "scope": "api@uniexpress.ca",
                 "expires_in": 1686818788
-            }
+            }
         }
         # output = {
         #     "success":"true",
@@ -224,5 +234,5 @@ def showAPI():
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    app.run()
+    app.run(debug=True)
+    # app.run()

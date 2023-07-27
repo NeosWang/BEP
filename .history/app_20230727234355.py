@@ -5,7 +5,7 @@ from backend import data_preview
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from flask_mail import Mail, Message
-
+from backend.TTINT import SNT
 
 app = Flask(__name__)
 
@@ -152,6 +152,30 @@ def foo():
     return jsonify(1)
 
 
+
+@app.route('/api/test/SNT/item', methods=['POST'])
+def SNT_item():
+    
+    req_data_obj = json.loads(request.data)
+
+    
+    res = SNT.declare_item(req_data_obj)
+    
+    
+
+    return jsonify(res)
+
+
+@app.route('/api/test/SNT/manifest', methods=['POST'])
+def SNT_manifest():
+    
+    req_data_obj = json.loads(request.data)
+
+    
+    res = SNT.declare_manifest(req_data_obj)
+
+    return jsonify(res)
+
 @app.route('/api',methods=['GET','POST'])
 def showAPI():
     if request.method == "POST":
@@ -181,44 +205,7 @@ def showAPI():
         
         return jsonify(output)
 
-@app.route('/storeauth/customertoken',methods=['GET','POST'])
-def mockToken():
-    if request.method == "POST":
-        # data = request.data   # json data in bytes
-        # headers = request.headers
 
-#         message = Message(
-#         subject="Receive API call",
-#         sender=app.config.get("MAIL_USERNAME"),
-#         recipients=["yichen.wang@postnl.nl"],
-#         body = f"""-------data-------
-# {data}
-# --------headers---------
-# {headers}
-# --------form------------  
-# {form_content(request.form)}""",    # if any shit in www-form-urlencoded
-#         )
-#         mail.send(message)
-
-        output = {
-            "status": "SUCCESS",
-            "ret_msg": "",
-            "err_code": 0,
-            "data": {
-                "access_token": "mockToken",
-                "token_type": "bearer",
-                "scope": "api@uniexpress.ca",
-                "expires_in": 1686818788
-            }
-        }
-        # output = {
-        #     "success":"true",
-        #     "errorCode":None,
-        #     "errorMsg":None
-        # }
-        # output ="{\"success\":\"true\"}"
-        
-        return jsonify(output)
 
 
 
