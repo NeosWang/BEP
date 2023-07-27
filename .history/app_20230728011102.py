@@ -4,7 +4,7 @@ import json
 from backend import data_preview
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
-# from backend.TTINT import SNT
+from backend.TTINT import SNT
 
 app = Flask(__name__)
 
@@ -152,18 +152,18 @@ def foo():
 
 
 
-# @app.route('/api/test/SNT/item', methods=['POST'])
-# def SNT_item():
-#     req_data_obj = json.loads(request.data)
-#     res = SNT.declare_item(req_data_obj)
-#     return jsonify(res)
+@app.route('/api/test/SNT/item', methods=['POST'])
+def SNT_item():
+    req_data_obj = json.loads(request.data)
+    res = SNT.declare_item(req_data_obj)
+    return jsonify(res)
 
 
-# @app.route('/api/test/SNT/manifest', methods=['POST'])
-# def SNT_manifest():
-#     req_data_obj = json.loads(request.data)
-#     res = SNT.declare_manifest(req_data_obj)
-#     return jsonify(res)
+@app.route('/api/test/SNT/manifest', methods=['POST'])
+def SNT_manifest():
+    req_data_obj = json.loads(request.data)
+    res = SNT.declare_manifest(req_data_obj)
+    return jsonify(res)
 
 
 

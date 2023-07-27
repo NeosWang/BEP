@@ -152,18 +152,18 @@ def foo():
 
 
 
-# @app.route('/api/test/SNT/item', methods=['POST'])
-# def SNT_item():
-#     req_data_obj = json.loads(request.data)
-#     res = SNT.declare_item(req_data_obj)
-#     return jsonify(res)
+@app.route('/api/test/SNT/item', methods=['POST'])
+def SNT_item():
+    req_data_obj = json.loads(request.data)
+    res = SNT.declare_item(req_data_obj)
+    return jsonify(res)
 
 
-# @app.route('/api/test/SNT/manifest', methods=['POST'])
-# def SNT_manifest():
-#     req_data_obj = json.loads(request.data)
-#     res = SNT.declare_manifest(req_data_obj)
-#     return jsonify(res)
+@app.route('/api/test/SNT/manifest', methods=['POST'])
+def SNT_manifest():
+    req_data_obj = json.loads(request.data)
+    res = SNT.declare_manifest(req_data_obj)
+    return jsonify(res)
 
 
 
