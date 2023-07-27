@@ -7,9 +7,3 @@ Werkzeug
 pandas
 flask_mail
 Flask-Mail
-requests
-json
-random
-hashlib
-base64
-urllib3
