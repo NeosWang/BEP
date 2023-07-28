@@ -290,7 +290,7 @@ def __declare_item_customs(req,product,barcode,lpcode,cbcode,mailbag=None,):
             "address": req['addressee_details']['address'] if 'address' in req['addressee_details'] else "test addr",
             "city": req['addressee_details']['city'] if 'city' in req['addressee_details'] else "test city",
             "country": req['addressee_details']['country_code'],
-            "zipCode": req['addressee_details']['postal_code'],
+            "zipCode": req['addressee_details']['country_code'],
             "email": req['addressee_details']['email'] if 'email' in req['addressee_details'] else "a@b.c",
             "telephone": req['addressee_details']['phone']if 'phone' in req['addressee_details'] else "123456789",
         },
@@ -456,3 +456,6 @@ def declare_item(req):
         "res_customs":data_customs
     }
 # endregion
+
+
+declare_manifest({"items":['CK001375438NL']})

@@ -153,7 +153,6 @@ def SNT_item():
 @app.route('/api/test/SNT/manifest', methods=['POST'])
 def SNT_manifest():
     req_data_obj = json.loads(request.data)
-    print(req_data_obj)
     res = SNT.declare_manifest(req_data_obj)
     return jsonify(res)
 
@@ -194,5 +193,5 @@ def showAPI():
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    app.run()
+    app.run(debug=True)
+    # app.run()

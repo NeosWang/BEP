@@ -456,3 +456,6 @@ def declare_item(req):
         "res_customs":data_customs
     }
 # endregion
+
+
+declare_manifest({"items":['CK001375438NL']})

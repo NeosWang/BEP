@@ -290,7 +290,7 @@ def __declare_item_customs(req,product,barcode,lpcode,cbcode,mailbag=None,):
             "address": req['addressee_details']['address'] if 'address' in req['addressee_details'] else "test addr",
             "city": req['addressee_details']['city'] if 'city' in req['addressee_details'] else "test city",
             "country": req['addressee_details']['country_code'],
-            "zipCode": req['addressee_details']['postal_code'],
+            "zipCode": req['addressee_details']['country_code'],
             "email": req['addressee_details']['email'] if 'email' in req['addressee_details'] else "a@b.c",
             "telephone": req['addressee_details']['phone']if 'phone' in req['addressee_details'] else "123456789",
         },
@@ -357,9 +357,7 @@ def declare_manifest(req):
         "bagId": __assistlabel_generate(),
         "copNo": cbcode,
     } for item in req['items']]
-    
     print(parcelList)
-    
     obj_content = {
         "guid": "eb3c71a8-43a4-4fd8-834f-df2046247fa5",
         "appType": "1",
@@ -383,7 +381,6 @@ def declare_manifest(req):
         "parcelList": parcelList
     }
 
-    print(obj_content)
     str_content = base64.b64encode(json.dumps(
         obj_content).encode(encoding='ascii')).decode("UTF-8")
 
@@ -398,16 +395,14 @@ def declare_manifest(req):
 
     payload = {
         "data_digest": __get_data_digest(str_logistics_interface),
-        "partner_code": "GATE_30503886",
+        "partner_code": "",
         "from_code": "gccs-overseas",
         "msg_type": "GLOBAL_CUSTOMS_DECLARE_NOTIFY",
         "msg_id": cbcode,
         "logistics_interface": str_logistics_interface,
     }
-    
-    print(payload)
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    
+
     res = requests.post(
         url=url,
         headers=headers,
@@ -456,3 +451,6 @@ def declare_item(req):
         "res_customs":data_customs
     }
 # endregion
+
+
+declare_manifest({"items":['CK001375438NL']})
