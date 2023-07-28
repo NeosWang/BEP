@@ -437,15 +437,13 @@ def declare_item(req):
     cbcode = __random_CB()
     barcode = __barcode_generate()
     product = products[req['product_code']]
-    data_logistics = __declare_item_logistics(product=product, barcode=barcode, lpcode=lpcode)
-    data_customs = __declare_item_customs(req=req, product=product,
+    __declare_item_logistics(product=product, barcode=barcode, lpcode=lpcode)
+    __declare_item_customs(req=req, product=product,
                            barcode=barcode, lpcode=lpcode, cbcode=cbcode)
 
     return{
         "barcode": barcode,
         "LPcode": lpcode,
-        "CBcode": cbcode,
-        "res_logistcs":data_logistics,
-        "res_customs":data_customs
+        "CBcode": cbcode
     }
 # endregion
