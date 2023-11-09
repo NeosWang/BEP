@@ -1,5 +1,5 @@
 import requests
-import json
+import json5
 from random import randint
 import hashlib
 import base64
@@ -30,19 +30,24 @@ def __random_n_digits(n):
     range_start = 10**(n-1)
     range_end = (10**n)-1
     return randint(range_start, range_end)
+    
+    
+    
+__test_SNT = "2qQu3xg6e8w13J4uWyJDHp0TmRV2SPZnK7R3IAgfzb3RLIYt5qHjosDN9o6V2fkrBg77czDsTc8DgOHVC7swplLatjX2lLXWRPvCvRB5eDfOc2COUuO6uGgtSM5hzzZ6rUMV1Q19iYUu3PuIHq637gGn4GU0KJVGG99phX0aHcKwNKGQm47V0YNopmm8bWiwrsnFyKzZ3wwl1HiPJjc1xxJxGHyDTk4RlYVZCg0TnF6k4Yj8699D1qxJ8VeG45ImcwLvNeDJNaWuVRbPf8hrfSUkwII8E8ID8pbk5DF7ff5Z"
 
-
-
+__domain = "https://clients-test.postnl.a02.cldsvc.net/v7/api"
 
 
 # region [__barcode_generate]
 def __barcode_generate(prefix):
-    test_SNT = "2qQu3xg6e8w13J4uWyJDHp0TmRV2SPZnK7R3IAgfzb3RLIYt5qHjosDN9o6V2fkrBg77czDsTc8DgOHVC7swplLatjX2lLXWRPvCvRB5eDfOc2COUuO6uGgtSM5hzzZ6rUMV1Q19iYUu3PuIHq637gGn4GU0KJVGG99phX0aHcKwNKGQm47V0YNopmm8bWiwrsnFyKzZ3wwl1HiPJjc1xxJxGHyDTk4RlYVZCg0TnF6k4Yj8699D1qxJ8VeG45ImcwLvNeDJNaWuVRbPf8hrfSUkwII8E8ID8pbk5DF7ff5Z"
+    '''
+    call client api "/barcode/generate", generate one barcode under SNT by given prefix 
+    '''
 
-    url = "https://clients-test.postnl.a02.cldsvc.net/v7/api/barcode/generate"
+    url = f"{__domain}/barcode/generate"
 
     headers = {
-        'api_key': test_SNT,
+        'api_key': __test_SNT,
         "Content-Type": 'application/json'
     }
     payload = {
@@ -52,21 +57,20 @@ def __barcode_generate(prefix):
     res = requests.post(
         url=url,
         headers=headers,
-        data=json.dumps(payload),
+        data=json5.dumps(payload),
         verify=False
     )
 
-    return json.loads(res.text)['data']['barcode_and_rfids'][0]['barcode']
+    return json5.loads(res.text)['data']['barcode_and_rfids'][0]['barcode']
 # endregion
 
 # region [__assistlabel_generate]
 def __assistlabel_generate():
-    test_SNT = "2qQu3xg6e8w13J4uWyJDHp0TmRV2SPZnK7R3IAgfzb3RLIYt5qHjosDN9o6V2fkrBg77czDsTc8DgOHVC7swplLatjX2lLXWRPvCvRB5eDfOc2COUuO6uGgtSM5hzzZ6rUMV1Q19iYUu3PuIHq637gGn4GU0KJVGG99phX0aHcKwNKGQm47V0YNopmm8bWiwrsnFyKzZ3wwl1HiPJjc1xxJxGHyDTk4RlYVZCg0TnF6k4Yj8699D1qxJ8VeG45ImcwLvNeDJNaWuVRbPf8hrfSUkwII8E8ID8pbk5DF7ff5Z"
 
-    url = "https://clients-test.postnl.a02.cldsvc.net/v7/api/assistlabel/generate"
+    url =  f"{__domain}/assistlabel/generate"
 
     headers = {
-        'api_key': test_SNT,
+        'api_key': __test_SNT,
         "Content-Type": 'application/json'
     }
     payload = {
@@ -76,17 +80,17 @@ def __assistlabel_generate():
     res = requests.post(
         url=url,
         headers=headers,
-        data=json.dumps(payload),
+        data=json5.dumps(payload),
         verify=False
     )
 
-    return json.loads(res.text)['data']['assist_labels'][0]['barcode']
+    return json5.loads(res.text)['data']['assist_labels'][0]['barcode']
 # endregion
 
 # region [__declare_item_logistics]
 def __declare_item_logistics(product, barcode, lpcode, mailbag=None):
 
-    url = "https://clients-test.postnl.a02.cldsvc.net/v7/api/declare/ItemLogistics"
+    url =  f"{__domain}declare/ItemLogistics"
 
     obj_logistics_interface = {
 
@@ -202,7 +206,7 @@ def __declare_item_logistics(product, barcode, lpcode, mailbag=None):
 
     lpcode = obj_logistics_interface['logisticsOrderCode']
 
-    str_logistics_interface = json.dumps(obj_logistics_interface)
+    str_logistics_interface = json5.dumps(obj_logistics_interface)
     payload = {
         "data_digest": __get_data_digest(str_logistics_interface),
         "partner_code": product['customs_gate'],
@@ -226,7 +230,7 @@ def __declare_item_logistics(product, barcode, lpcode, mailbag=None):
 # region [__declare_item_customs]
 def __declare_item_customs(req,product,barcode,lpcode,cbcode,mailbag=None,):
 
-    url = "https://clients-test.postnl.a02.cldsvc.net/v7/api/declare/item"
+    url =  f"{__domain}/declare/item"
 
     feature = {
         "linehaulResCode": "TRUNK_30145010",
@@ -234,7 +238,7 @@ def __declare_item_customs(req,product,barcode,lpcode,cbcode,mailbag=None,):
         "laneCode": "L_AE_ECONOMY_NLAIR_RM",
         "distributorResCode": product['source_code']
     }
-    feature = json.dumps(feature)
+    feature = json5.dumps(feature)
 
     obj_content = {
         "actualTotalFee": "11.182258826765352",
@@ -310,7 +314,7 @@ def __declare_item_customs(req,product,barcode,lpcode,cbcode,mailbag=None,):
         "wayBillNo": barcode
     }
 
-    str_content = base64.b64encode(json.dumps(
+    str_content = base64.b64encode(json5.dumps(
         obj_content).encode(encoding='ascii')).decode("UTF-8")
 
     obj_logistics_interface = {
@@ -320,7 +324,7 @@ def __declare_item_customs(req,product,barcode,lpcode,cbcode,mailbag=None,):
         "content": str_content
     }
 
-    str_logistics_interface = json.dumps(obj_logistics_interface)
+    str_logistics_interface = json5.dumps(obj_logistics_interface)
 
     payload = {
         "data_digest": __get_data_digest(str_logistics_interface),
@@ -346,7 +350,7 @@ def __declare_item_customs(req,product,barcode,lpcode,cbcode,mailbag=None,):
 # region [declare_manifest]
 def declare_manifest(req):
 
-    url = "https://clients-test.postnl.a02.cldsvc.net/v7/api/declare/item"
+    url =  f"{__domain}/declare/item"
 
     cbcode = __random_CB()
     mawb = __random_mawb()
@@ -384,7 +388,7 @@ def declare_manifest(req):
     }
 
     print(obj_content)
-    str_content = base64.b64encode(json.dumps(
+    str_content = base64.b64encode(json5.dumps(
         obj_content).encode(encoding='ascii')).decode("UTF-8")
 
     obj_logistics_interface = {
@@ -394,7 +398,7 @@ def declare_manifest(req):
         "content": str_content
     }
 
-    str_logistics_interface = json.dumps(obj_logistics_interface)
+    str_logistics_interface = json5.dumps(obj_logistics_interface)
 
     payload = {
         "data_digest": __get_data_digest(str_logistics_interface),
@@ -422,6 +426,7 @@ def declare_manifest(req):
 def declare_item(req):
     products = {
         'IMG': {
+            'product_code': 'IMG' , 
             'source_code': 'DISTRIBUTOR_30874247',
             'mailBoxItem': None,
             'laneCode': "L_STANDARD_NLEU_DB_RM",
@@ -430,13 +435,23 @@ def declare_item(req):
             'prefix': 'CK'
         },
         'MGP': {
+            'product_code': 'MGP' , 
             'source_code': 'DISTRIBUTOR_30874547',
             'mailBoxItem': None,
             'laneCode': "L_STANDARD_NLEU_DB_NC",
             'customs_gate': "GATE_30503886",
             'domestic': False,
             'prefix': 'CH'
-        }
+        },
+        'IRX': {
+            'product_code': 'IRX' , 
+            'source_code': 'DISTRIBUTOR_30874723',
+            'mailBoxItem': None,
+            'laneCode': "L_AE_STANDARD_NLEU_BAT",
+            'customs_gate': "GATE_30467721",
+            'domestic': False,
+            'prefix': 'LS'
+        },
     }
     
     product = products[req['product_code']]

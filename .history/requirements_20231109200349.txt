@@ -5,6 +5,8 @@ Jinja2
 MarkupSafe
 Werkzeug
 pandas
-requests==2.13.0
+urllib3==2.0.4
+requests==2.31.0
 flask_mail
 Flask-Mail
+json5==0.9.14

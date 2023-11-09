@@ -6,44 +6,6 @@ import base64
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def declare_item(req):
-    products = {
-        'IMG': {
-            'source_code': 'DISTRIBUTOR_30874247',
-            'mailBoxItem': None,
-            'laneCode': "L_STANDARD_NLEU_DB_RM",
-            'customs_gate': "GATE_30467721",
-            'domestic': False,
-            'prefix': 'CK'
-        },
-        'MGP': {
-            'source_code': 'DISTRIBUTOR_30874547',
-            'mailBoxItem': None,
-            'laneCode': "L_STANDARD_NLEU_DB_NC",
-            'customs_gate': "GATE_30503886",
-            'domestic': False,
-            'prefix': 'CH'
-        }
-    }
-    lpcode = __random_LP()
-    cbcode = __random_CB()
-    barcode = __barcode_generate()
-    product = products[req['product_code']]
-    __declare_item_logistics(product=product,barcode=barcode,lpcode=lpcode)
-    __declare_item_customs(req=req, product=product, barcode=barcode,lpcode=lpcode,cbcode=cbcode)
-    
-    return{
-        "barcode": barcode,
-        "LPcode" : lpcode,
-        "CBcode" : cbcode
-    }
-
-
-def __random_n_digits(n):
-    range_start = 10**(n-1)
-    range_end = (10**n)-1
-    return randint(range_start, range_end)
-
 def __random_LP():
     return f"LP{__random_n_digits(14)}"
 
@@ -59,34 +21,70 @@ def __random_mawb():
     airline = __random_n_digits(3)
     seq = __random_n_digits(7)
     return f"{airline}-{seq}{seq%7}"
+def random_mawb():
+    airline = __random_n_digits(3)
+    seq = __random_n_digits(7)
+    return f"{airline}-{seq}{seq%7}"
+
+def __random_n_digits(n):
+    range_start = 10**(n-1)
+    range_end = (10**n)-1
+    return randint(range_start, range_end)
 
 
+
+
+
+# region [__barcode_generate]
 def __barcode_generate(prefix):
     test_SNT = "2qQu3xg6e8w13J4uWyJDHp0TmRV2SPZnK7R3IAgfzb3RLIYt5qHjosDN9o6V2fkrBg77czDsTc8DgOHVC7swplLatjX2lLXWRPvCvRB5eDfOc2COUuO6uGgtSM5hzzZ6rUMV1Q19iYUu3PuIHq637gGn4GU0KJVGG99phX0aHcKwNKGQm47V0YNopmm8bWiwrsnFyKzZ3wwl1HiPJjc1xxJxGHyDTk4RlYVZCg0TnF6k4Yj8699D1qxJ8VeG45ImcwLvNeDJNaWuVRbPf8hrfSUkwII8E8ID8pbk5DF7ff5Z"
 
     url = "https://clients-test.postnl.a02.cldsvc.net/v7/api/barcode/generate"
 
     headers = {
-            'api_key': test_SNT,
-            "Content-Type": 'application/json'
-        }
+        'api_key': test_SNT,
+        "Content-Type": 'application/json'
+    }
     payload = {
         "barcode_type": prefix,
         "amount_of_barcodes": 1
     }
     res = requests.post(
-            url=url,
-            headers=headers,
-            data=json.dumps(payload),
-            verify = False,
-        )
+        url=url,
+        headers=headers,
+        data=json.dumps(payload),
+        verify=False
+    )
 
-    if res.status_code == 200:
-        return json.loads(res.text)['data']['barcode_and_rfids'][0]['barcode']
+    return json.loads(res.text)['data']['barcode_and_rfids'][0]['barcode']
+# endregion
 
+# region [__assistlabel_generate]
+def __assistlabel_generate():
+    test_SNT = "2qQu3xg6e8w13J4uWyJDHp0TmRV2SPZnK7R3IAgfzb3RLIYt5qHjosDN9o6V2fkrBg77czDsTc8DgOHVC7swplLatjX2lLXWRPvCvRB5eDfOc2COUuO6uGgtSM5hzzZ6rUMV1Q19iYUu3PuIHq637gGn4GU0KJVGG99phX0aHcKwNKGQm47V0YNopmm8bWiwrsnFyKzZ3wwl1HiPJjc1xxJxGHyDTk4RlYVZCg0TnF6k4Yj8699D1qxJ8VeG45ImcwLvNeDJNaWuVRbPf8hrfSUkwII8E8ID8pbk5DF7ff5Z"
 
+    url = "https://clients-test.postnl.a02.cldsvc.net/v7/api/assistlabel/generate"
 
-def __declare_item_logistics(product, barcode, lpcode,mailbag = None):
+    headers = {
+        'api_key': test_SNT,
+        "Content-Type": 'application/json'
+    }
+    payload = {
+        "label_type": "ZPL",
+        "destination_country_code": "YY"
+    }
+    res = requests.post(
+        url=url,
+        headers=headers,
+        data=json.dumps(payload),
+        verify=False
+    )
+
+    return json.loads(res.text)['data']['assist_labels'][0]['barcode']
+# endregion
+
+# region [__declare_item_logistics]
+def __declare_item_logistics(product, barcode, lpcode, mailbag=None):
 
     url = "https://clients-test.postnl.a02.cldsvc.net/v7/api/declare/ItemLogistics"
 
@@ -213,28 +211,23 @@ def __declare_item_logistics(product, barcode, lpcode,mailbag = None):
         "msg_id": lpcode,
         "logistics_interface": str_logistics_interface
     }
-    
+
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    
-    requests.post(
-            url=url,
-            headers=headers,
-            data=payload,
-            verify = False,
-        )
 
+    res = requests.post(
+        url=url,
+        headers=headers,
+        data=payload,
+        verify=False,
+    )
+    return {"data":res.text}
+# endregion
 
-def __declare_item_customs(
-    req,
-    product,
-    barcode,
-    lpcode,
-    cbcode,
-    mailbag=None,):
-
+# region [__declare_item_customs]
+def __declare_item_customs(req,product,barcode,lpcode,cbcode,mailbag=None,):
 
     url = "https://clients-test.postnl.a02.cldsvc.net/v7/api/declare/item"
-    
+
     feature = {
         "linehaulResCode": "TRUNK_30145010",
         "declarationRole": f"warehouse{'' if product['source_code']=='DISTRIBUTOR_30875031' else 'nooit'}",
@@ -297,9 +290,9 @@ def __declare_item_customs(
             "address": req['addressee_details']['address'] if 'address' in req['addressee_details'] else "test addr",
             "city": req['addressee_details']['city'] if 'city' in req['addressee_details'] else "test city",
             "country": req['addressee_details']['country_code'],
-            "zipCode": req['addressee_details']['country_code'],
+            "zipCode": req['addressee_details']['postal_code'],
             "email": req['addressee_details']['email'] if 'email' in req['addressee_details'] else "a@b.c",
-            "telephone":req['addressee_details']['phone']if 'phone' in req['addressee_details'] else "123456789",
+            "telephone": req['addressee_details']['phone']if 'phone' in req['addressee_details'] else "123456789",
         },
         "senderInfo": {
             "address": "dong sheng jie dao~~~test address",
@@ -316,7 +309,6 @@ def __declare_item_customs(
         "taxTotal": 1.1,
         "wayBillNo": barcode
     }
-
 
     str_content = base64.b64encode(json.dumps(
         obj_content).encode(encoding='ascii')).decode("UTF-8")
@@ -338,34 +330,36 @@ def __declare_item_customs(
         "msg_id": "1678781969244",
         "logistics_interface": str_logistics_interface
     }
-    
+
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
+
+    res = requests.post(
+        url=url,
+        headers=headers,
+        data=payload,
+        verify=False,
+    )
+    return {"data":res.text}
     
-    requests.post(
-            url=url,
-            headers=headers,
-            data=payload,
-            verify = False,
-        )
+# endregion
 
-
-def __declare_manifest(req):
+# region [declare_manifest]
+def declare_manifest(req):
 
     url = "https://clients-test.postnl.a02.cldsvc.net/v7/api/declare/item"
 
     cbcode = __random_CB()
-    mawb = mawb if mawb else __random_mawb()
+    mawb = __random_mawb()
 
-    # if isinstance(mailbag, str):
-    #     mailbag = [mailbag]*len(barcode_list)
-
-    # parcelList = [{
-    #     "gnum": 1,
-    #     "wayBillNo": b,
-    #     "bagId": m,
-    #     "copNo": cbcode,
-    # } for m, b in zip(mailbag, barcode_list)] if inputParcelList is None else inputParcelList
-
+    parcelList = [{
+        "gnum": 1,
+        "wayBillNo": item,
+        "bagId": __assistlabel_generate(),
+        "copNo": cbcode,
+    } for item in req['items']]
+    
+    print(parcelList)
+    
     obj_content = {
         "guid": "eb3c71a8-43a4-4fd8-834f-df2046247fa5",
         "appType": "1",
@@ -389,8 +383,7 @@ def __declare_manifest(req):
         "parcelList": parcelList
     }
 
-
-
+    print(obj_content)
     str_content = base64.b64encode(json.dumps(
         obj_content).encode(encoding='ascii')).decode("UTF-8")
 
@@ -405,9 +398,72 @@ def __declare_manifest(req):
 
     payload = {
         "data_digest": __get_data_digest(str_logistics_interface),
-        "partner_code": "",
+        "partner_code": "GATE_30503886",
         "from_code": "gccs-overseas",
         "msg_type": "GLOBAL_CUSTOMS_DECLARE_NOTIFY",
         "msg_id": cbcode,
         "logistics_interface": str_logistics_interface,
     }
+    
+    print(payload)
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    
+    res = requests.post(
+        url=url,
+        headers=headers,
+        data=payload,
+        verify=False,
+    )
+    return {"mawb": mawb,
+            "data": res.text}
+# endregion
+
+# region [declare_item]
+def declare_item(req):
+    products = {
+        'IMG': {
+            'product_code': 'IMG' , 
+            'source_code': 'DISTRIBUTOR_30874247',
+            'mailBoxItem': None,
+            'laneCode': "L_STANDARD_NLEU_DB_RM",
+            'customs_gate': "GATE_30467721",
+            'domestic': False,
+            'prefix': 'CK'
+        },
+        'MGP': {
+            'product_code': 'MGP' , 
+            'source_code': 'DISTRIBUTOR_30874547',
+            'mailBoxItem': None,
+            'laneCode': "L_STANDARD_NLEU_DB_NC",
+            'customs_gate': "GATE_30503886",
+            'domestic': False,
+            'prefix': 'CH'
+        },
+        'IRX': {
+            'product_code': 'IRX' , 
+            'source_code': 'DISTRIBUTOR_30874723',
+            'mailBoxItem': None,
+            'laneCode': "L_AE_STANDARD_NLEU_BAT",
+            'customs_gate': "GATE_30467721",
+            'domestic': False,
+            'prefix': 'LS'
+        },
+    }
+    
+    product = products[req['product_code']]
+    lpcode = __random_LP()
+    cbcode = __random_CB()
+    barcode = __barcode_generate(product['prefix'])
+    
+    data_logistics = __declare_item_logistics(product=product, barcode=barcode, lpcode=lpcode)
+    data_customs = __declare_item_customs(req=req, product=product,
+                           barcode=barcode, lpcode=lpcode, cbcode=cbcode)
+
+    return{
+        "barcode": barcode,
+        "LPcode": lpcode,
+        "CBcode": cbcode,
+        "res_logistcs":data_logistics,
+        "res_customs":data_customs
+    }
+# endregion
