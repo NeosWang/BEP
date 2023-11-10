@@ -1,5 +1,5 @@
 import requests
-import json
+import json5
 import json
 from random import randint
 import hashlib
@@ -58,11 +58,11 @@ def __barcode_generate(prefix):
     res = requests.post(
         url=url,
         headers=headers,
-        data=json.dumps(payload),
+        data=json5.dumps(payload),
         verify=False
     )
 
-    return json.loads(res.text)['data']['barcode_and_rfids'][0]['barcode']
+    return json5.loads(res.text)['data']['barcode_and_rfids'][0]['barcode']
 # endregion
 
 # region [__assistlabel_generate]
@@ -81,11 +81,11 @@ def __assistlabel_generate():
     res = requests.post(
         url=url,
         headers=headers,
-        data=json.dumps(payload),
+        data=json5.dumps(payload),
         verify=False
     )
 
-    return json.loads(res.text)['data']['assist_labels'][0]['barcode']
+    return json5.loads(res.text)['data']['assist_labels'][0]['barcode']
 # endregion
 
 # region [__declare_item_logistics]
@@ -207,7 +207,7 @@ def __declare_item_logistics(product, barcode, lpcode, mailbag=None):
 
     lpcode = obj_logistics_interface['logisticsOrderCode']
 
-    str_logistics_interface = json.dumps(obj_logistics_interface)
+    str_logistics_interface = json5.dumps(obj_logistics_interface)
     payload = {
         "data_digest": __get_data_digest(str_logistics_interface),
         "partner_code": product['customs_gate'],
@@ -239,7 +239,7 @@ def __declare_item_customs(req,product,barcode,lpcode,cbcode,mailbag=None,):
         "laneCode": "L_AE_ECONOMY_NLAIR_RM",
         "distributorResCode": product['source_code']
     }
-    feature = json.dumps(feature)
+    feature = json5.dumps(feature)
 
     obj_content = {
         "actualTotalFee": "11.182258826765352",
@@ -315,7 +315,7 @@ def __declare_item_customs(req,product,barcode,lpcode,cbcode,mailbag=None,):
         "wayBillNo": barcode
     }
 
-    str_content = base64.b64encode(json.dumps(
+    str_content = base64.b64encode(json5.dumps(
         obj_content).encode(encoding='ascii')).decode("UTF-8")
 
     obj_logistics_interface = {
@@ -325,7 +325,7 @@ def __declare_item_customs(req,product,barcode,lpcode,cbcode,mailbag=None,):
         "content": str_content
     }
 
-    str_logistics_interface = json.dumps(obj_logistics_interface)
+    str_logistics_interface = json5.dumps(obj_logistics_interface)
 
     payload = {
         "data_digest": __get_data_digest(str_logistics_interface),
@@ -360,7 +360,7 @@ def declare_manifest(req):
         "gnum": 1,
         "wayBillNo": item,
         "bagId": __assistlabel_generate(),
-        "copNo": cbcode
+        "copNo": cbcode,
     } for item in req['items']]
     
 
@@ -389,7 +389,7 @@ def declare_manifest(req):
     }
 
  
-    str_content = base64.b64encode(json.dumps(
+    str_content = base64.b64encode(json5.dumps(
         obj_content).encode(encoding='ascii')).decode("UTF-8")
 
     obj_logistics_interface = {
@@ -399,7 +399,7 @@ def declare_manifest(req):
         "content": str_content
     }
 
-    str_logistics_interface = json.dumps(obj_logistics_interface)
+    str_logistics_interface = json5.dumps(obj_logistics_interface)
 
     payload = {
         "data_digest": __get_data_digest(str_logistics_interface),

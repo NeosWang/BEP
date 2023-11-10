@@ -160,8 +160,9 @@ def SNT_manifest():
 
 
     req_data_obj = json5.loads(request.data)
+    print(request.data)
     res = SNT.declare_manifest(req_data_obj)
-    return jsonify(res)
+    return jsonify(req_data_obj)
 
 
 
@@ -200,5 +201,5 @@ def showAPI():
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    app.run()
+    app.run(debug=True)
+    # app.run()

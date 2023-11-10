@@ -1,6 +1,5 @@
 import requests
 import json
-import json
 from random import randint
 import hashlib
 import base64
@@ -360,10 +359,10 @@ def declare_manifest(req):
         "gnum": 1,
         "wayBillNo": item,
         "bagId": __assistlabel_generate(),
-        "copNo": cbcode
+        "copNo": cbcode,
     } for item in req['items']]
     
-
+    print(parcelList)
     
     obj_content = {
         "guid": "eb3c71a8-43a4-4fd8-834f-df2046247fa5",
@@ -388,7 +387,7 @@ def declare_manifest(req):
         "parcelList": parcelList
     }
 
- 
+    print(obj_content)
     str_content = base64.b64encode(json.dumps(
         obj_content).encode(encoding='ascii')).decode("UTF-8")
 
@@ -410,7 +409,7 @@ def declare_manifest(req):
         "logistics_interface": str_logistics_interface,
     }
     
-
+    print(payload)
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     
     res = requests.post(
@@ -420,8 +419,7 @@ def declare_manifest(req):
         verify=False,
     )
     return {"mawb": mawb,
-            # "data": res.text}
-            "data": payload}
+            "data": res.text}
 # endregion
 
 # region [declare_item]

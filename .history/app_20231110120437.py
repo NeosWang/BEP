@@ -1,6 +1,6 @@
 import os 
 from flask import Flask, request, render_template,  send_from_directory, jsonify
-import json5
+import json
 from backend import data_preview
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
@@ -73,7 +73,7 @@ def mawb():
 @app.route('/process', methods=['GET', 'POST'])
 def ajax_process():
     if request.method=='POST':
-        param = json5.loads(request.form.get('param'))
+        param = json.loads(request.form.get('param'))
  
     result ={
         'success':200,
@@ -92,7 +92,7 @@ def ttint_api():
 def ajax_preview():
     if request.method == 'POST':  
         
-        param = json5.loads(request.form.get('param'))
+        param = json.loads(request.form.get('param'))
         if param['demo']:
             filename = 'primaryschool.csv' if param['isRelationships'] else 'metadata_primaryschool.txt'
             
@@ -122,7 +122,7 @@ def ajax_preview():
                 }
         
 
-        # param = json5.loads(request.form.get('param'))
+        # param = json.loads(request.form.get('param'))
 
         dct = {
             'filename':filename,
@@ -148,18 +148,15 @@ def ajax_preview():
 
 @app.route('/api/test/SNT/item', methods=['POST'])
 def SNT_item():
-
-    req_data_obj = json5.loads(request.data)
+    req_data_obj = json.loads(request.data)
+    print(req_data_obj)
     res = SNT.declare_item(req_data_obj)
     return jsonify(res)
 
 
-
 @app.route('/api/test/SNT/manifest', methods=['POST'])
 def SNT_manifest():
-
-
-    req_data_obj = json5.loads(request.data)
+    req_data_obj = json.loads(request.data)
     res = SNT.declare_manifest(req_data_obj)
     return jsonify(res)
 
@@ -200,5 +197,5 @@ def showAPI():
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    app.run()
+    app.run(debug=True)
+    # app.run()

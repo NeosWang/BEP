@@ -1,6 +1,6 @@
 import os 
 from flask import Flask, request, render_template,  send_from_directory, jsonify
-import json5
+import json
 from backend import data_preview
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
@@ -148,17 +148,16 @@ def ajax_preview():
 
 @app.route('/api/test/SNT/item', methods=['POST'])
 def SNT_item():
-
-    req_data_obj = json5.loads(request.data)
-    res = SNT.declare_item(req_data_obj)
-    return jsonify(res)
-
+    print("reach here=======================================================")
+    # req_data_obj = json5.loads(request.data)
+    # print(req_data_obj)
+    # res = SNT.declare_item(req_data_obj)
+    # return jsonify(res)
+    return '1'
 
 
 @app.route('/api/test/SNT/manifest', methods=['POST'])
 def SNT_manifest():
-
-
     req_data_obj = json5.loads(request.data)
     res = SNT.declare_manifest(req_data_obj)
     return jsonify(res)
@@ -200,5 +199,5 @@ def showAPI():
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    app.run()
+    app.run(debug=True)
+    # app.run()
