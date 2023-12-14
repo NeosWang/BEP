@@ -7,8 +7,8 @@ from flask_mail import Mail, Message
 
 
 
-from backend.TTINT import SNT, UNIUNI
-
+from backend.TTINT import SNT
+from backend.TTINT.uniuni import UNIUNI_RELABEL
 
 app = Flask(__name__)
 
@@ -76,7 +76,8 @@ def uniuni_relabel():
 def uniuni_relabel_post():
     if request.method=='POST':
         param = json5.loads(request.form.get('param'))
-        res = UNIUNI.relabel(param)
+        res = uniuni_relabel.run(param)
+        
     return jsonify(res)
 
 # endregion
@@ -211,5 +212,5 @@ def showAPI():
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    app.run()
+    app.run(debug=True)
+    # app.run()

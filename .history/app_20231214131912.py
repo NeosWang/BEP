@@ -7,8 +7,9 @@ from flask_mail import Mail, Message
 
 
 
-from backend.TTINT import SNT, UNIUNI
 
+
+from backend.TTINT import SNT
 
 app = Flask(__name__)
 
@@ -64,9 +65,6 @@ def allowed_file(filename):
 def mawb():
     return render_template('mawb.html')
 
-
-# region[UniUni - relabel]
-
 @app.route("/uniuni_relabel")
 def uniuni_relabel():
     return render_template('uniuni_relabel.html')
@@ -76,10 +74,11 @@ def uniuni_relabel():
 def uniuni_relabel_post():
     if request.method=='POST':
         param = json5.loads(request.form.get('param'))
-        res = UNIUNI.relabel(param)
-    return jsonify(res)
+    print(param)
+    return 1
 
-# endregion
+
+
 
 @app.route('/process', methods=['GET', 'POST'])
 def ajax_process():
@@ -211,5 +210,5 @@ def showAPI():
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    app.run()
+    app.run(debug=True)
+    # app.run()
