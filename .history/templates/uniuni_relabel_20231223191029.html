@@ -275,7 +275,10 @@
 </head>
 
 <body>
+
+
     <div class="wrapper">
+
         <div class="container">
             <h4>SPRCA000000000={relabel barcode} , 1 per line</h4>
             <form class="form" onsubmit="return false;">
@@ -288,6 +291,7 @@
                 <button id="button-clear" style="display: none;">Clear</button>
             </form>
         </div>
+
         <ul class="bg-bubbles">
             <li></li>
             <li></li>
@@ -300,6 +304,7 @@
             <li></li>
             <li></li>
         </ul>
+
     </div>
 
     <script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
@@ -334,6 +339,8 @@
                     }else{
                         $("#barcodesarea").val(res['data'])
                     }
+                    
+                    
                 },
                 error: function (xhr, status, error) {
                     var errorMessage = xhr.status + ': ' + xhr.statusText

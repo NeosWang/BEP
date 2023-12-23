@@ -119,9 +119,8 @@ def upload_manifest():
                 }  
             
             if file and allowed_file(file.filename):
-                pass
-                # filename = secure_filename(file.filename)
-                # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             else:
                 return  {
                     "status":"fail",

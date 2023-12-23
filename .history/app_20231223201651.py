@@ -4,7 +4,6 @@ import json5
 from backend import data_preview
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
-import pandas as pd
 
 
 
@@ -27,11 +26,7 @@ mail = Mail(app)
 # app.config.from_object("settings.DevelopmentConfig")
 
 UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = set(['txt',
-                          'csv',
-                          'tsv',
-                          'xlsx'
-                          ])
+ALLOWED_EXTENSIONS = set(['txt','csv','tsv'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
@@ -88,7 +83,7 @@ def uniuni_relabel_post():
     if request.method=='POST':
         param = json5.loads(request.form.get('param'))
         res = UNIUNI.relabel(param)
-    return res
+    return jsonify(res)
 
 # endregion
 
@@ -103,41 +98,57 @@ def upload_excel():
 @app.route('/upload_manifest', methods=['POST'])
 def upload_manifest():
     if request.method == 'POST':  
-        if 1:      
+        
+        param = json5.loads(request.form.get('param'))
+        if param['demo']:
+            filename = 'primaryschool.csv' if param['isRelationships'] else 'metadata_primaryschool.txt'
+            
+        else:           
             if 'file' not in request.files:
                 return {
-                    "status":"fail",
-                    "data": 'no selected file'
+                    'status': 206,
+                    'msg': 'no selected file'
                 }           
             file = request.files['file']
             
+            print(file)
             
             if file.filename == '':
                 return {
-                    "status":"fail",
-                    'data': 'no selected file'
+                    'status': 206,
+                    'msg': 'no selected file'
                 }  
             
             if file and allowed_file(file.filename):
-                pass
-                # filename = secure_filename(file.filename)
-                # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             else:
-                return  {
-                    "status":"fail",
-                    'data': f"only allow {str(ALLOWED_EXTENSIONS)}"
-                }    
-                
-            df = pd.read_excel(file)
-            
+                return {
+                    'status': 415,
+                    'msg': 'only allow txt, csv, tsv'
+                }
         
 
+        # param = json5.loads(request.form.get('param'))
 
+        dct = {
+            'filename':filename,
+            'path': app.config['UPLOAD_FOLDER'],
+            'noneHeader': param['noneHeader'],
+            'sep' :param['sep'],
+
+        }
+
+        is_relationships = param['isRelationships']
+        title = 'relationships' if is_relationships else 'entities'
         
         return  {
-                    "status":"success",
-                    'data': str(df.columns)
-                }       
+            'status':200,
+            'table': data_preview.process(dct, is_relationships, True, param['demo']),
+            'title': title,
+            'param': dct,
+            'msg': 'success'
+        } 
 
 
 # endregion

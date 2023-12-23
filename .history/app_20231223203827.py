@@ -4,7 +4,6 @@ import json5
 from backend import data_preview
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
-import pandas as pd
 
 
 
@@ -27,11 +26,7 @@ mail = Mail(app)
 # app.config.from_object("settings.DevelopmentConfig")
 
 UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = set(['txt',
-                          'csv',
-                          'tsv',
-                          'xlsx'
-                          ])
+ALLOWED_EXTENSIONS = set(['txt','csv','tsv'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
@@ -119,24 +114,20 @@ def upload_manifest():
                 }  
             
             if file and allowed_file(file.filename):
-                pass
-                # filename = secure_filename(file.filename)
-                # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             else:
                 return  {
                     "status":"fail",
-                    'data': f"only allow {str(ALLOWED_EXTENSIONS)}"
-                }    
-                
-            df = pd.read_excel(file)
-            
+                    'data': 'only allow txt, csv, tsv'   
+                }       
         
 
 
         
         return  {
                     "status":"success",
-                    'data': str(df.columns)
+                    'data': filename   
                 }       
 
 

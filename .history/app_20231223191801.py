@@ -4,7 +4,6 @@ import json5
 from backend import data_preview
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
-import pandas as pd
 
 
 
@@ -24,14 +23,10 @@ mail_settings={
 app.config.update(mail_settings)
 mail = Mail(app)
 
-# app.config.from_object("settings.DevelopmentConfig")
+app.config.from_object("settings.DevelopmentConfig")
 
 UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = set(['txt',
-                          'csv',
-                          'tsv',
-                          'xlsx'
-                          ])
+ALLOWED_EXTENSIONS = set(['txt','csv','tsv'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
@@ -55,12 +50,23 @@ def favicon():
 
 
 
-@app.route("/")
-def index():
-    return render_template("home.html")
+# @app.route("/")
+# def index():
+#     return render_template("home.html")
 
 
-
+@app.route("/", methods=["GET", "POST"])
+def upload():
+    if request.method == "POST":
+        file = request.files["file"]
+        # Do something with the file
+        return redirect(url_for("upload"))
+    return """
+        <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+          <input type="file" name="file">
+          <input type="submit" value="Upload">
+        </form>
+    """
 
 @app.route("/bep")
 def bep():
@@ -88,56 +94,12 @@ def uniuni_relabel_post():
     if request.method=='POST':
         param = json5.loads(request.form.get('param'))
         res = UNIUNI.relabel(param)
-    return res
+    return jsonify(res)
 
 # endregion
 
 
 # region[excel]
-
-@app.route("/excel")
-def upload_excel():
-    return render_template('excel.html')
-
-
-@app.route('/upload_manifest', methods=['POST'])
-def upload_manifest():
-    if request.method == 'POST':  
-        if 1:      
-            if 'file' not in request.files:
-                return {
-                    "status":"fail",
-                    "data": 'no selected file'
-                }           
-            file = request.files['file']
-            
-            
-            if file.filename == '':
-                return {
-                    "status":"fail",
-                    'data': 'no selected file'
-                }  
-            
-            if file and allowed_file(file.filename):
-                pass
-                # filename = secure_filename(file.filename)
-                # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            else:
-                return  {
-                    "status":"fail",
-                    'data': f"only allow {str(ALLOWED_EXTENSIONS)}"
-                }    
-                
-            df = pd.read_excel(file)
-            
-        
-
-
-        
-        return  {
-                    "status":"success",
-                    'data': str(df.columns)
-                }       
 
 
 # endregion

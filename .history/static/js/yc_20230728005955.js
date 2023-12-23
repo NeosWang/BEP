@@ -93,6 +93,10 @@
             }
         }
         return file.size <= limitNum
+        // if (file.size > limitNum) {
+        //     return false
+        // }
+        // return true
     }
 
     function transpose(m) {
