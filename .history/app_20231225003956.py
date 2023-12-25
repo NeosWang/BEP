@@ -8,8 +8,7 @@ import pandas as pd
 
 
 
-from backend.TTINT import UNIUNI
-from backend.TTINT.SNT import SNT , process_billing_extra
+from backend.TTINT import SNT, UNIUNI
 
 
 app = Flask(__name__)
@@ -36,7 +35,7 @@ ALLOWED_EXTENSIONS = set(['txt',
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
-def __mail_to(subject, mail_body,receiver, attachment=None):
+def __mail_to(subject, mail_body,receiver):
     message= Message(
         subject=subject,
         sender=app.config.get("MAIL_USERNAME"),
@@ -44,9 +43,6 @@ def __mail_to(subject, mail_body,receiver, attachment=None):
         cc=["yichen.wang@postnl.nl"],
         body= mail_body        
     )
-    if attachment:
-        with app.open_resource(f"{UPLOAD_FOLDER}/{attachment}") as fp:
-            message.attach(f"{UPLOAD_FOLDER}/{attachment}","application/vnd.ms-excel",fp.read())
     return mail.send(message)
 
 def form_content(form):
@@ -79,8 +75,12 @@ def index():
 
 
 
-# region[UniUni - relabel]
 
+
+
+
+
+# region[UniUni - relabel]
 @app.route("/uniuni_relabel")
 def uniuni_relabel():
     return render_template('uniuni_relabel.html')
@@ -92,12 +92,10 @@ def uniuni_relabel_post():
         param = json5.loads(request.form.get('param'))
         res = UNIUNI.relabel(param)
     return res
-
 # endregion
 
 
 # region[excel]
-
 @app.route("/excel")
 def upload_excel():
     return render_template('excel.html')
@@ -131,11 +129,7 @@ def upload_manifest():
                     'data': f"only allow {str(ALLOWED_EXTENSIONS)}"
                 }    
                 
-            df = process_billing_extra.process_billing_extra(file) 
-            attachment ="output.xlsx"
-            df.to_excel(f"{UPLOAD_FOLDER}/{attachment}", index=False)
-            __mail_to("bill","check attachment","yichen.wang@postnl.nl",attachment=attachment)
-            
+            df = pd.read_excel(file)   
         return  {
                     "status":"success",
                     'data': str(df.columns)

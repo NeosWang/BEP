@@ -8,8 +8,7 @@ import pandas as pd
 
 
 
-from backend.TTINT import UNIUNI
-from backend.TTINT.SNT import SNT , process_billing_extra
+from backend.TTINT import SNT, UNIUNI
 
 
 app = Flask(__name__)
@@ -36,19 +35,6 @@ ALLOWED_EXTENSIONS = set(['txt',
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
-def __mail_to(subject, mail_body,receiver, attachment=None):
-    message= Message(
-        subject=subject,
-        sender=app.config.get("MAIL_USERNAME"),
-        recipients=[ receiver ],
-        cc=["yichen.wang@postnl.nl"],
-        body= mail_body        
-    )
-    if attachment:
-        with app.open_resource(f"{UPLOAD_FOLDER}/{attachment}") as fp:
-            message.attach(f"{UPLOAD_FOLDER}/{attachment}","application/vnd.ms-excel",fp.read())
-    return mail.send(message)
-
 def form_content(form):
     kv = [(key, form[key]) for key in form.keys() if form]
     output = ""
@@ -59,15 +45,11 @@ value    ===>    {v}
 """
     return output
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-           
-           
+
 @app.route('/favicon.ico') 
 def favicon(): 
     return send_from_directory(os.path.join(app.root_path, 'static/img'),
-                               'cc.png', 
+                               'jads.png', 
                                mimetype='image/vnd.microsoft.icon')
 
 
@@ -79,8 +61,12 @@ def index():
 
 
 
-# region[UniUni - relabel]
 
+
+
+
+
+# region[UniUni - relabel]
 @app.route("/uniuni_relabel")
 def uniuni_relabel():
     return render_template('uniuni_relabel.html')
@@ -92,12 +78,10 @@ def uniuni_relabel_post():
         param = json5.loads(request.form.get('param'))
         res = UNIUNI.relabel(param)
     return res
-
 # endregion
 
 
 # region[excel]
-
 @app.route("/excel")
 def upload_excel():
     return render_template('excel.html')
@@ -131,11 +115,12 @@ def upload_manifest():
                     'data': f"only allow {str(ALLOWED_EXTENSIONS)}"
                 }    
                 
-            df = process_billing_extra.process_billing_extra(file) 
-            attachment ="output.xlsx"
-            df.to_excel(f"{UPLOAD_FOLDER}/{attachment}", index=False)
-            __mail_to("bill","check attachment","yichen.wang@postnl.nl",attachment=attachment)
+            df = pd.read_excel(file)
             
+        
+
+
+        
         return  {
                     "status":"success",
                     'data': str(df.columns)
@@ -147,10 +132,11 @@ def upload_manifest():
 
 
 
-# region[API]
+
 
 @app.route('/api/test/SNT/item', methods=['POST'])
 def SNT_item():
+
     req_data_obj = json5.loads(request.data)
     res = SNT.declare_item(req_data_obj)
     return jsonify(res)
@@ -159,6 +145,8 @@ def SNT_item():
 
 @app.route('/api/test/SNT/manifest', methods=['POST'])
 def SNT_manifest():
+
+
     req_data_obj = json5.loads(request.data)
     res = SNT.declare_manifest(req_data_obj)
     return jsonify(res)
@@ -171,21 +159,18 @@ def showAPI():
         data = request.data   # json data in bytes
         headers = request.headers
 
-
+        message = Message(
+        subject="Receive API call",
+        sender=app.config.get("MAIL_USERNAME"),
+        recipients=["yichen.wang@postnl.nl"],
         body = f"""-------data-------
 {data}
 --------headers---------
 {headers}
 --------form------------  
-{form_content(request.form)}"""   # if any shit in www-form-urlencoded
-        
-        
-        __mail_to(
-            subject="Receive API call",
-            mail_body= body,
-            receiver= "yichen.wang@postnl.nl"
+{form_content(request.form)}""",    # if any shit in www-form-urlencoded
         )
-
+        mail.send(message)
 
         output = {"success":"true","errorCode":None,"errorMsg":None,"cbCode":None,"wayBillNo":None}
         output = {
@@ -199,8 +184,6 @@ def showAPI():
 
 
 
-
-# endregion
 
 # region [main]
 

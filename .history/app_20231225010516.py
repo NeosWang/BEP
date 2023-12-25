@@ -9,7 +9,7 @@ import pandas as pd
 
 
 from backend.TTINT import UNIUNI
-from backend.TTINT.SNT import SNT , process_billing_extra
+from backend.TTINT.SNT import SNT
 
 
 app = Flask(__name__)
@@ -131,11 +131,7 @@ def upload_manifest():
                     'data': f"only allow {str(ALLOWED_EXTENSIONS)}"
                 }    
                 
-            df = process_billing_extra.process_billing_extra(file) 
-            attachment ="output.xlsx"
-            df.to_excel(f"{UPLOAD_FOLDER}/{attachment}", index=False)
-            __mail_to("bill","check attachment","yichen.wang@postnl.nl",attachment=attachment)
-            
+            df = pd.read_excel(file)   
         return  {
                     "status":"success",
                     'data': str(df.columns)

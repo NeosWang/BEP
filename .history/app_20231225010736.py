@@ -131,11 +131,8 @@ def upload_manifest():
                     'data': f"only allow {str(ALLOWED_EXTENSIONS)}"
                 }    
                 
-            df = process_billing_extra.process_billing_extra(file) 
-            attachment ="output.xlsx"
-            df.to_excel(f"{UPLOAD_FOLDER}/{attachment}", index=False)
-            __mail_to("bill","check attachment","yichen.wang@postnl.nl",attachment=attachment)
-            
+            df = process_billing_extra(file) 
+            df.to_excel("output.xlsx", index=False)
         return  {
                     "status":"success",
                     'data': str(df.columns)
