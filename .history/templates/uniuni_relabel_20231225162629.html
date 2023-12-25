@@ -310,15 +310,16 @@
         var utc_str = new Date(new Date().toUTCString().split('GMT')[0]+' UTC').toISOString().split('.')[0]
 
         document.getElementById("myLocalDate").defaultValue = utc_str.substring(0, utc_str.length - 3);
+            
 
         $('#button-submit').click(function (event) {
+
             var txt = $("#barcodesarea").val()
             var time = $("#myLocalDate").val()
             var dataParam = {
                 "utc":time,
                 "txt":txt
             };
-            
             var formData = new FormData()
             formData.append("param", JSON.stringify(dataParam))
 

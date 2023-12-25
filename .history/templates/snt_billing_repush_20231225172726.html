@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UniUni Relabel</title>
+    <title>Excel</title>
 
     <style>
         @import url(http://fonts.useso.com/css?family=Source+Sans+Pro:200,300);
@@ -163,6 +163,7 @@
             height: 40px;
             background-color: rgba(255, 255, 255, 0.15);
             bottom: -160px;
+            /* bottom: -16px; */
             -webkit-animation: square 25s infinite;
             animation: square 25s infinite;
             -webkit-transition-timing-function: linear;
@@ -278,15 +279,9 @@
     <!-- #region [html] -->
     <div class="wrapper">
         <div class="container">
-            <h4>SPRCA000000000={relabel barcode} , 1 per line</h4>
             <form class="form" onsubmit="return false;">
-                <textarea class="barcodes" id="barcodesarea" style="width: 100%; height: 300px; max-width: 600px; max-height: 500px;" name="barcodes"
-                    wrap="off" spellcheck="false"></textarea>
-                
-                <label for="myLocalDate">relabel datetime in GMT</label>
-                <input type="datetime-local" id="myLocalDate" name="myLocalDate" style="width: 50%;">    
-                <button id="button-submit">Submit</button>
-                <button id="button-clear" style="display: none;">Clear</button>
+                <input type="file" id="file-manifest" name="file-manifest" style="width: 100%;">
+                <button id="button-upload">upload</button>
             </form>
         </div>
         <ul class="bg-bubbles">
@@ -304,47 +299,46 @@
     </div>
     <!-- #endregion -->
 
-    <!-- #region [script] -->
+    <!-- #region[script] -->
     <script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/yc.js')}}"></script>
     <script type="text/javascript">
-        var utc_str = new Date(new Date().toUTCString().split('GMT')[0]+' UTC').toISOString().split('.')[0]
 
-        document.getElementById("myLocalDate").defaultValue = utc_str.substring(0, utc_str.length - 3);
+        $('#button-upload').click(function (event) {
+            var fileSelector = "#file-manifest"
 
-        $('#button-submit').click(function (event) {
-            var txt = $("#barcodesarea").val()
-            var time = $("#myLocalDate").val()
-            var dataParam = {
-                "utc":time,
-                "txt":txt
-            };
-            
-            var formData = new FormData()
-            formData.append("param", JSON.stringify(dataParam))
-
-            $.ajax({
-                type: "Post",
-                url: "/uniuni/relabel_async_post",
-                data: formData,
-                dataType: "json",
-                cache: false,//上传文件无需缓存
-                processData: false,//用于对data参数进行序列化处理 这里必须false
-                contentType: false, //必须
-                success: function (res) {
-                    if (res['status']=='fail'){
-                        alert(res['data'])
-                    }else{
-                        $("#barcodesarea").val(res['data'])
-                    }
-                },
-                error: function (xhr, status, error) {
-                    var errorMessage = xhr.status + ': ' + xhr.statusText
-                    alert(`Error - ${errorMessage}`);
+            if($(fileSelector)[0].files.length > 0){
+                fileObj = $(fileSelector)[0].files[0]
+                let limit = '1MB'
+                if (!yc.limitFileSize(fileObj, limit)) {
+                    alert(`file cannot exceed ${limit}`)
                 }
-            });
-        });
+                var formData = new FormData();
+                formData.append("file", fileObj);
+                $.ajax({
+                    type: "Post",
+                    url: "/snt/upload_billing_extra",
+                    data: formData,
+                    dataType: "json",
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success: function (res) {
+                        alert(`${res['status']} - ${res['data']}`)
+                    },
+                    error: function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.statusText
+                        alert(`Error - ${errorMessage}`);
+                    },
+                    complete: function (data) {
+                        $(fileSelector).val(''); // this will reset the form fields
+                    }
+                });
+            }
+        })
+        
     </script>
-    <!-- #endregion -->
+    <!-- #end region -->
 </body>
 
 </html>

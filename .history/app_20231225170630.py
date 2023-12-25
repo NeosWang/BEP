@@ -68,12 +68,12 @@ def index():
 # region[ /uniuni/relabel ]
 
 @app.route("/uniuni/relabel")
-def route_uniuni_relabel():
+def uniuni_relabel():
     return uniuni_relabel.home()
 
 
 @app.route("/uniuni/relabel_async_post", methods=['POST'])
-def route_uniuni_relabel_async_post():
+def uniuni_relabel_async_post():
     return uniuni_relabel.relabel()
 
 # endregion
@@ -82,14 +82,47 @@ def route_uniuni_relabel_async_post():
 # region[ /snt/billing_repush ]
 
 @app.route("/snt/billing_repush")
-def route_snt_billing_repush():
+def snt_billing_repush():
     return snt_billing_repush.home()
 
 
-@app.route('/snt/upload_billing_extra', methods=['POST'])
-def route_snt_upload_billing_extra():
-    return snt_billing_repush.repush_billing()
-    
+@app.route('/upload_manifest', methods=['POST'])
+def upload_manifest():
+    if request.method == 'POST':
+        if 1:
+            if 'file' not in request.files:
+                return {
+                    "status": "fail",
+                    "data": 'no selected file'
+                }
+            file = request.files['file']
+
+            if file.filename == '':
+                return {
+                    "status": "fail",
+                    'data': 'no selected file'
+                }
+
+            if file and allowed_file(file.filename):
+                pass
+                # filename = secure_filename(file.filename)
+                # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            else:
+                return {
+                    "status": "fail",
+                    'data': f"only allow {str(_config.ALLOWED_EXTENSIONS)}"
+                }
+
+            df = process_billing_extra.process_billing_extra(file)
+            attachment = "output.xlsx"
+            df.to_excel(f"{_config.UPLOAD_FOLDER}/{attachment}", index=False)
+            __mail_to("bill", "check attachment",
+                      "yichen.wang@postnl.nl", attachment=attachment)
+
+        return {
+            "status": "success",
+            'data': str(df.columns)
+        }
 
 
 # endregion
@@ -124,11 +157,11 @@ def showAPI():
 --------form------------  
 {form_content(request.form)}"""   # if any shit in www-form-urlencoded
 
-        # __mail_to(
-        #     subject="Receive API call",
-        #     mail_body=body,
-        #     receiver="yichen.wang@postnl.nl"
-        # )
+        __mail_to(
+            subject="Receive API call",
+            mail_body=body,
+            receiver="yichen.wang@postnl.nl"
+        )
 
         output = {"success": "true", "errorCode": None,
                   "errorMsg": None, "cbCode": None, "wayBillNo": None}

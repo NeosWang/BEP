@@ -124,11 +124,11 @@ def showAPI():
 --------form------------  
 {form_content(request.form)}"""   # if any shit in www-form-urlencoded
 
-        # __mail_to(
-        #     subject="Receive API call",
-        #     mail_body=body,
-        #     receiver="yichen.wang@postnl.nl"
-        # )
+        __mail_to(
+            subject="Receive API call",
+            mail_body=body,
+            receiver="yichen.wang@postnl.nl"
+        )
 
         output = {"success": "true", "errorCode": None,
                   "errorMsg": None, "cbCode": None, "wayBillNo": None}
