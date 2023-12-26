@@ -1,19 +1,17 @@
 from flask import render_template, request
 from datetime import datetime
 import pandas as pd
-from backend._cainiao import CAINIAO
-from backend._concurrent import concurrent_df_tasks
-from backend._file import File
-import backend._config as _config
-
+import json5
+import json
+import requests
+import re
 
 def home():
     return render_template('snt_billing_repush.html')
 
-
 def repush_billing():
     if request.method == 'POST':
-
+        
         # if 'file' not in request.files:
         #     return {
         #         "status": "fail",
@@ -48,6 +46,10 @@ def repush_billing():
             "status": "success",
             'data': str(df.columns)
         }
+    
+
+
+
 
 
 # region[ process_billing_extra ]
@@ -104,90 +106,5 @@ def __extract_status(col_199, col_3034, col_3032):
         return "3034"
     if not pd.isna(col_3032):
         return "3032"
-
-# endregion
-
-
-# region[ repush_df_billing ]
-
-def repush_df_billing(df, report_name):
-    __repush_df_billing_all(df, report_name)
-    __repush_df_billing_false(report_name)
-
-
-def __repush_df_billing_all(df, report_name):
-    report_path = f"{_config.UPLOAD_FOLDER}\{report_name}"
-
-    df_list = __split_df(df, 50)
-    for d in df_list:
-        concurrent_df_tasks(
-            df=d,
-            row_fuc=__push_row,
-            row_kwargs={"is_customs": 0},
-            res_fuc=File.csv_add_records,
-            res_kwargs={"file": report_path}
-        )
-    return
-
-
-def __repush_df_billing_false(report_name):
-    report_path = f"{_config.UPLOAD_FOLDER}\{report_name}"
-
-    df = pd.read_csv(report_path, dtype=str)
-    df_false = df[df['success'] == 'False']
-    false_before = len(df_false)
-    if not false_before:
-        return
-    df[df['success'] != 'False'].to_csv(report_path, index=False)
-    for idx, row in df_false.iterrows():
-        e = __push_row(row=row, is_customs=False)
-        File.csv_add_records(e, report_path)
-
-    df = pd.read_csv(report_path, dtype=str)
-    df_false = df[df['success'] == 'False']
-    false_after = len(df_false)
-    if false_before == false_after:
-        return
-    __repush_df_billing_false(report_name)
-
-
-def __split_df(df, n) -> list:
-    output = []
-    max = len(df)
-    start = 0
-    while 1:
-        if start + n > max:
-            output.append(df.iloc[start:max])
-            break
-        else:
-            output.append(df.iloc[start:start+n])
-        start += n
-    return output
-
-
-def __push_row(row, is_customs):
-    e = {
-        'barcode': row['barcode'],
-        'lpcode': row['lpcode'],
-        'cbcode': row['cbcode'],
-        'product': row['product'],
-        'status': row['status'],
-        'time': row['time'],
-        'msg_type': None,
-        'success': None,
-        'res': None,
-    }
-
-    cainiao = CAINIAO(
-        env='prod',
-        product_code=row['product']
-    )
-    if e['time']:
-        e['msg_type'], e['success'], e['res'] = cainiao.tracking_event_callback(
-            barcode=e['barcode'],
-            lpcode=e['lpcode'],
-            event=e['status'],
-            opTime=row['time'])
-    return e
 
 # endregion

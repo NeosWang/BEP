@@ -6,14 +6,12 @@ from backend._concurrent import concurrent_df_tasks
 from backend._file import File
 import backend._config as _config
 
-
 def home():
     return render_template('snt_billing_repush.html')
 
-
 def repush_billing():
     if request.method == 'POST':
-
+        
         # if 'file' not in request.files:
         #     return {
         #         "status": "fail",
@@ -48,6 +46,10 @@ def repush_billing():
             "status": "success",
             'data': str(df.columns)
         }
+    
+
+
+
 
 
 # region[ process_billing_extra ]
@@ -108,11 +110,15 @@ def __extract_status(col_199, col_3034, col_3032):
 # endregion
 
 
-# region[ repush_df_billing ]
 
+
+
+# region[ repush_df_billing ]
+    
 def repush_df_billing(df, report_name):
     __repush_df_billing_all(df, report_name)
     __repush_df_billing_false(report_name)
+
 
 
 def __repush_df_billing_all(df, report_name):
@@ -133,18 +139,18 @@ def __repush_df_billing_all(df, report_name):
 def __repush_df_billing_false(report_name):
     report_path = f"{_config.UPLOAD_FOLDER}\{report_name}"
 
-    df = pd.read_csv(report_path, dtype=str)
-    df_false = df[df['success'] == 'False']
+    df = pd.read_csv(report_path,dtype=str)
+    df_false = df[df['success']=='False']
     false_before = len(df_false)
     if not false_before:
         return
-    df[df['success'] != 'False'].to_csv(report_path, index=False)
+    df[df['success']!='False'].to_csv(report_path, index=False)
     for idx, row in df_false.iterrows():
-        e = __push_row(row=row, is_customs=False)
+        e = __push_row(row = row, is_customs=False)
         File.csv_add_records(e, report_path)
 
-    df = pd.read_csv(report_path, dtype=str)
-    df_false = df[df['success'] == 'False']
+    df = pd.read_csv(report_path,dtype=str)
+    df_false = df[df['success']=='False']
     false_after = len(df_false)
     if false_before == false_after:
         return
