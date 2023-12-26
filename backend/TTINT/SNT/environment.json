@@ -1,0 +1,12 @@
+{
+    "prod":{
+        "domain":"https://clients.postnl.post/v7/api/",
+        "callback":"https://de-link.cainiao.com/gateway/link.do",
+        "api_key":"7XCcBhwSgbNDgsjPzgW0Md13eZ1wvXEmAAATU8fYpNwx2L5qEeTR4FH69BNIgjI3LtfsXBdBRtOZzvrpr9BURUYYbNV1m3pLRygdt5bat9WqPQMlwrqbepRiBYdjnVbXJyjIXUmaHja8OfTkw012W8f0SMSDYi3VmWjePlw1ufs4LPS9nDpE6jWNErW7wKCCwbi79gT8E6bDgCWXvowFvRPlnCc9zzNNfJgOnA2PkAUXeWETK658tM90rP2pxcAK1pTVRA7s4d2j2hCRhqpHPjmfIe52y5oiyzcMX9fablmj"
+    },
+    "test":{
+        "domain":"https://clients-test.postnl.a02.cldsvc.net/v7/api/",
+        "callback":"https://prelink.cainiao.com/gateway/link.do",
+        "api_key":"2qQu3xg6e8w13J4uWyJDHp0TmRV2SPZnK7R3IAgfzb3RLIYt5qHjosDN9o6V2fkrBg77czDsTc8DgOHVC7swplLatjX2lLXWRPvCvRB5eDfOc2COUuO6uGgtSM5hzzZ6rUMV1Q19iYUu3PuIHq637gGn4GU0KJVGG99phX0aHcKwNKGQm47V0YNopmm8bWiwrsnFyKzZ3wwl1HiPJjc1xxJxGHyDTk4RlYVZCg0TnF6k4Yj8699D1qxJ8VeG45ImcwLvNeDJNaWuVRbPf8hrfSUkwII8E8ID8pbk5DF7ff5Z"
+    }
+}

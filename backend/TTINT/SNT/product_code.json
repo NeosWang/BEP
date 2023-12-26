@@ -1,0 +1,110 @@
+{
+    "IMG": {
+        "productCode": "IMG",
+        "resCode": "DISTRIBUTOR_30874247",
+        "laneCode": "L_STANDARD_NLEU_DB_RM",
+        "mailBoxItem": null,
+        "customsGate": "GATE_30467721",
+        "domestic": false,
+        "barPrefix": "CK"
+    },
+    "MGP": {
+        "productCode": "MGP",
+        "resCode": "DISTRIBUTOR_30874547",
+        "laneCode": "L_STANDARD_NLEU_DB_NC",
+        "mailBoxItem": null,
+        "customsGate": "GATE_30503886",
+        "domestic": false,
+        "barPrefix": "CH"
+    },
+    "GRX": {
+        "productCode": "GRX",
+        "resCode": "DISTRIBUTOR_30874813",
+        "laneCode": "L_AE_STANDARD_NLGLOBAL_RM",
+        "mailBoxItem": null,
+        "customsGate": "GATE_30503886",
+        "domestic": false,
+        "barPrefix": "LS"
+    },
+    "PXP": {
+        "productCode": "PXP",
+        "resCode": "DISTRIBUTOR_30874413",
+        "laneCode": "L_AE_STANDARD_NL_SG_NC",
+        "mailBoxItem": null,
+        "customsGate": "GATE_30503886",
+        "domestic": true,
+        "barPrefix": "LS"
+    },
+    "MRX": {
+        "productCode": "MRX",
+        "resCode": "DISTRIBUTOR_30874367",
+        "laneCode": "L_AE_STANDARD_NLEU_NC",
+        "mailBoxItem": null,
+        "customsGate": "GATE_30503886",
+        "domestic": false,
+        "barPrefix": "LS"
+    },
+    "IRX": {
+        "productCode": "IRX",
+        "resCode": "DISTRIBUTOR_30874723",
+        "laneCode": "L_AE_STANDARD_NLEU_BAT",
+        "mailBoxItem": null,
+        "customsGate": "GATE_30467721",
+        "domestic": false,
+        "barPrefix": "LS"
+    },
+    "IGT": {
+        "productCode": "IGT",
+        "resCode": "DISTRIBUTOR_30874723",
+        "laneCode": "L_AE_STANDARD_NLEU_BAT",
+        "mailBoxItem": null,
+        "customsGate": "GATE_30467721",
+        "domestic": false,
+        "barPrefix": "LS"
+    },
+    "XBZ": {
+        "productCode": "XBZ",
+        "resCode": "DISTRIBUTOR_31037258",
+        "laneCode": "L_AE_STANDARD_CC_NL_SG",
+        "mailBoxItem": "Y",
+        "customsGate": "GATE_30873172",
+        "domestic": true,
+        "barPrefix": "LS"
+    },
+    "XPZ": {
+        "productCode": "XPZ",
+        "resCode": "DISTRIBUTOR_31037258",
+        "laneCode": "L_AE_STANDARD_CC_NL_SG",
+        "mailBoxItem": "N",
+        "customsGate": "GATE_30873172",
+        "domestic": true,
+        "barPrefix": "LS"
+    },
+    "UBZ": {
+        "productCode": "XBZ",
+        "resCode": "DISTRIBUTOR_30875031",
+        "laneCode": "L_AE_ECONOMY_NLAIR_BAT",
+        "mailBoxItem": "Y",
+        "customsGate": "GATE_30467721",
+        "domestic": true,
+        "barPrefix": "UT"
+    },
+    "UPZ": {
+        "productCode": "XBZ",
+        "resCode": "DISTRIBUTOR_30875031",
+        "laneCode": "L_AE_ECONOMY_NLAIR_BAT",
+        "mailBoxItem": "N",
+        "customsGate": "GATE_30467721",
+        "domestic": true,
+        "barPrefix": "UT"
+    },
+    "UNISZ": {
+        "productCode": "UNISZ",
+        "resCode": "DISTRIBUTOR_31166021",
+        "laneCode": "L_AE_STANDARD_G3CAYVR",
+        "mailBoxItem": "N",
+        "customsGate": "GATE_30467721",
+        "domestic": true,
+        "barPrefix": "SPICA"
+    }
+}

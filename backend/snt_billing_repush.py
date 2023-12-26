@@ -35,7 +35,7 @@ def repush_billing():
         #         'data': f"only allow {str(_config.ALLOWED_EXTENSIONS)}"
         #     }
 
-        df = __process_billing_extra(file)
+        df = process_billing_extra(file)
 
         # attachment = "output.xlsx"
         # df.to_excel(f"{_config.UPLOAD_FOLDER}/{attachment}", index=False)
@@ -81,7 +81,7 @@ def __extract_status(col_199, col_3034, col_3032):
     if not pd.isna(col_3032):
         return "3032"
 
-def __process_billing_extra(path_in, is_customs=False):
+def process_billing_extra(path_in, is_customs=False):
     cols_map={
         "Customer Item Id":"lpcode",
         "Barcode":"barcode",
