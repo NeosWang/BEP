@@ -2,7 +2,7 @@ from flask import render_template, request
 from datetime import datetime
 import pandas as pd
 from backend._cainiao import CAINIAO
-# from backend._concurrent import concurrent_df_tasks
+from backend._concurrent import concurrent_df_tasks
 # from backend._file import File
 import backend._config as _config
 
