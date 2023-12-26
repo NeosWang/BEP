@@ -22,19 +22,19 @@ mail = Mail(app)
 # app.config.from_object("settings.DevelopmentConfig")
 
 
-def send_mail(subject, receiver, body, attached=None):
-    with app.app_context():
-        message = Message(
-            subject=subject,
-            sender=app.config.get("MAIL_USERNAME"),
-            recipients=[receiver],
-            cc=["yichen.wang@postnl.nl"],
-            body=body
-        )
-        if attached:
-            with app.open_resource(f"{_config.UPLOAD_FOLDER}\{attached}") as fp:
-                message.attach(attached, "text/csv", fp.read())
-        return mail.send(message)
+def __mail_to(subject, mail_body, receiver, attachment=None):
+    message = Message(
+        subject=subject,
+        sender=app.config.get("MAIL_USERNAME"),
+        recipients=[receiver],
+        cc=["yichen.wang@postnl.nl"],
+        body=mail_body
+    )
+    if attachment:
+        with app.open_resource(f"{_config.UPLOAD_FOLDER}/{attachment}") as fp:
+            message.attach(f"{_config.UPLOAD_FOLDER}/{attachment}",
+                           "application/vnd.ms-excel", fp.read())
+    return mail.send(message)
 
 
 def form_content(form):
