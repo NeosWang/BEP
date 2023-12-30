@@ -306,7 +306,6 @@
                 <input type="text" id="text-receiver-email" name="text-receiver-email" style="width: 100%;">
                 <br><br>
                 <button id="button-submit">Submit</button>
-                <button id="button-loading" style="display: none;"><div class="donut"></div></button>
             </form>
         </div>
         <ul class="bg-bubbles">
@@ -359,10 +358,6 @@
                 var formData = new FormData();
                 formData.append("file", fileObj);
                 formData.append("param", JSON.stringify(dataParam))
-
-                $("#button-submit").hide()
-                $("#button-loading").show()
-                
                 $.ajax({
                     type: "Post",
                     url: "/snt/upload_billing_extra",
@@ -380,8 +375,6 @@
                     },
                     complete: function (data) {
                         $(fileSelector).val(''); // this will reset the form fields
-                        $("#button-loading").hide()
-                        $("#button-submit").show()
                     }
                 });
             }else{

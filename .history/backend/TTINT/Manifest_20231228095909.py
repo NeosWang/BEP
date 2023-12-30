@@ -1,7 +1,7 @@
 import pandas as pd
 import json
 
-f = "Manifest TSLCOMBID301223  B.xlsx"
+f = "Manifest TSLCOMBID281223  B.xlsx"
 
 product_code = "IFRXL"
 

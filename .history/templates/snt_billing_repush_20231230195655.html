@@ -132,7 +132,7 @@
             outline: 0;
             background-color: white;
             border: 0;
-            padding: 10px 10px;
+            padding: 10px 15px;
             color: #53e3a6;
             border-radius: 3px;
             width: 250px;
@@ -143,29 +143,8 @@
         }
 
         form button:hover {
-            background-color: rgba(255, 255, 255, 0.4);
-            color: white;
+            background-color: #f5f7f9;
         }
-        
-        @keyframes donut-spin{
-            0%{
-                transform: rotate(0deg);
-            }
-            100%{
-                transform:rotate(360deg);
-            }
-        }
-
-        .donut{
-            display:inline-block;
-            border:3px solid rgba(0,0,0,0.1);
-            border-left-color: #59a782;
-            border-radius:50%;
-            width:16px;
-            height:16px;
-            animation:donut-spin 1.2s linear infinite;
-        }
-
 
         .bg-bubbles {
             position: absolute;
@@ -184,6 +163,7 @@
             height: 40px;
             background-color: rgba(255, 255, 255, 0.15);
             bottom: -160px;
+            /* bottom: -16px; */
             -webkit-animation: square 25s infinite;
             animation: square 25s infinite;
             -webkit-transition-timing-function: linear;
@@ -306,7 +286,6 @@
                 <input type="text" id="text-receiver-email" name="text-receiver-email" style="width: 100%;">
                 <br><br>
                 <button id="button-submit">Submit</button>
-                <button id="button-loading" style="display: none;"><div class="donut"></div></button>
             </form>
         </div>
         <ul class="bg-bubbles">
@@ -359,10 +338,6 @@
                 var formData = new FormData();
                 formData.append("file", fileObj);
                 formData.append("param", JSON.stringify(dataParam))
-
-                $("#button-submit").hide()
-                $("#button-loading").show()
-                
                 $.ajax({
                     type: "Post",
                     url: "/snt/upload_billing_extra",
@@ -380,8 +355,6 @@
                     },
                     complete: function (data) {
                         $(fileSelector).val(''); // this will reset the form fields
-                        $("#button-loading").hide()
-                        $("#button-submit").show()
                     }
                 });
             }else{
