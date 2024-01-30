@@ -90,7 +90,11 @@ def __relabel(param):
     
     hhmmss += ":00"
     injection = param["injection"]
-
+    timezone = {
+        "YVR":"-08:00",
+        "YYZ":"-05:00"
+    }
+    offset = timezone[injection]
     if any(len(i) != 2 for i in list) or not list:
         return {"status": "fail", "data": "input contains incorrect format"}
 
@@ -99,7 +103,7 @@ def __relabel(param):
                                alternative,
                                yyyymmdd=yyyymmdd,
                                hhmmss=hhmmss,
-                               injection=injection)
+                               offset=offset)
         output.append(f"{barcode}={alternative} : {res}")
 
     return {"status": "success", "data": "\n".join(output)}
