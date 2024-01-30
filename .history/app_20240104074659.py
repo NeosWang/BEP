@@ -9,7 +9,6 @@ from datetime import datetime
 from backend.TTINT.SNT import SNT
 import backend.uniuni_relabel as uniuni_relabel
 import backend.snt_billing_repush as snt_billing_repush
-import backend.snt_latest_status as snt_latest_status
 import backend._config as _config
 from threading import Thread
 
@@ -78,7 +77,6 @@ def route_uniuni_relabel():
 def route_uniuni_relabel_async_post():
     return uniuni_relabel.relabel()
 
-
 # endregion
 
 
@@ -87,7 +85,7 @@ def route_uniuni_relabel_async_post():
 @app.route("/snt/billing_repush")
 def route_snt_billing_repush():
     return snt_billing_repush.home()
-8
+
 
 @app.route('/snt/upload_billing_extra', methods=['POST'])
 def route_snt_upload_billing_extra():
@@ -130,7 +128,7 @@ def route_snt_upload_billing_extra():
 
 @app.route("/snt/latest_status")
 def route_snt_latest_status():
-    return snt_latest_status.home()
+    return 
 
 # endregion
 

@@ -16,7 +16,7 @@ def relabel():
         return __relabel(param)
 
 
-def __connect_uni_ca(barcode, alternative, yyyymmdd, hhmmss, offset):
+def __connect_uni_ca(barcode, alternative, yyyymmdd, hhmmss):
     myUrl = "https://partners.postnl.post/api/v1/carrier/uniuni/events"
     api_key = "7FHjG3jwd7Tadyy8TFnQg9mFGJYHVhbWhZuCpRXnQp47gNwzUiafcxywC41rFKcT2QriKzmHGYd4PJZpuiZUpEidAOaIHnigsRaq7Cg0vMYygQdgqxwffvAABIR0vjYRSEiHHf2lZNznu1lkNP6dlmR0leyb7ib6TsMmifacQBOQet2JLgRLzs0QqdHtdHvUZErzEJGNwjUsVPrE7w2cnyG3imXTmVNelNb27H3EngLKOzv22eIk11Qkv60ZkwUOZiJk6BAZDXIJvJ25drtodLcN0aMlOy6mc4nmoP2bkaxc"
     order_sn = datetime.now().strftime("%Y%m%d%H%M%S%f")
@@ -54,7 +54,7 @@ def __connect_uni_ca(barcode, alternative, yyyymmdd, hhmmss, offset):
             "pathTimeGMT": f"{yyyymmdd} {hhmmss}",
             "pathTimeZone": "America/Toronto",
             "pod_images": None,
-            "DateAndTime": f"{yyyymmdd}T{hhmmss}{offset}",
+            "DateAndTime": f"{yyyymmdd}T{hhmmss}+00:00",
         }
     ]
 
@@ -77,14 +77,8 @@ def __relabel(param):
     output = []
     list = __get_list(param["txt"])
     yyyymmdd, hhmmss = param["utc"].split("T")
-    
-    hhmmss += ":00"
     injection = param["injection"]
-    timezone = {
-        "YVR":"-08:00",
-        "YYZ":"-05:00"
-    }
-    offset = timezone[injection]
+    hhmmss += ":00"
     if any(len(i) != 2 for i in list) or not list:
         return {"status": "fail", "data": "input contains incorrect format"}
 
@@ -92,8 +86,7 @@ def __relabel(param):
         res = __connect_uni_ca(barcode,
                                alternative,
                                yyyymmdd=yyyymmdd,
-                               hhmmss=hhmmss,
-                               offset=offset)
+                               hhmmss=hhmmss)
         output.append(f"{barcode}={alternative} : {res}")
 
     return {"status": "success", "data": "\n".join(output)}
