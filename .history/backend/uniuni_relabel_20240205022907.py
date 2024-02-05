@@ -68,6 +68,7 @@ def __connect_uni_ca(barcode, alternative, yyyymmdd, hhmmss, injection):
             "pathTimeGMT": str_time_gmt,
             "pathTimeLocalized": f"{str_time_local} {offset}",
             "pathTimeZone": timezone,
+            
             "pod_images": None,
             # "DateAndTime": f"{yyyymmdd}T{hhmmss}{offset}",
         }

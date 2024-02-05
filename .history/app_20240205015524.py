@@ -78,6 +78,7 @@ def route_uniuni_relabel():
 def route_uniuni_relabel_async_post():
     return uniuni_relabel.relabel()
 
+
 # endregion
 
 
@@ -189,7 +190,7 @@ def showAPI():
 # region [main]
     
 if __name__ == '__main__':
-    # app.run(debug=True)
-    app.run()
+    app.run(debug=True)
+    # app.run()
 
 # endregion
