@@ -61,7 +61,7 @@ def __connect_uni_ca(barcode, alternative, yyyymmdd, hhmmss, injection):
             "province": "",
             "country": "CA",
             "postal_code": "",
-            "pathTimeGMT": f"{time_gmt.strftime('%Y%m%d %H%M%S')}",
+            "pathTimeGMT": f"{time_gmt.strftime('%Y%m%d% H%M%S')}",
             "pathTimeZone": timezone,
             "pathTimeLocalized": f"{yyyymmdd} {hhmmss} {offset}",
             "pod_images": None,
