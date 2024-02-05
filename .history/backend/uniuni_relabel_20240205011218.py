@@ -25,7 +25,7 @@ def __connect_uni_ca(barcode, alternative, yyyymmdd, hhmmss, injection):
         "YYZ":("America/Toronto","-05:00",-5)
     }
     timezone, offset, dt = tz_map[injection]
-    time_gmt = time_local-timedelta(hours=dt)
+    time_gmt = time_local+timedelta(hours=dt)
 
     myUrl = "https://partners.postnl.post/api/v1/carrier/uniuni/events"
     api_key = "7FHjG3jwd7Tadyy8TFnQg9mFGJYHVhbWhZuCpRXnQp47gNwzUiafcxywC41rFKcT2QriKzmHGYd4PJZpuiZUpEidAOaIHnigsRaq7Cg0vMYygQdgqxwffvAABIR0vjYRSEiHHf2lZNznu1lkNP6dlmR0leyb7ib6TsMmifacQBOQet2JLgRLzs0QqdHtdHvUZErzEJGNwjUsVPrE7w2cnyG3imXTmVNelNb27H3EngLKOzv22eIk11Qkv60ZkwUOZiJk6BAZDXIJvJ25drtodLcN0aMlOy6mc4nmoP2bkaxc"
@@ -61,7 +61,7 @@ def __connect_uni_ca(barcode, alternative, yyyymmdd, hhmmss, injection):
             "province": "",
             "country": "CA",
             "postal_code": "",
-            "pathTimeGMT": f"{time_gmt.strftime('%Y%m%d% H%M%S')}",
+            # "pathTimeGMT": f"{yyyymmdd} {hhmmss}",
             "pathTimeZone": timezone,
             "pathTimeLocalized": f"{yyyymmdd} {hhmmss} {offset}",
             "pod_images": None,
