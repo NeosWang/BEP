@@ -238,7 +238,7 @@ class CAINIAO():
             "trackingNumber": barcode,
             "waybillNumber": barcode,
             "opTime": opTime,
-            "timeZone": "0",
+            "timeZone": "-8" if self.product=="UNISZ" else "0",
             "transportType": "2" if event == "9014" else "4",
             "toPortCode": "HKG" if event == "9014" else None,
             "fromPortCode": "AMS" if event == "9014" else None,
@@ -270,5 +270,5 @@ class CAINIAO():
             res = call.res
             json_obj = json.loads(res.text)
 
-            return msg_type, str(json_obj['success'] == 'True'), res.text
+            return msg_type, str(json_obj['success'] == 'true'), res.text
         return msg_type, 'non-mapped', None
