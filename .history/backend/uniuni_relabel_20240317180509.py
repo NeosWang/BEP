@@ -86,7 +86,7 @@ def __connect_uni_ca(barcode, alternative, yyyymmdd, hhmmss, injection):
             "product":"UNISZ",
             "delivered":0
         }
-    )
+        )
 
     return f"{res.status_code} {res.text}"
 
